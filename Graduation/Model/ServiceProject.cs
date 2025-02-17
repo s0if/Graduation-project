@@ -2,7 +2,7 @@
 
 namespace Graduation.Model
 {
-    public class Service
+    public class ServiceProject
     {
         public int Id { get; set; }
         public int Description { get; set; }
@@ -20,7 +20,7 @@ namespace Graduation.Model
 
         [ForeignKey(nameof(Type))]
         public int TypeId { get; set; }
-        public Type Type { get; set; }
+        public TypeProject Type { get; set; }
 
 
         public IEnumerable<ImageDetails> ImageDetails { get; set; } = new HashSet<ImageDetails>();

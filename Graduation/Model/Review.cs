@@ -6,7 +6,9 @@ namespace Graduation.Model
     {
        public int Id { get; set; }
         public string Description { get; set; }
-
+        public double Rating { get; set; }
+        public DateTime CreateAt { get; set; }= DateTime.Now;
+        public DateTime UpdateAt { get; set; }
 
         [ForeignKey(nameof(User))]
         public int UsersID { get; set; }
@@ -14,10 +16,10 @@ namespace Graduation.Model
 
         [ForeignKey(nameof(Properties))]
         public int? PropertyId { get; set; }
-        public Property? Properties { get; set; }
+        public PropertyProject? Properties { get; set; }
 
         [ForeignKey(nameof(Services))]
         public int? ServiceId { get; set; }
-        public Service? Services { get; set; }
+        public ServiceProject? Services { get; set; }
     }
 }

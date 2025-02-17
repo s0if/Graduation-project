@@ -9,10 +9,10 @@ namespace Graduation.Model
 
         [ForeignKey(nameof(Properties))]
         public int PropertyId { get; set; }
-        public Property Properties { get; set; }
+        public PropertyProject Properties { get; set; }
 
         [ForeignKey(nameof(Services))]
         public int ServiceId { get; set; }
-        public Service Services { get; set; }
+        public ServiceProject Services { get; set; }
     }
 }

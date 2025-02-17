@@ -4,6 +4,7 @@ using Graduation.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Graduation.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250217190140_updateReview")]
+    partial class updateReview
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,7 +41,7 @@ namespace Graduation.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("advertisements");
+                    b.ToTable("Advertisement");
                 });
 
             modelBuilder.Entity("Graduation.Model.ApplicationUser", b =>
@@ -120,9 +123,6 @@ namespace Graduation.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -142,7 +142,7 @@ namespace Graduation.Data.Migrations
 
                     b.HasIndex("UsersID");
 
-                    b.ToTable("complaints");
+                    b.ToTable("Complaint");
                 });
 
             modelBuilder.Entity("Graduation.Model.ImageDetails", b =>
@@ -169,10 +169,10 @@ namespace Graduation.Data.Migrations
 
                     b.HasIndex("ServiceId");
 
-                    b.ToTable("images");
+                    b.ToTable("ImageDetails");
                 });
 
-            modelBuilder.Entity("Graduation.Model.PropertyProject", b =>
+            modelBuilder.Entity("Graduation.Model.Property", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -207,7 +207,7 @@ namespace Graduation.Data.Migrations
 
                     b.HasIndex("UsersID");
 
-                    b.ToTable("properties");
+                    b.ToTable("Property");
                 });
 
             modelBuilder.Entity("Graduation.Model.Review", b =>
@@ -248,10 +248,10 @@ namespace Graduation.Data.Migrations
 
                     b.HasIndex("UsersID");
 
-                    b.ToTable("reviews");
+                    b.ToTable("Review");
                 });
 
-            modelBuilder.Entity("Graduation.Model.ServiceProject", b =>
+            modelBuilder.Entity("Graduation.Model.Service", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -282,10 +282,10 @@ namespace Graduation.Data.Migrations
 
                     b.HasIndex("UsersID");
 
-                    b.ToTable("services");
+                    b.ToTable("Service");
                 });
 
-            modelBuilder.Entity("Graduation.Model.TypeProject", b =>
+            modelBuilder.Entity("Graduation.Model.Type", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -299,7 +299,7 @@ namespace Graduation.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("types");
+                    b.ToTable("Type");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
@@ -448,13 +448,13 @@ namespace Graduation.Data.Migrations
 
             modelBuilder.Entity("Graduation.Model.ImageDetails", b =>
                 {
-                    b.HasOne("Graduation.Model.PropertyProject", "Properties")
+                    b.HasOne("Graduation.Model.Property", "Properties")
                         .WithMany("ImageDetails")
                         .HasForeignKey("PropertyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Graduation.Model.ServiceProject", "Services")
+                    b.HasOne("Graduation.Model.Service", "Services")
                         .WithMany("ImageDetails")
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -465,13 +465,13 @@ namespace Graduation.Data.Migrations
                     b.Navigation("Services");
                 });
 
-            modelBuilder.Entity("Graduation.Model.PropertyProject", b =>
+            modelBuilder.Entity("Graduation.Model.Property", b =>
                 {
                     b.HasOne("Graduation.Model.Advertisement", "Advertisements")
                         .WithMany("Properties")
                         .HasForeignKey("AdvertisementID");
 
-                    b.HasOne("Graduation.Model.TypeProject", "Type")
+                    b.HasOne("Graduation.Model.Type", "Type")
                         .WithMany("Properties")
                         .HasForeignKey("TypeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -492,12 +492,12 @@ namespace Graduation.Data.Migrations
 
             modelBuilder.Entity("Graduation.Model.Review", b =>
                 {
-                    b.HasOne("Graduation.Model.PropertyProject", "Properties")
+                    b.HasOne("Graduation.Model.Property", "Properties")
                         .WithMany("Reviews")
                         .HasForeignKey("PropertyId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Graduation.Model.ServiceProject", "Services")
+                    b.HasOne("Graduation.Model.Service", "Services")
                         .WithMany("Reviews")
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -515,13 +515,13 @@ namespace Graduation.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Graduation.Model.ServiceProject", b =>
+            modelBuilder.Entity("Graduation.Model.Service", b =>
                 {
                     b.HasOne("Graduation.Model.Advertisement", "Advertisements")
                         .WithMany("Services")
                         .HasForeignKey("AdvertisementID");
 
-                    b.HasOne("Graduation.Model.TypeProject", "Type")
+                    b.HasOne("Graduation.Model.Type", "Type")
                         .WithMany("Services")
                         .HasForeignKey("TypeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -609,21 +609,21 @@ namespace Graduation.Data.Migrations
                     b.Navigation("Services");
                 });
 
-            modelBuilder.Entity("Graduation.Model.PropertyProject", b =>
+            modelBuilder.Entity("Graduation.Model.Property", b =>
                 {
                     b.Navigation("ImageDetails");
 
                     b.Navigation("Reviews");
                 });
 
-            modelBuilder.Entity("Graduation.Model.ServiceProject", b =>
+            modelBuilder.Entity("Graduation.Model.Service", b =>
                 {
                     b.Navigation("ImageDetails");
 
                     b.Navigation("Reviews");
                 });
 
-            modelBuilder.Entity("Graduation.Model.TypeProject", b =>
+            modelBuilder.Entity("Graduation.Model.Type", b =>
                 {
                     b.Navigation("Properties");
 

@@ -173,3 +173,5 @@ C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Debug\ne
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Debug\net8.0\System.Text.Json.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Debug\net8.0\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Debug\net8.0\Mapster.dll
+C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Debug\net8.0\Mapster.Core.dll

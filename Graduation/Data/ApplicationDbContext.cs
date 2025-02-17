@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
+using System.Reflection;
 
 namespace Graduation.Data
 {
@@ -16,10 +18,19 @@ namespace Graduation.Data
 
             builder.Entity<Review>().HasOne(r=>r.Services).WithMany(s=>s.Reviews).HasForeignKey(r=>r.ServiceId).OnDelete(deleteBehavior: DeleteBehavior.Restrict);
             builder.Entity<Review>().HasOne(r => r.Properties).WithMany(p=>p.Reviews).HasForeignKey(r => r.PropertyId).OnDelete(deleteBehavior: DeleteBehavior.Restrict);
-
-
-
+            //    builder.Entity<CustomAttributeData>().HasNoKey();
+            //builder.Entity<Type>().Ignore(t => t.CustomAttributes);
+            //builder.Entity<Type>().HasNoKey();
         }
+        public DbSet<ApplicationUser> users { get; set; }
+        public DbSet<Advertisement> advertisements { get; set; }
+        public DbSet<Complaint> complaints { get; set; }
+        public DbSet<ImageDetails> images { get; set; }
+        public DbSet<PropertyProject> properties { get; set; }
+        public DbSet<Review> reviews { get; set; }
+        public DbSet<TypeProject> types { get; set; }
+        public DbSet<ServiceProject> services { get; set; }
+            
 
 
     }
