@@ -1,0 +1,614 @@
+[
+  {
+    "ContainingType": "Graduation.Controllers.Advertisement.AdvertisementController",
+    "Method": "AddPropertyAdvertisement",
+    "RelativePath": "Advertisement/AddPropertyAdvertisement",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.Advertisement.AddPropertyAdvertisementDTOs",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Advertisement.AdvertisementController",
+    "Method": "AddServiceAdvertisement",
+    "RelativePath": "Advertisement/AddServiceAdvertisement",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.Advertisement.AddServiceAdvertisementDTOs",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Auth.AuthController",
+    "Method": "AddTypeProperty",
+    "RelativePath": "Auth/AddTypeProperty",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "name",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Auth.AuthController",
+    "Method": "AddType",
+    "RelativePath": "Auth/AddTypeService",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "name",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Auth.AuthController",
+    "Method": "AllUser",
+    "RelativePath": "Auth/AllUser",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Auth.AuthController",
+    "Method": "ChangePassword",
+    "RelativePath": "Auth/ChangeEmail",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.Auth.AuthChangeEmailDTOs",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Auth.AuthController",
+    "Method": "ChangePassword",
+    "RelativePath": "Auth/ChangePassword",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.Auth.AuthChangePasswordDTOs",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Auth.AuthController",
+    "Method": "changeRole",
+    "RelativePath": "Auth/changeRole",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.Auth.AuthChangeRoleDTOs",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Auth.AuthController",
+    "Method": "ConfirmEmail",
+    "RelativePath": "Auth/ConfirmEmail",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "email",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Auth.AuthController",
+    "Method": "GenerateRestPassword",
+    "RelativePath": "Auth/GenerateRestPassword",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "email",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Auth.AuthController",
+    "Method": "GetAllProperty",
+    "RelativePath": "Auth/GetAllProperty",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Auth.AuthController",
+    "Method": "GetAllService",
+    "RelativePath": "Auth/GetAllService",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Auth.AuthController",
+    "Method": "Login",
+    "RelativePath": "Auth/Login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.Auth.AuthLoginDTOs",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Auth.AuthController",
+    "Method": "Register",
+    "RelativePath": "Auth/Register",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.Auth.AuthRegisterDTOs",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Auth.AuthController",
+    "Method": "ResetPassword",
+    "RelativePath": "Auth/ResetPassword",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.Auth.AuthRestPasswordDTOs",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.ComplaintFolder.ComplaintsController",
+    "Method": "AddComplaint",
+    "RelativePath": "Complaints/AddComplaint",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "addComplaint",
+        "Type": "Graduation.DTOs.Complaints.AddComplaintDTOs",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.ComplaintFolder.ComplaintsController",
+    "Method": "AllComplaint",
+    "RelativePath": "Complaints/AllComplaint",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.ComplaintFolder.ComplaintsController",
+    "Method": "EditStatus",
+    "RelativePath": "Complaints/EditStatus",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.Complaints.EditStatusComplaintDTOs",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.PropertyToProject.PropertyToProjectController",
+    "Method": "AddImageProperty",
+    "RelativePath": "PropertyToProject/AddImageProperty",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Image",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "propertyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.PropertyToProject.PropertyToProjectController",
+    "Method": "AddProperty",
+    "RelativePath": "PropertyToProject/AddProperty",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.PropertyToProject.AddPropertyDTOs",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.PropertyToProject.PropertyToProjectController",
+    "Method": "AddReviewProperty",
+    "RelativePath": "PropertyToProject/AddReviewProperty",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.Reviews.AddReviewPropertyDTOs",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.PropertyToProject.PropertyToProjectController",
+    "Method": "AllProperty",
+    "RelativePath": "PropertyToProject/AllProperty",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.PropertyToProject.PropertyToProjectController",
+    "Method": "DeleteImageProperty",
+    "RelativePath": "PropertyToProject/DeleteImageProperty",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "imageId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.PropertyToProject.PropertyToProjectController",
+    "Method": "DeleteProperty",
+    "RelativePath": "PropertyToProject/DeleteProperty",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "propertyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.PropertyToProject.PropertyToProjectController",
+    "Method": "DeleteReviewProperty",
+    "RelativePath": "PropertyToProject/DeleteReviewProperty",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "reviewId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.PropertyToProject.PropertyToProjectController",
+    "Method": "UpdateImageProperty",
+    "RelativePath": "PropertyToProject/UpdateImageProperty",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Image",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "imageId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.PropertyToProject.PropertyToProjectController",
+    "Method": "UpdateProperty",
+    "RelativePath": "PropertyToProject/UpdateProperty",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.PropertyToProject.UpdatePropertyDTOs",
+        "IsRequired": true
+      },
+      {
+        "Name": "propertyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.PropertyToProject.PropertyToProjectController",
+    "Method": "UpdateReviewProperty",
+    "RelativePath": "PropertyToProject/UpdateReviewProperty",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.Reviews.UpdateReviewDTOs",
+        "IsRequired": true
+      },
+      {
+        "Name": "reviewId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.ServiceToProject.ServiceToProjectController",
+    "Method": "AddImageService",
+    "RelativePath": "ServiceToProject/AddImageService",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Image",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "serviceId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.ServiceToProject.ServiceToProjectController",
+    "Method": "AddReviewService",
+    "RelativePath": "ServiceToProject/AddReviewService",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.Reviews.AddReviewServiceDTOs",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.ServiceToProject.ServiceToProjectController",
+    "Method": "AddService",
+    "RelativePath": "ServiceToProject/AddService",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.ServiceToProject.AddServiceDTOs",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.ServiceToProject.ServiceToProjectController",
+    "Method": "AllService",
+    "RelativePath": "ServiceToProject/AllService",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.ServiceToProject.ServiceToProjectController",
+    "Method": "DeleteImageService",
+    "RelativePath": "ServiceToProject/DeleteImageService",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "imageId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.ServiceToProject.ServiceToProjectController",
+    "Method": "DeleteReviewService",
+    "RelativePath": "ServiceToProject/DeleteReviewService",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "reviewId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.ServiceToProject.ServiceToProjectController",
+    "Method": "DeleteService",
+    "RelativePath": "ServiceToProject/DeleteService",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "serviceId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.ServiceToProject.ServiceToProjectController",
+    "Method": "UpdateImageService",
+    "RelativePath": "ServiceToProject/UpdateImageService",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Image",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "imageId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.ServiceToProject.ServiceToProjectController",
+    "Method": "UpdateReviewService",
+    "RelativePath": "ServiceToProject/UpdateReviewService",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.Reviews.UpdateReviewDTOs",
+        "IsRequired": true
+      },
+      {
+        "Name": "reviewId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.ServiceToProject.ServiceToProjectController",
+    "Method": "UpdateService",
+    "RelativePath": "ServiceToProject/UpdateService",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "serviceId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.ServiceToProject.UpdateServiceDTOs",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]

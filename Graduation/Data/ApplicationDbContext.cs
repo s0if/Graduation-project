@@ -23,14 +23,14 @@ namespace Graduation.Data
             //builder.Entity<Type>().HasNoKey();
         }
         public DbSet<ApplicationUser> users { get; set; }
-        public DbSet<Advertisement> advertisements { get; set; }
+        public DbSet<AdvertisementProject> advertisements { get; set; }
         public DbSet<Complaint> complaints { get; set; }
         public DbSet<ImageDetails> images { get; set; }
         public DbSet<PropertyProject> properties { get; set; }
         public DbSet<Review> reviews { get; set; }
-        public DbSet<TypeProject> types { get; set; }
+        public DbSet<TypeProperty> typeProperties { get; set; }
         public DbSet<ServiceProject> services { get; set; }
-            
+        public DbSet<TypeService> typeServices { get; set; }
 
 
     }

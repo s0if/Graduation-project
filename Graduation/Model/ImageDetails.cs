@@ -8,11 +8,11 @@ namespace Graduation.Model
         public string Image { get; set; }
 
         [ForeignKey(nameof(Properties))]
-        public int PropertyId { get; set; }
-        public PropertyProject Properties { get; set; }
+        public int? PropertyId { get; set; }
+        public PropertyProject? Properties { get; set; }
 
         [ForeignKey(nameof(Services))]
-        public int ServiceId { get; set; }
-        public ServiceProject Services { get; set; }
+        public int? ServiceId { get; set; }
+        public ServiceProject? Services { get; set; }
     }
 }

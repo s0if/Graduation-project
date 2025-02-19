@@ -16,12 +16,12 @@ namespace Graduation.Model
 
         [ForeignKey(nameof(Advertisements))]
         public int? AdvertisementID { get; set; }
-        public Advertisement? Advertisements{ get; set; }
+        public AdvertisementProject? Advertisements{ get; set; }
 
 
         [ForeignKey(nameof(Type))]
         public int TypeId { get; set; }
-        public TypeProject Type { get; set; }
+        public TypeProperty Type { get; set; }
 
 
         public IEnumerable<ImageDetails> ImageDetails { get; set; }=new HashSet<ImageDetails>();

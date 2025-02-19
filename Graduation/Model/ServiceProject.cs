@@ -5,7 +5,7 @@ namespace Graduation.Model
     public class ServiceProject
     {
         public int Id { get; set; }
-        public int Description { get; set; }
+        public string Description { get; set; }
         public double PriceRange { get; set; }
 
         [ForeignKey(nameof(User))]
@@ -15,12 +15,12 @@ namespace Graduation.Model
 
         [ForeignKey(nameof(Advertisements))]
         public int? AdvertisementID { get; set; }
-        public Advertisement? Advertisements { get; set; }
+        public AdvertisementProject? Advertisements { get; set; }
 
 
         [ForeignKey(nameof(Type))]
         public int TypeId { get; set; }
-        public TypeProject Type { get; set; }
+        public TypeService Type { get; set; }
 
 
         public IEnumerable<ImageDetails> ImageDetails { get; set; } = new HashSet<ImageDetails>();

@@ -15,6 +15,9 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using System.Web;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Graduation.DTOs.TypeToProject;
+using Mapster;
+using System.Collections.Generic;
 
 namespace Graduation.Controllers.Auth
 {
@@ -124,7 +127,7 @@ namespace Graduation.Controllers.Auth
             }
             return NotFound(ModelState);
         }
-        [HttpPost("ChangePassword")]
+        [HttpPut("ChangePassword")]
         public async Task<IActionResult> ChangePassword(AuthChangePasswordDTOs request)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
@@ -158,7 +161,7 @@ namespace Graduation.Controllers.Auth
             }
             return NotFound(ModelState);
         }
-        [HttpPost("ChangeEmail")]
+        [HttpPut("ChangeEmail")]
         public async Task<IActionResult> ChangePassword(AuthChangeEmailDTOs request)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
@@ -282,7 +285,7 @@ namespace Graduation.Controllers.Auth
             }
             return Unauthorized();
         }
-        [HttpPost("changeRole")]
+        [HttpPut("changeRole")]
         public async Task<IActionResult> changeRole(AuthChangeRoleDTOs request)
         {
             if (ModelState.IsValid)
@@ -325,6 +328,67 @@ namespace Graduation.Controllers.Auth
             }
             return NotFound();
             
+        }
+        [HttpPost("AddTypeService")]
+        public async Task<IActionResult> AddType(string name)
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(new { message = "Token Is Missing" });
+            int? userId = ExtractClaims.ExtractUserId(token);
+            if (string.IsNullOrEmpty(userId.ToString()))
+                return Unauthorized(new { message = "Token Is Missing" });
+            ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
+            var role = await userManager.GetRolesAsync(requestUser);
+            if (role.Contains("admin"))
+            {
+                TypeService typeService = new TypeService
+                {
+                    Name = name
+                };
+                var type = await dbContext.typeServices.AddAsync(typeService);
+                await dbContext.SaveChangesAsync();
+                return Ok(new { status = 200, message = "add typeService successful" });
+            }
+            return Unauthorized();
+        }
+
+        [HttpPost("AddTypeProperty")]
+        public async Task<IActionResult> AddTypeProperty(string name)
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(new { message = "Token Is Missing" });
+            int? userId = ExtractClaims.ExtractUserId(token);
+            if (string.IsNullOrEmpty(userId.ToString()))
+                return Unauthorized(new { message = "Token Is Missing" });
+            ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
+            var role = await userManager.GetRolesAsync(requestUser);
+            if (role.Contains("admin"))
+            {
+                TypeProperty  typeProperty= new TypeProperty
+                {
+                    Name = name
+                };
+                var type = await dbContext.typeProperties.AddAsync(typeProperty);
+                await dbContext.SaveChangesAsync();
+                return Ok(new { status = 200, message = "add typeProperty successful" });
+            }
+            return Unauthorized();
+        }
+        [HttpGet("GetAllService")]
+        public async Task<IActionResult> GetAllService()
+        {
+            IEnumerable<TypeService> result = await dbContext.typeServices.ToListAsync();
+            IEnumerable < GetTypeDTOs > typeService = result.Adapt<IEnumerable< GetTypeDTOs>>();
+                return Ok(new { status=200,typeService });
+        }
+        [HttpGet("GetAllProperty")]
+        public async Task<IActionResult> GetAllProperty()
+        {
+            IEnumerable<TypeProperty> result = await dbContext.typeProperties.ToListAsync();
+            IEnumerable<GetTypeDTOs> typeProperty = result.Adapt<IEnumerable<GetTypeDTOs>>();
+            return Ok(new { status = 200, typeProperty });
         }
     }
 }

@@ -1,0 +1,414 @@
+﻿using Graduation.Data;
+using Graduation.DTOs.Images;
+using Graduation.DTOs.Reviews;
+using Graduation.DTOs.ServiceToProject;
+using Graduation.Helpers;
+using Graduation.Model;
+using Graduation.Service;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
+using static System.Net.Mime.MediaTypeNames;
+
+namespace Graduation.Controllers.ServiceToProject
+{
+    [Route("[controller]")]
+    [ApiController]
+    public class ServiceToProjectController : ControllerBase
+    {
+        private readonly ApplicationDbContext dbContext;
+        private readonly UserManager<ApplicationUser> userManager;
+
+        public ServiceToProjectController(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager)
+        {
+            this.dbContext = dbContext;
+            this.userManager = userManager;
+        }
+
+        [HttpPost("AddService")]
+        public async Task<IActionResult> AddService(AddServiceDTOs request)
+        {
+            if (ModelState.IsValid)
+            {
+                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+                if (string.IsNullOrEmpty(token))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                int? userId = ExtractClaims.ExtractUserId(token);
+                if (string.IsNullOrEmpty(userId.ToString()))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                var role = await userManager.GetRolesAsync(requestUser);
+                if (role.Contains("provider"))
+                {
+
+                    ServiceProject serviceProject = new ServiceProject
+                    {
+                        Description = request.Description,
+                        PriceRange = request.PriceRange,
+                        UsersID = requestUser.Id,
+                        TypeId = request.TypeId,
+
+                    };
+                    await dbContext.services.AddAsync(serviceProject);
+                    await dbContext.SaveChangesAsync();
+
+                    ReturnServiceDTOs getServiceDTOs = new ReturnServiceDTOs
+                    {
+                        Id = serviceProject.Id,
+                        Description = serviceProject.Description,
+                        PriceRange = serviceProject.PriceRange,
+                        UsersID = serviceProject.UsersID,
+                        TypeId = serviceProject.TypeId
+                    };
+                    return Ok(new { status = 200, getServiceDTOs });
+                }
+                return Unauthorized();
+            }
+            return NotFound();
+        }
+
+        [HttpPut("UpdateService")]
+        public async Task<IActionResult> UpdateService(int serviceId, UpdateServiceDTOs request)
+        {
+            if (ModelState.IsValid)
+            {
+                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+                if (string.IsNullOrEmpty(token))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                int? userId = ExtractClaims.ExtractUserId(token);
+                if (string.IsNullOrEmpty(userId.ToString()))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                var role = await userManager.GetRolesAsync(requestUser);
+                if (role.Contains("provider") )
+                {
+                    ServiceProject result=await dbContext.services.FindAsync(serviceId);
+                    if(result is not null)
+                    {
+                        if (result.UsersID== requestUser.Id|| role.Contains("admin"))
+                        {
+
+                        if (result is not null)
+                        {
+                            result.Description = request.Description;
+                                result.TypeId = result.TypeId;
+                            result.PriceRange = request.PriceRange;
+                             dbContext.UpdateRange(result);
+                            await dbContext.SaveChangesAsync();
+
+                        ReturnServiceDTOs getServiceDTOs = new ReturnServiceDTOs
+                        {
+                            Id = result.Id,
+                            Description = result.Description,
+                            PriceRange = result.PriceRange,
+                            UsersID = result.UsersID,
+                            TypeId = result.TypeId
+                        };
+                        return Ok(new { status = 200, getServiceDTOs });
+                        };
+                        return BadRequest(new { message = "don't find service" });
+                        }
+                        return Unauthorized();
+
+                    }
+                    return BadRequest(new {message= "not found service" });
+                }
+                return Unauthorized();
+            }
+            return NotFound();
+        }
+
+        [HttpDelete("DeleteService")]
+        public async Task<IActionResult> DeleteService(int serviceId)
+        {
+            if (ModelState.IsValid)
+            {
+                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+                if (string.IsNullOrEmpty(token))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                int? userId = ExtractClaims.ExtractUserId(token);
+                if (string.IsNullOrEmpty(userId.ToString()))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                var role = await userManager.GetRolesAsync(requestUser);
+                if (role.Contains("provider"))
+                {
+                    ServiceProject result=await dbContext.services.FindAsync(serviceId);
+                    if(result is not null)
+                    {
+                       if(result.UsersID == requestUser.Id||role.Contains("admin"))
+                        {
+                           
+                            dbContext.services.RemoveRange(result);
+                            await dbContext.SaveChangesAsync();
+                            
+                            return Ok();
+                        }
+                       return Unauthorized() ;
+                    }
+                    return BadRequest(new {message= "not found service" });
+                }
+                return Unauthorized();
+            }
+            return NotFound();
+        }
+
+        [HttpPost("AddImageService")]
+        public async Task<IActionResult> AddImageService(AddImagesDTOs request, int serviceId)
+        {
+            if (ModelState.IsValid)
+            {
+                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+                if (string.IsNullOrEmpty(token))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                int? userId = ExtractClaims.ExtractUserId(token);
+                if (string.IsNullOrEmpty(userId.ToString()))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                var role = await userManager.GetRolesAsync(requestUser);
+                if (role.Contains("provider"))
+                {
+                    ImageDetails details = new ImageDetails
+                    {
+                        ServiceId = serviceId,
+                        Image = FileSettings.UploadFile(request.Image, "ImagesService"),
+                    };
+                    await dbContext.images.AddAsync(details);
+                    await dbContext.SaveChangesAsync();
+                    return Ok("done");
+                }
+                return Unauthorized();
+            }
+            return NotFound();
+        }
+
+        [HttpPut("UpdateImageService")]
+        public async Task<IActionResult> UpdateImageService(AddImagesDTOs request, int imageId)
+        {
+            if (ModelState.IsValid)
+            {
+                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+                if (string.IsNullOrEmpty(token))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                int? userId = ExtractClaims.ExtractUserId(token);
+                if (string.IsNullOrEmpty(userId.ToString()))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                var role = await userManager.GetRolesAsync(requestUser);
+                if (role.Contains("provider"))
+                {
+                    ImageDetails resultImage = await dbContext.images.FindAsync(imageId);
+                    if (resultImage is not null)
+                    {
+                        ServiceProject resultService = await dbContext.services.FindAsync(resultImage.ServiceId);
+                        if (resultService is not null)
+                        {
+                            if (resultService.UsersID == requestUser.Id || role.Contains("admin"))
+                            {
+                                FileSettings.deleteFile(resultImage.Image, "ImagesService");
+                                resultImage.Image = FileSettings.UploadFile(request.Image, "ImagesService");
+                                dbContext.UpdateRange(resultImage);
+                                await dbContext.SaveChangesAsync();
+                                return Ok(new { status = 200 });
+
+                            }
+                            return Unauthorized();
+                        }
+                        return BadRequest(new { message = "not found service" });
+
+                    }
+                    return BadRequest(new { message = "not found image" });
+
+
+
+                }
+                return Unauthorized();
+            }
+            return NotFound();
+        }
+
+        [HttpDelete("DeleteImageService")]
+        public async Task<IActionResult> DeleteImageService( int imageId)
+        {
+            if (ModelState.IsValid)
+            {
+                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+                if (string.IsNullOrEmpty(token))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                int? userId = ExtractClaims.ExtractUserId(token);
+                if (string.IsNullOrEmpty(userId.ToString()))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                var role = await userManager.GetRolesAsync(requestUser);
+                if (role.Contains("provider"))
+                {
+                    ImageDetails resultImage = await dbContext.images.FindAsync(imageId);
+                    if (resultImage is not null)
+                    {
+                        ServiceProject resultService = await dbContext.services.FindAsync(resultImage.ServiceId);
+                        if (resultService is not null)
+                        {
+                            if (resultService.UsersID == requestUser.Id || role.Contains("admin"))
+                            {
+                                FileSettings.deleteFile(resultImage.Image, "ImagesService");;
+                                dbContext.RemoveRange(resultImage);
+                                await dbContext.SaveChangesAsync();
+                                return Created();
+
+                            }
+                            return Unauthorized();
+                        }
+                        return BadRequest(new { message = "not found service" });
+
+                    }
+                    return BadRequest(new { message = "not found image" });
+
+
+
+                }
+                return Unauthorized();
+            }
+            return NotFound();
+        }
+        [HttpPost("AddReviewService")]
+        public async Task<IActionResult> AddReviewService(AddReviewServiceDTOs request)
+        {
+            if (ModelState.IsValid)
+            {
+                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+                if (string.IsNullOrEmpty(token))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                int? userId = ExtractClaims.ExtractUserId(token);
+                if (string.IsNullOrEmpty(userId.ToString()))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                var role = await userManager.GetRolesAsync(requestUser);
+                if (role.Contains("provider"))
+                {
+                    Review review = new Review
+                    {
+                        Description = request.Description,
+                        Rating = request.Rating,
+                        CreateAt = DateTime.Now,
+                        UsersID = requestUser.Id,
+                        ServiceId = request.ServiceId
+                    };
+                    await dbContext.reviews.AddAsync(review);
+                    await dbContext.SaveChangesAsync();
+                    return Ok(new { message = true });
+                }
+                return Unauthorized();
+            }
+            return NotFound();
+        }
+        [HttpPut("UpdateReviewService")]
+        public async Task<IActionResult> UpdateReviewService(UpdateReviewDTOs request,int reviewId)
+        {
+            if (ModelState.IsValid)
+            {
+                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+                if (string.IsNullOrEmpty(token))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                int? userId = ExtractClaims.ExtractUserId(token);
+                if (string.IsNullOrEmpty(userId.ToString()))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                var role = await userManager.GetRolesAsync(requestUser);
+                if (role.Contains("provider"))
+                {
+                    Review result=await dbContext.reviews.FindAsync(reviewId);
+                    if (result is not null)
+                    {
+                        if(result.UsersID == requestUser.Id||role.Contains("admin"))
+                        {
+                           result.Description = request.Description;
+                            result.Rating = request.Rating;
+                            result.ServiceId=result.ServiceId;
+                            dbContext.UpdateRange(result);
+                            await dbContext.SaveChangesAsync();
+                            return Ok(new {message="update successful"});
+                        }
+                        return Unauthorized();
+                    }
+                    return BadRequest(new { message = "not found service" });
+
+                }
+                return Unauthorized();
+            }
+            return NotFound();
+        }
+
+        [HttpDelete("DeleteReviewService")]
+        public async Task<IActionResult> DeleteReviewService( int reviewId)
+        {
+            if (ModelState.IsValid)
+            {
+                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+                if (string.IsNullOrEmpty(token))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                int? userId = ExtractClaims.ExtractUserId(token);
+                if (string.IsNullOrEmpty(userId.ToString()))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                var role = await userManager.GetRolesAsync(requestUser);
+                if (role.Contains("provider"))
+                {
+                    Review result = await dbContext.reviews.FindAsync(reviewId);
+                    if (result is not null)
+                    {
+                        if (result.UsersID == requestUser.Id || role.Contains("admin"))
+                        {
+                            
+                            dbContext.RemoveRange(result);
+                            await dbContext.SaveChangesAsync();
+                            return Ok(new { message = "remove successful" });
+                        }
+                        return Unauthorized();
+                    }
+                    return BadRequest(new { message = "not found service" });
+
+                }
+                return Unauthorized();
+            }
+            return NotFound();
+        }
+        [HttpGet("AllService")]
+        public async Task<IActionResult> AllService()
+        {
+
+            var allServices = await dbContext.services
+            .Include(s => s.ImageDetails) 
+            .Include(s => s.Reviews) 
+            .Select(s => new GetAllServiceDTOs
+            {
+                Id = s.Id,
+                userId=s.UsersID,
+                Description = s.Description,
+                PriceRange = s.PriceRange,
+                TypeName = s.Type.Name, 
+                ImageDetails = s.ImageDetails.Select(img => new GetImageDTOs
+                {
+                    Id = img.Id,
+                    Name= Path.Combine(Directory.GetCurrentDirectory(), img.Image)
+                }).ToList(),
+                Reviews = s.Reviews.Select(r=>new GetAllReviewDTOs
+                {
+                    Id = r.Id,
+                    description=r.Description,
+                    date=r.CreateAt,
+                    rating=r.Rating,
+
+                })  .ToList()
+            })
+            .ToListAsync();
+
+            return Ok(new { message = true, AllService = allServices });
+            
+
+        }
+
+    }
+}

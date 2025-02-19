@@ -4,11 +4,11 @@ namespace Graduation.Model
 {
     public class Review
     {
-       public int Id { get; set; }
+        public int Id { get; set; }
         public string Description { get; set; }
         public double Rating { get; set; }
-        public DateTime CreateAt { get; set; }= DateTime.Now;
-        public DateTime UpdateAt { get; set; }
+        public DateTime CreateAt { get; set; }
+        public DateTime? UpdateAt { get; set; }
 
         [ForeignKey(nameof(User))]
         public int UsersID { get; set; }
