@@ -117,48 +117,6 @@
   },
   {
     "ContainingType": "Graduation.Controllers.Auth.AuthController",
-    "Method": "AddTypeProperty",
-    "RelativePath": "Auth/AddTypeProperty",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "name",
-        "Type": "System.String",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Graduation.Controllers.Auth.AuthController",
-    "Method": "AddType",
-    "RelativePath": "Auth/AddTypeService",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "name",
-        "Type": "System.String",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Graduation.Controllers.Auth.AuthController",
-    "Method": "AllUser",
-    "RelativePath": "Auth/AllUser",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Graduation.Controllers.Auth.AuthController",
     "Method": "ChangePassword",
     "RelativePath": "Auth/ChangeEmail",
     "HttpMethod": "PUT",
@@ -184,22 +142,6 @@
       {
         "Name": "request",
         "Type": "Graduation.DTOs.Auth.AuthChangePasswordDTOs",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Graduation.Controllers.Auth.AuthController",
-    "Method": "changeRole",
-    "RelativePath": "Auth/changeRole",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "request",
-        "Type": "Graduation.DTOs.Auth.AuthChangeRoleDTOs",
         "IsRequired": true
       }
     ],
@@ -235,26 +177,6 @@
         "IsRequired": false
       }
     ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Graduation.Controllers.Auth.AuthController",
-    "Method": "GetAllProperty",
-    "RelativePath": "Auth/GetAllProperty",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Graduation.Controllers.Auth.AuthController",
-    "Method": "GetAllService",
-    "RelativePath": "Auth/GetAllService",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
     "ReturnTypes": []
   },
   {
@@ -522,6 +444,64 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "Graduation.Controllers.Save.SaveToProjectController",
+    "Method": "GetSave",
+    "RelativePath": "SaveToProject/GetSave",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Save.SaveToProjectController",
+    "Method": "SaveProperty",
+    "RelativePath": "SaveToProject/SaveProperty",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "propertyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Save.SaveToProjectController",
+    "Method": "SaveService",
+    "RelativePath": "SaveToProject/SaveService",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "serviceId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Save.SaveToProjectController",
+    "Method": "UnSave",
+    "RelativePath": "SaveToProject/UnSave",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "saveId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Graduation.Controllers.ServiceToProject.ServiceToProjectController",
     "Method": "AddImageService",
     "RelativePath": "ServiceToProject/AddImageService",
@@ -690,6 +670,84 @@
       {
         "Name": "request",
         "Type": "Graduation.DTOs.ServiceToProject.UpdateServiceDTOs",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Task.TaskOperationsController",
+    "Method": "AddTypeProperty",
+    "RelativePath": "TaskOperations/AddTypeProperty",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "name",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Task.TaskOperationsController",
+    "Method": "AddType",
+    "RelativePath": "TaskOperations/AddTypeService",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "name",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Task.TaskOperationsController",
+    "Method": "GetAllProperty",
+    "RelativePath": "TaskOperations/GetAllProperty",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Task.TaskOperationsController",
+    "Method": "GetAllService",
+    "RelativePath": "TaskOperations/GetAllService",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.User.UserOperationsController",
+    "Method": "AllUser",
+    "RelativePath": "UserOperations/AllUser",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.User.UserOperationsController",
+    "Method": "changeRole",
+    "RelativePath": "UserOperations/changeRole",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.Auth.AuthChangeRoleDTOs",
         "IsRequired": true
       }
     ],

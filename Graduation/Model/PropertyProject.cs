@@ -26,6 +26,7 @@ namespace Graduation.Model
 
         public IEnumerable<ImageDetails> ImageDetails { get; set; }=new HashSet<ImageDetails>();
         public IEnumerable<Review> Reviews { get; set; } =new HashSet<Review>();
+         public IEnumerable<SaveProject> Saves { get; set; }=new HashSet<SaveProject>();
         
     }
 }

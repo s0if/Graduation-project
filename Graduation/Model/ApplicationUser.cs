@@ -9,6 +9,8 @@ namespace Graduation.Model
         public IEnumerable<Complaint> Complaints { get; set; }=new HashSet<Complaint>();
         public IEnumerable<PropertyProject> Properties { get; set; } = new HashSet<PropertyProject>();
         public IEnumerable<ServiceProject> Services { get; set; }= new HashSet<ServiceProject>();
-        public IEnumerable<Review> Reviews { get; set; }=new HashSet<Review>();                                                                                                                     
+        public IEnumerable<Review> Reviews { get; set; }=new HashSet<Review>();
+        public IEnumerable<SaveProject> Saves { get; set; }=new HashSet<SaveProject>();
+
     }
 }

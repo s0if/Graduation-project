@@ -54,8 +54,11 @@ namespace Graduation.Controllers.Auth
                 IdentityResult result = await userManager.CreateAsync(user, request.Password);
                 if (result.Succeeded)
                 {
+                    if (request.role == "admin")
+                    {
+                        return BadRequest(new {message="you cannot create an account Admin"});
+                    }
                     var resultRole = await userManager.AddToRoleAsync(user, request.role);
-
                     string token = await authServices.CreateTokenasync(user, userManager);
                     string confirmEmail = Url.Action("ConfirmEmail", "Auth", new { email = user.Email, token = token }, protocol: HttpContext.Request.Scheme);
 
@@ -252,143 +255,6 @@ namespace Graduation.Controllers.Auth
             return NotFound(ModelState);
 
         }
-        [HttpGet("AllUser")]
-        public async Task<IActionResult> AllUser()
-        {
-            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
-            if (string.IsNullOrEmpty(token))
-                return Unauthorized(new { message = "Token Is Missing" });
-            int? userId = ExtractClaims.ExtractUserId(token);
-            if (string.IsNullOrEmpty(userId.ToString()))
-                return Unauthorized(new { message = "Token Is Missing" });
-            ApplicationUser requestUser=await userManager.Users.FirstOrDefaultAsync (u=>u.Id == userId);
-            IList<string> role = await userManager.GetRolesAsync(requestUser);
-            
-            if (role.Contains("admin"))
-            {
-
-                List<AuthGetAllUserDTOs> AllUser = new List<AuthGetAllUserDTOs>();
-                IEnumerable<ApplicationUser>GetUsers = await userManager.Users.ToListAsync();
-                foreach(ApplicationUser user in GetUsers)
-                {
-                    AllUser.Add( new AuthGetAllUserDTOs
-                    {
-                         Id = user.Id,
-                         UserName=user.UserName,
-                         Email=user.Email,
-                         Phone=user.PhoneNumber,
-                         Address=user.PhoneNumber,
-                         Role=string.Join(",", await userManager.GetRolesAsync(user))
-                    });
-                }
-                return Ok(AllUser);
-            }
-            return Unauthorized();
-        }
-        [HttpPut("changeRole")]
-        public async Task<IActionResult> changeRole(AuthChangeRoleDTOs request)
-        {
-            if (ModelState.IsValid)
-            {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
-                if (string.IsNullOrEmpty(token))
-                    return Unauthorized(new { message = "Token Is Missing" });
-                int? userId = ExtractClaims.ExtractUserId(token);
-                if (string.IsNullOrEmpty(userId.ToString()))
-                    return Unauthorized(new { message = "Token Is Missing" });
-                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                var role = await userManager.GetRolesAsync(requestUser);
-
-                if (role.Contains("admin"))
-                {
-                    ApplicationUser user = await userManager.Users.FirstOrDefaultAsync(u => u.Id == request.Id);
-                    IList<string> OldRoles = await userManager.GetRolesAsync(user);
-
-                    foreach (var oldRole in OldRoles)
-                    {
-
-                        IdentityResult deleteRole = await userManager.RemoveFromRoleAsync(user, oldRole);
-                        if (deleteRole.Succeeded)
-                        {
-                            IdentityResult addRole = await userManager.AddToRoleAsync(user, request.NewRole);
-                            if (addRole.Succeeded)
-                            {
-                                return Ok(new { status = 200, message = "successful change role" });
-                            }
-                            IList<string> errorMessageAdd = deleteRole.Errors.Select(error => error.Description).ToList();
-                            return BadRequest(string.Join(", ", errorMessageAdd));
-                        }
-                        IList<string> errorMessageDelete = deleteRole.Errors.Select(error => error.Description).ToList();
-                        return BadRequest(string.Join(", ", errorMessageDelete));
-                    }
-
-
-                }
-                return Unauthorized();
-            }
-            return NotFound();
-            
-        }
-        [HttpPost("AddTypeService")]
-        public async Task<IActionResult> AddType(string name)
-        {
-            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
-            if (string.IsNullOrEmpty(token))
-                return Unauthorized(new { message = "Token Is Missing" });
-            int? userId = ExtractClaims.ExtractUserId(token);
-            if (string.IsNullOrEmpty(userId.ToString()))
-                return Unauthorized(new { message = "Token Is Missing" });
-            ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
-            var role = await userManager.GetRolesAsync(requestUser);
-            if (role.Contains("admin"))
-            {
-                TypeService typeService = new TypeService
-                {
-                    Name = name
-                };
-                var type = await dbContext.typeServices.AddAsync(typeService);
-                await dbContext.SaveChangesAsync();
-                return Ok(new { status = 200, message = "add typeService successful" });
-            }
-            return Unauthorized();
-        }
-
-        [HttpPost("AddTypeProperty")]
-        public async Task<IActionResult> AddTypeProperty(string name)
-        {
-            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
-            if (string.IsNullOrEmpty(token))
-                return Unauthorized(new { message = "Token Is Missing" });
-            int? userId = ExtractClaims.ExtractUserId(token);
-            if (string.IsNullOrEmpty(userId.ToString()))
-                return Unauthorized(new { message = "Token Is Missing" });
-            ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
-            var role = await userManager.GetRolesAsync(requestUser);
-            if (role.Contains("admin"))
-            {
-                TypeProperty  typeProperty= new TypeProperty
-                {
-                    Name = name
-                };
-                var type = await dbContext.typeProperties.AddAsync(typeProperty);
-                await dbContext.SaveChangesAsync();
-                return Ok(new { status = 200, message = "add typeProperty successful" });
-            }
-            return Unauthorized();
-        }
-        [HttpGet("GetAllService")]
-        public async Task<IActionResult> GetAllService()
-        {
-            IEnumerable<TypeService> result = await dbContext.typeServices.ToListAsync();
-            IEnumerable < GetTypeDTOs > typeService = result.Adapt<IEnumerable< GetTypeDTOs>>();
-                return Ok(new { status=200,typeService });
-        }
-        [HttpGet("GetAllProperty")]
-        public async Task<IActionResult> GetAllProperty()
-        {
-            IEnumerable<TypeProperty> result = await dbContext.typeProperties.ToListAsync();
-            IEnumerable<GetTypeDTOs> typeProperty = result.Adapt<IEnumerable<GetTypeDTOs>>();
-            return Ok(new { status = 200, typeProperty });
-        }
+        
     }
 }
