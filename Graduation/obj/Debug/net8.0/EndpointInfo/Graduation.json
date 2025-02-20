@@ -67,6 +67,144 @@
         }
       }
     },
+    "/Advertisement/UpdateServiceAdvertisement": {
+      "put": {
+        "tags": [
+          "Advertisement"
+        ],
+        "parameters": [
+          {
+            "name": "AdvertisementId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAdvertisementDTOs"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAdvertisementDTOs"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAdvertisementDTOs"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Advertisement/UpdatePropertyAdvertisement": {
+      "put": {
+        "tags": [
+          "Advertisement"
+        ],
+        "parameters": [
+          {
+            "name": "AdvertisementId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAdvertisementDTOs"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAdvertisementDTOs"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAdvertisementDTOs"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Advertisement/DeleteServiceAdvertisement": {
+      "delete": {
+        "tags": [
+          "Advertisement"
+        ],
+        "parameters": [
+          {
+            "name": "AdvertisementId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Advertisement/DeletePropertyAdvertisement": {
+      "delete": {
+        "tags": [
+          "Advertisement"
+        ],
+        "parameters": [
+          {
+            "name": "AdvertisementId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Advertisement/AllAdvertisement": {
+      "get": {
+        "tags": [
+          "Advertisement"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/Auth/Register": {
       "post": {
         "tags": [
@@ -1346,6 +1484,20 @@
           "newStatus": {
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UpdateAdvertisementDTOs": {
+        "type": "object",
+        "properties": {
+          "startAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endAt": {
+            "type": "string",
+            "format": "date-time"
           }
         },
         "additionalProperties": false

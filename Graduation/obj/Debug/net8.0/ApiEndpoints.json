@@ -32,6 +32,90 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "Graduation.Controllers.Advertisement.AdvertisementController",
+    "Method": "AllAdvertisement",
+    "RelativePath": "Advertisement/AllAdvertisement",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Advertisement.AdvertisementController",
+    "Method": "DeletePropertyAdvertisement",
+    "RelativePath": "Advertisement/DeletePropertyAdvertisement",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "AdvertisementId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Advertisement.AdvertisementController",
+    "Method": "DeleteServiceAdvertisement",
+    "RelativePath": "Advertisement/DeleteServiceAdvertisement",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "AdvertisementId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Advertisement.AdvertisementController",
+    "Method": "UpdatePropertyAdvertisement",
+    "RelativePath": "Advertisement/UpdatePropertyAdvertisement",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.Advertisement.UpdateAdvertisementDTOs",
+        "IsRequired": true
+      },
+      {
+        "Name": "AdvertisementId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Advertisement.AdvertisementController",
+    "Method": "UpdateServiceAdvertisement",
+    "RelativePath": "Advertisement/UpdateServiceAdvertisement",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.Advertisement.UpdateAdvertisementDTOs",
+        "IsRequired": true
+      },
+      {
+        "Name": "AdvertisementId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Graduation.Controllers.Auth.AuthController",
     "Method": "AddTypeProperty",
     "RelativePath": "Auth/AddTypeProperty",
