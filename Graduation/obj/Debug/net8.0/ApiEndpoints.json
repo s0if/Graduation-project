@@ -764,5 +764,15 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.User.UserOperationsController",
+    "Method": "user",
+    "RelativePath": "UserOperations/user",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
   }
 ]

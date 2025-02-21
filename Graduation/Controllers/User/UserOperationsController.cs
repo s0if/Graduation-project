@@ -55,6 +55,30 @@ namespace Graduation.Controllers.User
             }
             return Unauthorized();
         }
+
+
+
+        [HttpGet("user")]
+        public async Task<IActionResult> user()
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(new { message = "Token Is Missing" });
+            int? userId = ExtractClaims.ExtractUserId(token);
+            if (string.IsNullOrEmpty(userId.ToString()))
+                return Unauthorized(new { message = "Token Is Missing" });
+            ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            AuthGetAllUserDTOs result = new AuthGetAllUserDTOs
+            {
+                Id = requestUser.Id,
+                UserName = requestUser.UserName,
+                Email = requestUser.Email,
+                Phone = requestUser.PhoneNumber,
+                Address = requestUser.PhoneNumber,
+                Role = string.Join(",", await userManager.GetRolesAsync(requestUser))
+            };
+            return Ok(result );
+        }
         [HttpPut("changeRole")]
         public async Task<IActionResult> changeRole(AuthChangeRoleDTOs request)
         {

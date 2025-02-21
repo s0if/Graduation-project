@@ -174,7 +174,7 @@ namespace Graduation.Controllers.ServiceToProject
                     ImageDetails details = new ImageDetails
                     {
                         ServiceId = serviceId,
-                        Image = FileSettings.UploadFile(request.Image, "ImagesService"),
+                        Image = await FileSettings.UploadFileAsync(request.Image),
                     };
                     await dbContext.images.AddAsync(details);
                     await dbContext.SaveChangesAsync();
@@ -208,8 +208,8 @@ namespace Graduation.Controllers.ServiceToProject
                         {
                             if (resultService.UsersID == requestUser.Id || role.Contains("admin"))
                             {
-                                FileSettings.deleteFile(resultImage.Image, "ImagesService");
-                                resultImage.Image = FileSettings.UploadFile(request.Image, "ImagesService");
+                                await FileSettings.DeleteFileAsync(resultImage.Image);
+                                resultImage.Image =await FileSettings.UploadFileAsync(request.Image);
                                 dbContext.UpdateRange(resultImage);
                                 await dbContext.SaveChangesAsync();
                                 return Ok(new { status = 200 });
@@ -253,7 +253,7 @@ namespace Graduation.Controllers.ServiceToProject
                         {
                             if (resultService.UsersID == requestUser.Id || role.Contains("admin"))
                             {
-                                FileSettings.deleteFile(resultImage.Image, "ImagesService");;
+                                await FileSettings.DeleteFileAsync(resultImage.Image);;
                                 dbContext.RemoveRange(resultImage);
                                 await dbContext.SaveChangesAsync();
                                 return Created();
@@ -376,76 +376,28 @@ namespace Graduation.Controllers.ServiceToProject
             return NotFound();
         }
         [HttpGet("AllService")]
-        //public async Task<IActionResult> AllService(string? searchName)
-        //{
-        //    var query = dbContext.properties.AsQueryable();
-
-        //    if (!string.IsNullOrEmpty(searchName))
-        //    {
-        //        query = query.Where(p => p.Type.Name.Contains(searchName));
-        //    }
-        //    var allServices = await dbContext.services
-        //        .AsSplitQuery()
-        //        .Include(s => s.ImageDetails) 
-        //        .Include(s => s.Reviews) 
-        //        .Select(s => new GetAllServiceDTOs
-        //        {
-        //            Id = s.Id,
-        //            userId=s.UsersID,
-        //            Description = s.Description,
-        //            PriceRange = s.PriceRange,
-        //            TypeName = s.Type.Name, 
-        //            ImageDetails = s.ImageDetails.Select(img => new GetImageDTOs
-        //            {
-        //                Id = img.Id,
-        //                Name= Path.Combine(Directory.GetCurrentDirectory(), img.Image)
-        //            }).ToList(),
-        //            Reviews = s.Reviews.Select(r=>new GetAllReviewDTOs
-        //            {
-        //                Id = r.Id,
-        //                description=r.Description,
-        //                date=r.CreateAt,
-        //                rating=r.Rating,
-
-        //            })  .ToList()
-        //        })
-        //        .ToListAsync();
-
-        //    return Ok(new { message = true, AllService = allServices });
-
-
-        //}
-
-
-
-
         public async Task<IActionResult> AllService(string? searchName)
         {
-            // Start the query on the 'services' DbSet
-            var query = dbContext.services.AsQueryable();
-
-            // Apply the search filter if a name is provided
+            var  query = dbContext.services.AsQueryable();
             if (!string.IsNullOrEmpty(searchName))
             {
                 query = query.Where(s => s.Type.Name.Contains(searchName));
             }
-
-            // Execute the query with split query behavior to optimize performance
             var allServices = await query
                 .AsSplitQuery()
-                .Include(s => s.ImageDetails) // Include related image details
-                .Include(s => s.Reviews) // Include related reviews
+                .Include(s => s.ImageDetails) 
+                .Include(s => s.Reviews) 
                 .Select(s => new GetAllServiceDTOs
                 {
                     Id = s.Id,
                     userId = s.UsersID,
                     Description = s.Description,
                     PriceRange = s.PriceRange,
-                    TypeName = s.Type.Name, // Ensure the type name is part of the selection
+                    TypeName = s.Type.Name,
                     ImageDetails = s.ImageDetails.Select(img => new GetImageDTOs
                     {
                         Id = img.Id,
-                        Name = Path.Combine(Directory.GetCurrentDirectory(), img.Image) // Path construction for images
+                        Name = Path.Combine(Directory.GetCurrentDirectory(), img.Image) 
                     }).ToList(),
                     Reviews = s.Reviews.Select(r => new GetAllReviewDTOs
                     {
@@ -456,8 +408,6 @@ namespace Graduation.Controllers.ServiceToProject
                     }).ToList()
                 })
                 .ToListAsync();
-
-            // Return the result as an HTTP response
             return Ok(new { message = true, AllService = allServices });
         }
 

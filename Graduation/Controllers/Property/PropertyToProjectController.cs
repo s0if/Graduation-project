@@ -176,7 +176,7 @@ namespace Graduation.Controllers.PropertyToProject
                     ImageDetails details = new ImageDetails
                     {
                         PropertyId= propertyId,
-                        Image = FileSettings.UploadFile(request.Image, "ImagesProperty"),
+                        Image = await FileSettings.UploadFileAsync(request.Image),
                     };
                     await dbContext.images.AddAsync(details);
                     await dbContext.SaveChangesAsync();
@@ -210,8 +210,8 @@ namespace Graduation.Controllers.PropertyToProject
                         {
                             if (resultProperty.UsersID == requestUser.Id || role.Contains("admin"))
                             {
-                                FileSettings.deleteFile(resultImage.Image, "Images");
-                                resultImage.Image = FileSettings.UploadFile(request.Image, "ImagesProperty");
+                                await FileSettings.DeleteFileAsync(resultImage.Image);
+                                resultImage.Image = await FileSettings.UploadFileAsync(request.Image);
                                 dbContext.UpdateRange(resultImage);
                                 await dbContext.SaveChangesAsync();
                                 return Ok(new { status = 200 });
@@ -255,7 +255,7 @@ namespace Graduation.Controllers.PropertyToProject
                         {
                             if (resultProperty.UsersID == requestUser.Id || role.Contains("admin"))
                             {
-                                FileSettings.deleteFile(resultImage.Image, "Images"); ;
+                               await FileSettings.DeleteFileAsync(resultImage.Image); 
                                 dbContext.RemoveRange(resultImage);
                                 await dbContext.SaveChangesAsync();
                                 return Created();
