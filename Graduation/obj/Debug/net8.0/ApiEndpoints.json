@@ -767,12 +767,60 @@
   },
   {
     "ContainingType": "Graduation.Controllers.User.UserOperationsController",
-    "Method": "user",
-    "RelativePath": "UserOperations/user",
+    "Method": "DeleteUser",
+    "RelativePath": "UserOperations/DeleteUser",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.User.UserOperationsController",
+    "Method": "profile",
+    "RelativePath": "UserOperations/profile",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.User.UserOperationsController",
+    "Method": "UpdateAddress",
+    "RelativePath": "UserOperations/UpdateAddress",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "address",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.User.UserOperationsController",
+    "Method": "UpdatePhone",
+    "RelativePath": "UserOperations/UpdatePhone",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "phone",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": []
   }
 ]

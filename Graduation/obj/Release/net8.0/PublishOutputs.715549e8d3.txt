@@ -6,6 +6,8 @@ C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Graduation.pdb
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Azure.Core.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Azure.Identity.dll
+C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Azure.Storage.Blobs.dll
+C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Azure.Storage.Common.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Mapster.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Mapster.Core.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Microsoft.AspNetCore.Authentication.JwtBearer.dll
@@ -62,6 +64,7 @@ C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\System.Drawing.Common.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\System.Formats.Asn1.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\System.IO.Hashing.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\System.IO.Pipelines.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\System.Memory.Data.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\System.Runtime.Caching.dll

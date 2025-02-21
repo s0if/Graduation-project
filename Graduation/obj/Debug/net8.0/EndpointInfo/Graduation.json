@@ -1262,10 +1262,32 @@
         }
       }
     },
-    "/UserOperations/user": {
+    "/UserOperations/profile": {
       "get": {
         "tags": [
           "UserOperations"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/UserOperations/DeleteUser": {
+      "delete": {
+        "tags": [
+          "UserOperations"
+        ],
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -1298,6 +1320,48 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/UserOperations/UpdatePhone": {
+      "put": {
+        "tags": [
+          "UserOperations"
+        ],
+        "parameters": [
+          {
+            "name": "phone",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/UserOperations/UpdateAddress": {
+      "put": {
+        "tags": [
+          "UserOperations"
+        ],
+        "parameters": [
+          {
+            "name": "address",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"

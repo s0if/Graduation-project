@@ -400,7 +400,7 @@ namespace Graduation.Controllers.PropertyToProject
                     ImageDetails = s.ImageDetails.Select(img => new GetImageDTOs
                     {
                         Id = img.Id,
-                        Name = Path.Combine(Directory.GetCurrentDirectory(), img.Image)
+                        Name = img.Image
                     }).ToList(),
                     Reviews = s.Reviews.Select(r => new GetAllReviewDTOs
                     {

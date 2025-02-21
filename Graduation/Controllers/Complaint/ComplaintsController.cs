@@ -38,7 +38,7 @@ namespace Graduation.Controllers.ComplaintFolder
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
 
-                if (role.Contains("consumer"))
+                if (role.Contains("consumer")||role.Contains("provider"))
                 {
                     Complaint complaint = new Complaint
                     {
@@ -72,7 +72,11 @@ namespace Graduation.Controllers.ComplaintFolder
 
             if (role.Contains("admin"))
             {
-                IEnumerable<Complaint> request = await dbContext.complaints.ToListAsync();
+                var time = DateTime.Now.Day;
+                IEnumerable<Complaint> request =  dbContext.complaints
+                    .AsEnumerable()
+                    . Where(c => (DateTime.Now - c.CreatedDate).TotalDays <120)
+                     .ToList();
                 List<GetAllComplaintDTOs> complaints=new List<GetAllComplaintDTOs>();
                 foreach (var complaint in request)
                 {

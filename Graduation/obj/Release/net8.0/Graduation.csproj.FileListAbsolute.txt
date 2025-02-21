@@ -175,3 +175,6 @@ C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\Graduation.pdb
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\Graduation.genruntimeconfig.cache
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\ref\Graduation.dll
+C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Release\net8.0\Azure.Storage.Blobs.dll
+C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Release\net8.0\Azure.Storage.Common.dll
+C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Release\net8.0\System.IO.Hashing.dll

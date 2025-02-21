@@ -47,7 +47,7 @@ namespace Graduation.Controllers.User
                         UserName = user.UserName,
                         Email = user.Email,
                         Phone = user.PhoneNumber,
-                        Address = user.PhoneNumber,
+                        Address = user.Address,
                         Role = string.Join(",", await userManager.GetRolesAsync(user))
                     });
                 }
@@ -55,11 +55,8 @@ namespace Graduation.Controllers.User
             }
             return Unauthorized();
         }
-
-
-
-        [HttpGet("user")]
-        public async Task<IActionResult> user()
+        [HttpGet("profile")]
+        public async Task<IActionResult> profile()
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))
@@ -78,6 +75,27 @@ namespace Graduation.Controllers.User
                 Role = string.Join(",", await userManager.GetRolesAsync(requestUser))
             };
             return Ok(result );
+        }
+
+        [HttpDelete("DeleteUser")]
+        public async Task<IActionResult> DeleteUser(int Id)
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(new { message = "Token Is Missing" });
+            int? userId = ExtractClaims.ExtractUserId(token);
+            if (string.IsNullOrEmpty(userId.ToString()))
+                return Unauthorized(new { message = "Token Is Missing" });
+            ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            IList<string> role =await userManager.GetRolesAsync(requestUser);
+            if (role.Contains("admin"))
+            {
+                ApplicationUser User = await userManager.Users.FirstOrDefaultAsync(u=>u.Id==Id);
+                await userManager.DeleteAsync(User);
+                return Ok(new { message = "delete successful" });
+            }
+           
+            return Unauthorized();
         }
         [HttpPut("changeRole")]
         public async Task<IActionResult> changeRole(AuthChangeRoleDTOs request)
@@ -121,6 +139,59 @@ namespace Graduation.Controllers.User
                 return Unauthorized();
             }
             return NotFound();
+
+        }
+
+
+
+
+
+
+        [HttpPut("UpdatePhone")]
+        public async Task<IActionResult> UpdatePhone(string phone)
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(new { message = "Token Is Missing" });
+            int? userId = ExtractClaims.ExtractUserId(token);
+            if (string.IsNullOrEmpty(userId.ToString()))
+                return Unauthorized(new { message = "Token Is Missing" });
+            ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (requestUser is not null)
+            {
+                requestUser.PhoneNumber = phone;
+                await userManager.UpdateAsync(requestUser);
+               
+                return Ok(new { status = 200, message = "update successful" });
+            }
+          
+                ;
+                return BadRequest(new {message="user not found"});
+           
+        }
+
+
+
+        [HttpPut("UpdateAddress")]
+        public async Task<IActionResult> UpdateAddress(string address)
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(new { message = "Token Is Missing" });
+            int? userId = ExtractClaims.ExtractUserId(token);
+            if (string.IsNullOrEmpty(userId.ToString()))
+                return Unauthorized(new { message = "Token Is Missing" });
+            ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (requestUser is not null)
+            {
+                requestUser.Address = address;
+                await userManager.UpdateAsync(requestUser);
+
+                return Ok(new { status = 200, message = "update successful" });
+            }
+
+               ;
+            return BadRequest(new { message = "user not found" });
 
         }
     }
