@@ -376,38 +376,89 @@ namespace Graduation.Controllers.ServiceToProject
             return NotFound();
         }
         [HttpGet("AllService")]
-        public async Task<IActionResult> AllService()
+        //public async Task<IActionResult> AllService(string? searchName)
+        //{
+        //    var query = dbContext.properties.AsQueryable();
+
+        //    if (!string.IsNullOrEmpty(searchName))
+        //    {
+        //        query = query.Where(p => p.Type.Name.Contains(searchName));
+        //    }
+        //    var allServices = await dbContext.services
+        //        .AsSplitQuery()
+        //        .Include(s => s.ImageDetails) 
+        //        .Include(s => s.Reviews) 
+        //        .Select(s => new GetAllServiceDTOs
+        //        {
+        //            Id = s.Id,
+        //            userId=s.UsersID,
+        //            Description = s.Description,
+        //            PriceRange = s.PriceRange,
+        //            TypeName = s.Type.Name, 
+        //            ImageDetails = s.ImageDetails.Select(img => new GetImageDTOs
+        //            {
+        //                Id = img.Id,
+        //                Name= Path.Combine(Directory.GetCurrentDirectory(), img.Image)
+        //            }).ToList(),
+        //            Reviews = s.Reviews.Select(r=>new GetAllReviewDTOs
+        //            {
+        //                Id = r.Id,
+        //                description=r.Description,
+        //                date=r.CreateAt,
+        //                rating=r.Rating,
+
+        //            })  .ToList()
+        //        })
+        //        .ToListAsync();
+
+        //    return Ok(new { message = true, AllService = allServices });
+
+
+        //}
+
+
+
+
+        public async Task<IActionResult> AllService(string? searchName)
         {
+            // Start the query on the 'services' DbSet
+            var query = dbContext.services.AsQueryable();
 
-            var allServices = await dbContext.services
-            .Include(s => s.ImageDetails) 
-            .Include(s => s.Reviews) 
-            .Select(s => new GetAllServiceDTOs
+            // Apply the search filter if a name is provided
+            if (!string.IsNullOrEmpty(searchName))
             {
-                Id = s.Id,
-                userId=s.UsersID,
-                Description = s.Description,
-                PriceRange = s.PriceRange,
-                TypeName = s.Type.Name, 
-                ImageDetails = s.ImageDetails.Select(img => new GetImageDTOs
-                {
-                    Id = img.Id,
-                    Name= Path.Combine(Directory.GetCurrentDirectory(), img.Image)
-                }).ToList(),
-                Reviews = s.Reviews.Select(r=>new GetAllReviewDTOs
-                {
-                    Id = r.Id,
-                    description=r.Description,
-                    date=r.CreateAt,
-                    rating=r.Rating,
+                query = query.Where(s => s.Type.Name.Contains(searchName));
+            }
 
-                })  .ToList()
-            })
-            .ToListAsync();
+            // Execute the query with split query behavior to optimize performance
+            var allServices = await query
+                .AsSplitQuery()
+                .Include(s => s.ImageDetails) // Include related image details
+                .Include(s => s.Reviews) // Include related reviews
+                .Select(s => new GetAllServiceDTOs
+                {
+                    Id = s.Id,
+                    userId = s.UsersID,
+                    Description = s.Description,
+                    PriceRange = s.PriceRange,
+                    TypeName = s.Type.Name, // Ensure the type name is part of the selection
+                    ImageDetails = s.ImageDetails.Select(img => new GetImageDTOs
+                    {
+                        Id = img.Id,
+                        Name = Path.Combine(Directory.GetCurrentDirectory(), img.Image) // Path construction for images
+                    }).ToList(),
+                    Reviews = s.Reviews.Select(r => new GetAllReviewDTOs
+                    {
+                        Id = r.Id,
+                        description = r.Description,
+                        date = r.CreateAt,
+                        rating = r.Rating,
+                    }).ToList()
+                })
+                .ToListAsync();
 
+            // Return the result as an HTTP response
             return Ok(new { message = true, AllService = allServices });
-            
-
         }
 
     }

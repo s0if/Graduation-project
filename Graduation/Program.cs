@@ -21,7 +21,10 @@ namespace Graduation
             // Add services to the container.
 
             builder.Services.AddDbContext<ApplicationDbContext>(option =>
-                option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnections"))
+                option.UseSqlServer(
+                    builder.Configuration.GetConnectionString("DefaultConnections"),
+                     sqlServerOptions => sqlServerOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery)
+                     )
             );
             builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>(option =>
             {

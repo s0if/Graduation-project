@@ -56,44 +56,6 @@ namespace Graduation.Controllers.Save
             return NotFound();
 
         }
-
-
-
-
-
-
-        [HttpDelete("UnSave")]
-        public async Task<IActionResult> UnSave(int saveId)
-        {
-            if (ModelState.IsValid)
-            {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
-                if (string.IsNullOrEmpty(token))
-                    return Unauthorized(new { message = "Token Is Missing" });
-                int? userId = ExtractClaims.ExtractUserId(token);
-                if (string.IsNullOrEmpty(userId.ToString()))
-                    return Unauthorized(new { message = "Token Is Missing" });
-                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
-                var role = await userManager.GetRolesAsync(requestUser);
-                
-                    SaveProject result=await dbContext.saveProjects.FindAsync(saveId);
-                    if (result.UserId== requestUser.Id||role.Contains("admin"))
-                    {
-                        dbContext.saveProjects.RemoveRange(result);
-                        await dbContext.SaveChangesAsync();
-                        return Ok(new { status = 200, message = "delete successfully" });
-                    }
-                    return Unauthorized() ;
-              
-
-            }
-            return NotFound();
-
-        }
-
-
-
-
         [HttpPost("SaveProperty")]
         public async Task<IActionResult> SaveProperty(int propertyId)
         {
@@ -124,45 +86,34 @@ namespace Graduation.Controllers.Save
             return NotFound();
 
         }
+        [HttpDelete("UnSave")]
+        public async Task<IActionResult> UnSave(int saveId)
+        {
+            if (ModelState.IsValid)
+            {
+                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+                if (string.IsNullOrEmpty(token))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                int? userId = ExtractClaims.ExtractUserId(token);
+                if (string.IsNullOrEmpty(userId.ToString()))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
+                var role = await userManager.GetRolesAsync(requestUser);
+                
+                    SaveProject result=await dbContext.saveProjects.FindAsync(saveId);
+                    if (result.UserId== requestUser.Id||role.Contains("admin"))
+                    {
+                        dbContext.saveProjects.RemoveRange(result);
+                        await dbContext.SaveChangesAsync();
+                        return Ok(new { status = 200, message = "delete successfully" });
+                    }
+                    return Unauthorized() ;
+              
 
+            }
+            return NotFound();
 
-
-
-
-
-        //[HttpDelete("UnSaveProperty")]
-        //public async Task<IActionResult> UnSaveProperty(int saveId)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
-        //        if (string.IsNullOrEmpty(token))
-        //            return Unauthorized(new { message = "Token Is Missing" });
-        //        int? userId = ExtractClaims.ExtractUserId(token);
-        //        if (string.IsNullOrEmpty(userId.ToString()))
-        //            return Unauthorized(new { message = "Token Is Missing" });
-        //        ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
-        //        var role = await userManager.GetRolesAsync(requestUser);
-        //        if (role.Contains("admin"))
-        //        {
-        //            SaveProject result = await dbContext.saveProjects.FindAsync(saveId);
-        //            if (result.UserId == requestUser.Id)
-        //            {
-        //                dbContext.saveProjects.RemoveRange(result);
-        //                await dbContext.SaveChangesAsync();
-        //                return Ok(new { status = 200, message = "delete successfully" });
-        //            }
-        //            return Unauthorized();
-
-        //        }
-        //        return Unauthorized();
-
-        //    }
-        //    return NotFound();
-
-        //}
-
-
+        }
         [HttpGet("GetSave")]
         public async Task<IActionResult> GetSave()
         {

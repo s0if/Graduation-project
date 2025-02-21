@@ -145,7 +145,6 @@ C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Debug\ne
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.Graduation.props
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.Graduation.props
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Debug\net8.0\staticwebassets.pack.json
-C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Debug\net8.0\Graduation.csproj.Up2Date
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Debug\net8.0\Graduation.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Debug\net8.0\refint\Graduation.dll
@@ -175,3 +174,4 @@ C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Debug\ne
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Debug\net8.0\Mapster.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Debug\net8.0\Mapster.Core.dll
+C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

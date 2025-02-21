@@ -69,7 +69,6 @@ namespace Graduation.Controllers.PropertyToProject
             }
             return NotFound();
         }
-
         [HttpPut("UpdateProperty")]
         public async Task<IActionResult> UpdateProperty(UpdatePropertyDTOs request,int propertyId)
         {
@@ -120,8 +119,6 @@ namespace Graduation.Controllers.PropertyToProject
             return NotFound();
 
         }
-
-
         [HttpDelete("DeleteProperty")]
         public async Task<IActionResult> DeleteProperty( int propertyId)
         {
@@ -344,7 +341,6 @@ namespace Graduation.Controllers.PropertyToProject
             }
             return NotFound();
         }
-
         [HttpDelete("DeleteReviewProperty")]
         public async Task<IActionResult> DeleteReviewProperty(int reviewId)
         {
@@ -379,41 +375,44 @@ namespace Graduation.Controllers.PropertyToProject
             }
             return NotFound();
         }
-
         [HttpGet("AllProperty")]
-        public async Task<IActionResult> AllProperty()
+        public async Task<IActionResult> AllProperty(string? searchName)
         {
+            var query = dbContext.properties.AsQueryable();
 
-            var allProperty = await dbContext.properties
-            .Include(p => p.ImageDetails)
-            .Include(p => p.Reviews)
-            .Select(s => new GetAllPropertyDTOs
+            if (!string.IsNullOrEmpty(searchName))
             {
-                Id = s.Id,
-                UserID = s.UsersID,
-                Description = s.Description,
-                TypeName = s.Type.Name,
-                StartAt=s.StartAt,
-                EndAt=s.EndAt,
-                ImageDetails = s.ImageDetails.Select(img => new GetImageDTOs
-                {
-                    Id = img.Id,
-                    Name = Path.Combine(Directory.GetCurrentDirectory(), img.Image)
-                }).ToList(),
-                Reviews = s.Reviews.Select(r => new GetAllReviewDTOs
-                {
-                    Id = r.Id,
-                    description = r.Description,
-                    date = r.CreateAt,
-                    rating = r.Rating,
+                query = query.Where(p => p.Type.Name.Contains(searchName));
+            }
 
-                }).ToList()
-            })
-            .ToListAsync();
+            var allProperty = await query
+                .AsSplitQuery()
+                .Include(p => p.ImageDetails)
+                .Include(p => p.Reviews)
+                .Select(s => new GetAllPropertyDTOs
+                {
+                    Id = s.Id,
+                    UserID = s.UsersID,
+                    Description = s.Description,
+                    TypeName = s.Type.Name,
+                    StartAt = s.StartAt,
+                    EndAt = s.EndAt,
+                    ImageDetails = s.ImageDetails.Select(img => new GetImageDTOs
+                    {
+                        Id = img.Id,
+                        Name = Path.Combine(Directory.GetCurrentDirectory(), img.Image)
+                    }).ToList(),
+                    Reviews = s.Reviews.Select(r => new GetAllReviewDTOs
+                    {
+                        Id = r.Id,
+                        description = r.Description,
+                        date = r.CreateAt,
+                        rating = r.Rating,
+                    }).ToList()
+                })
+                .ToListAsync();
 
             return Ok(new { message = true, AllProperty = allProperty });
-
-
         }
 
 

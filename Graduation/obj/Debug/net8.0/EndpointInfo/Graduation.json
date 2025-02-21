@@ -775,6 +775,15 @@
         "tags": [
           "PropertyToProject"
         ],
+        "parameters": [
+          {
+            "name": "searchName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -804,14 +813,14 @@
         }
       }
     },
-    "/SaveToProject/UnSave": {
-      "delete": {
+    "/SaveToProject/SaveProperty": {
+      "post": {
         "tags": [
           "SaveToProject"
         ],
         "parameters": [
           {
-            "name": "saveId",
+            "name": "propertyId",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -826,14 +835,14 @@
         }
       }
     },
-    "/SaveToProject/SaveProperty": {
-      "post": {
+    "/SaveToProject/UnSave": {
+      "delete": {
         "tags": [
           "SaveToProject"
         ],
         "parameters": [
           {
-            "name": "propertyId",
+            "name": "saveId",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -1158,6 +1167,15 @@
       "get": {
         "tags": [
           "ServiceToProject"
+        ],
+        "parameters": [
+          {
+            "name": "searchName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "200": {
