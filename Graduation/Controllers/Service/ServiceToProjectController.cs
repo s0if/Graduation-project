@@ -378,12 +378,16 @@ namespace Graduation.Controllers.ServiceToProject
             return NotFound();
         }
         [HttpGet("AllService")]
-        public async Task<IActionResult> AllService(string? searchName)
+        public async Task<IActionResult> AllService(string? type, string? address)
         {
             var  query = dbContext.services.AsQueryable();
-            if (!string.IsNullOrEmpty(searchName))
+            if (!string.IsNullOrEmpty(type))
             {
-                query = query.Where(s => s.Type.Name.Contains(searchName));
+                query = query.Where(s => s.Type.Name.Contains(type));
+            }
+            if (!string.IsNullOrEmpty(address))
+            {
+                query = query.Where(p => p.Address.Name.Contains(address));
             }
             var allServices = await query
                 .AsSplitQuery()

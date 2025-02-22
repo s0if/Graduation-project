@@ -17,22 +17,6 @@
   },
   {
     "ContainingType": "Graduation.Controllers.Address.AddressController",
-    "Method": "DeleteAddress",
-    "RelativePath": "Address/DeleteAddress",
-    "HttpMethod": "DELETE",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "addressId",
-        "Type": "System.Int32",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Graduation.Controllers.Address.AddressController",
     "Method": "GetAddress",
     "RelativePath": "Address/GetAddress",
     "HttpMethod": "GET",
@@ -373,7 +357,12 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "searchName",
+        "Name": "type",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "address",
         "Type": "System.String",
         "IsRequired": false
       }
@@ -611,7 +600,12 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "searchName",
+        "Name": "type",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "address",
         "Type": "System.String",
         "IsRequired": false
       }

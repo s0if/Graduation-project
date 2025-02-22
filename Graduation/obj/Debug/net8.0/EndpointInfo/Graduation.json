@@ -38,28 +38,6 @@
         }
       }
     },
-    "/Address/DeleteAddress": {
-      "delete": {
-        "tags": [
-          "Address"
-        ],
-        "parameters": [
-          {
-            "name": "addressId",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/Advertisement/AddServiceAdvertisement": {
       "post": {
         "tags": [
@@ -832,7 +810,14 @@
         ],
         "parameters": [
           {
-            "name": "searchName",
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "address",
             "in": "query",
             "schema": {
               "type": "string"
@@ -1225,7 +1210,14 @@
         ],
         "parameters": [
           {
-            "name": "searchName",
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "address",
             "in": "query",
             "schema": {
               "type": "string"

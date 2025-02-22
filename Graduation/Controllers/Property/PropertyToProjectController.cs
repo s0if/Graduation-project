@@ -382,13 +382,17 @@ namespace Graduation.Controllers.PropertyToProject
             return NotFound();
         }
         [HttpGet("AllProperty")]
-        public async Task<IActionResult> AllProperty(string? searchName)
+        public async Task<IActionResult> AllProperty(string? type , string? address)
         {
             var query = dbContext.properties.AsQueryable();
 
-            if (!string.IsNullOrEmpty(searchName))
+            if (!string.IsNullOrEmpty(type))
             {
-                query = query.Where(p => p.Type.Name.Contains(searchName));
+                query = query.Where(p => p.Type.Name.Contains(type));
+            }
+            if (!string.IsNullOrEmpty(address))
+            {
+                query = query.Where(p => p.Address.Name.Contains(address));
             }
 
             var allProperty = await query
