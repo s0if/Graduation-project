@@ -4,6 +4,7 @@ using Graduation.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Graduation.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250222170056_updateAddressAndAppPrice")]
+    partial class updateAddressAndAppPrice
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace Graduation.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Graduation.Model.AddressToProject", b =>
+            modelBuilder.Entity("Graduation.Model.Address", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -324,6 +327,9 @@ namespace Graduation.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
+
                     b.Property<double>("PriceRange")
                         .HasColumnType("float");
 
@@ -515,7 +521,7 @@ namespace Graduation.Data.Migrations
 
             modelBuilder.Entity("Graduation.Model.ApplicationUser", b =>
                 {
-                    b.HasOne("Graduation.Model.AddressToProject", "Address")
+                    b.HasOne("Graduation.Model.Address", "Address")
                         .WithMany("Users")
                         .HasForeignKey("AddressId");
 
@@ -552,7 +558,7 @@ namespace Graduation.Data.Migrations
 
             modelBuilder.Entity("Graduation.Model.PropertyProject", b =>
                 {
-                    b.HasOne("Graduation.Model.AddressToProject", "Address")
+                    b.HasOne("Graduation.Model.Address", "Address")
                         .WithMany("Properties")
                         .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -633,7 +639,7 @@ namespace Graduation.Data.Migrations
 
             modelBuilder.Entity("Graduation.Model.ServiceProject", b =>
                 {
-                    b.HasOne("Graduation.Model.AddressToProject", "Address")
+                    b.HasOne("Graduation.Model.Address", "Address")
                         .WithMany("Services")
                         .HasForeignKey("AddressId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -715,7 +721,7 @@ namespace Graduation.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Graduation.Model.AddressToProject", b =>
+            modelBuilder.Entity("Graduation.Model.Address", b =>
                 {
                     b.Navigation("Properties");
 

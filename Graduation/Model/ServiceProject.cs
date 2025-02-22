@@ -22,6 +22,9 @@ namespace Graduation.Model
         public int TypeId { get; set; }
         public TypeService Type { get; set; }
 
+        [ForeignKey(nameof(Address))]
+        public int AddressId { get; set; }
+        public AddressToProject Address { get; set; }
 
         public IEnumerable<ImageDetails> ImageDetails { get; set; } = new HashSet<ImageDetails>();
         public IEnumerable<Review> Reviews { get; set; } = new HashSet<Review>();

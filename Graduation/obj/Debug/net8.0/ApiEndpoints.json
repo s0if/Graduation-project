@@ -1,5 +1,47 @@
 [
   {
+    "ContainingType": "Graduation.Controllers.Address.AddressController",
+    "Method": "AddAddress",
+    "RelativePath": "Address/AddAddress",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "name",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Address.AddressController",
+    "Method": "DeleteAddress",
+    "RelativePath": "Address/DeleteAddress",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "addressId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Address.AddressController",
+    "Method": "GetAddress",
+    "RelativePath": "Address/GetAddress",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Graduation.Controllers.Advertisement.AdvertisementController",
     "Method": "AddPropertyAdvertisement",
     "RelativePath": "Advertisement/AddPropertyAdvertisement",
@@ -800,8 +842,8 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "address",
-        "Type": "System.String",
+        "Name": "addressId",
+        "Type": "System.Int32",
         "IsRequired": false
       }
     ],
@@ -818,6 +860,22 @@
       {
         "Name": "phone",
         "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.User.UserOperationsController",
+    "Method": "User",
+    "RelativePath": "UserOperations/User",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
         "IsRequired": false
       }
     ],

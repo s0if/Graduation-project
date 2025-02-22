@@ -12,5 +12,6 @@ namespace Graduation.DTOs.ServiceToProject
         public double PriceRange { get; set; }
         public int UsersID { get; set; }
         public int TypeId { get; set; }
+        public int AddressId { get; set; }
     }
 }

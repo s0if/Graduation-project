@@ -48,14 +48,16 @@ namespace Graduation.Controllers.Auth
                     Email = request.Email,
                     UserName = request.Name,
                     PhoneNumber = request.Phone,
-                    Address = request.Address
+                    AddressId = request.addressId
                 };
                 IdentityResult result = await userManager.CreateAsync(user, request.Password);
                 if (result.Succeeded)
                 {
                     if (request.role == "admin")
                     {
+                        await userManager.DeleteAsync(user);
                         return BadRequest(new {message="you cannot create an account Admin"});
+
                     }
                     var resultRole = await userManager.AddToRoleAsync(user, request.role);
                     string token = await authServices.CreateTokenasync(user, userManager);

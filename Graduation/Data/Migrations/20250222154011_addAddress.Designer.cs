@@ -4,6 +4,7 @@ using Graduation.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Graduation.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250222154011_addAddress")]
+    partial class addAddress
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace Graduation.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Graduation.Model.AddressToProject", b =>
+            modelBuilder.Entity("Graduation.Model.Address", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -199,7 +202,7 @@ namespace Graduation.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AddressId")
+                    b.Property<int?>("AddressId")
                         .HasColumnType("int");
 
                     b.Property<int?>("AdvertisementID")
@@ -211,9 +214,6 @@ namespace Graduation.Data.Migrations
 
                     b.Property<DateTime>("EndAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
 
                     b.Property<DateTime>("StartAt")
                         .HasColumnType("datetime2");
@@ -314,7 +314,7 @@ namespace Graduation.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AddressId")
+                    b.Property<int?>("AddressId")
                         .HasColumnType("int");
 
                     b.Property<int?>("AdvertisementID")
@@ -515,7 +515,7 @@ namespace Graduation.Data.Migrations
 
             modelBuilder.Entity("Graduation.Model.ApplicationUser", b =>
                 {
-                    b.HasOne("Graduation.Model.AddressToProject", "Address")
+                    b.HasOne("Graduation.Model.Address", "Address")
                         .WithMany("Users")
                         .HasForeignKey("AddressId");
 
@@ -552,11 +552,9 @@ namespace Graduation.Data.Migrations
 
             modelBuilder.Entity("Graduation.Model.PropertyProject", b =>
                 {
-                    b.HasOne("Graduation.Model.AddressToProject", "Address")
+                    b.HasOne("Graduation.Model.Address", "Address")
                         .WithMany("Properties")
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AddressId");
 
                     b.HasOne("Graduation.Model.AdvertisementProject", "Advertisements")
                         .WithMany("Properties")
@@ -633,11 +631,9 @@ namespace Graduation.Data.Migrations
 
             modelBuilder.Entity("Graduation.Model.ServiceProject", b =>
                 {
-                    b.HasOne("Graduation.Model.AddressToProject", "Address")
+                    b.HasOne("Graduation.Model.Address", "Address")
                         .WithMany("Services")
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AddressId");
 
                     b.HasOne("Graduation.Model.AdvertisementProject", "Advertisements")
                         .WithMany("Services")
@@ -715,7 +711,7 @@ namespace Graduation.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Graduation.Model.AddressToProject", b =>
+            modelBuilder.Entity("Graduation.Model.Address", b =>
                 {
                     b.Navigation("Properties");
 

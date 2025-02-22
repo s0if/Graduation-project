@@ -14,6 +14,7 @@ namespace Graduation.DTOs.PropertyToProject
         public int UserID { get; set; }
         public string TypeName { get; set; }
 
+        public string AddressName { get; set; }
 
         public List<GetImageDTOs> ImageDetails { get; set; }
         public List<GetAllReviewDTOs> Reviews { get; set; }

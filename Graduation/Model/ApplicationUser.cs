@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Graduation.Model
 {
     public class ApplicationUser :IdentityUser<int>
     {
-        public string? Address { get; set; }
+        [ForeignKey(nameof(Address))]
+        public int? AddressId { get; set; }
+        public AddressToProject? Address { get; set; }
         public IEnumerable<Complaint> Complaints { get; set; }=new HashSet<Complaint>();
         public IEnumerable<PropertyProject> Properties { get; set; } = new HashSet<PropertyProject>();
         public IEnumerable<ServiceProject> Services { get; set; }= new HashSet<ServiceProject>();

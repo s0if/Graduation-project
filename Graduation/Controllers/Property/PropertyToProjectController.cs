@@ -51,6 +51,8 @@ namespace Graduation.Controllers.PropertyToProject
                       EndAt= request.EndAt,
                       TypeId= request.TypeId,
                       UsersID= requestUser.Id,
+                      AddressId= request.AddressId,
+                      Price= request.Price,
                     };
                     await dbContext.properties.AddAsync(project);
                     await dbContext.SaveChangesAsync();
@@ -61,7 +63,9 @@ namespace Graduation.Controllers.PropertyToProject
                       StartAt= project.StartAt,
                       EndAt= project.EndAt,
                       TypeId= project.TypeId,
-                      userId= project.UsersID
+                      userId= project.UsersID ,
+                      addressId=project.AddressId,
+                      Price= project.Price,
                     };
                     return Ok(new { status = 200, returnProperty });
                 }
@@ -92,7 +96,7 @@ namespace Graduation.Controllers.PropertyToProject
                             result.Description = request.Description;
                             result.StartAt=request.StartAt;
                             result.EndAt=request.EndAt;
-                            result.TypeId = result.TypeId;
+                            result.Price = request.Price;
                             dbContext.UpdateRange(result);
                             await dbContext.SaveChangesAsync();
 
@@ -102,8 +106,10 @@ namespace Graduation.Controllers.PropertyToProject
                                 Description = result.Description,
                                 StartAt = result.StartAt,
                                 EndAt = result.EndAt,
+                                Price = result.Price,
                                 TypeId = result.TypeId,
-                                userId = result.UsersID
+                                userId = result.UsersID ,
+                                addressId = result.AddressId ,
                             };
                             return Ok(new { status = 200, returnProperty });
 
@@ -389,6 +395,7 @@ namespace Graduation.Controllers.PropertyToProject
                 .AsSplitQuery()
                 .Include(p => p.ImageDetails)
                 .Include(p => p.Reviews)
+                .Include (p => p.Address)
                 .Select(s => new GetAllPropertyDTOs
                 {
                     Id = s.Id,
@@ -397,6 +404,7 @@ namespace Graduation.Controllers.PropertyToProject
                     TypeName = s.Type.Name,
                     StartAt = s.StartAt,
                     EndAt = s.EndAt,
+                    AddressName = s.Address.Name,
                     ImageDetails = s.ImageDetails.Select(img => new GetImageDTOs
                     {
                         Id = img.Id,
@@ -408,7 +416,8 @@ namespace Graduation.Controllers.PropertyToProject
                         description = r.Description,
                         date = r.CreateAt,
                         rating = r.Rating,
-                    }).ToList()
+                    }).ToList(),
+                   
                 })
                 .ToListAsync();
 

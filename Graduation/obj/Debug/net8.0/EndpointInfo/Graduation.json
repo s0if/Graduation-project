@@ -5,6 +5,61 @@
     "version": "1.0"
   },
   "paths": {
+    "/Address/AddAddress": {
+      "post": {
+        "tags": [
+          "Address"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Address/GetAddress": {
+      "get": {
+        "tags": [
+          "Address"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Address/DeleteAddress": {
+      "delete": {
+        "tags": [
+          "Address"
+        ],
+        "parameters": [
+          {
+            "name": "addressId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/Advertisement/AddServiceAdvertisement": {
       "post": {
         "tags": [
@@ -1274,6 +1329,28 @@
         }
       }
     },
+    "/UserOperations/User": {
+      "get": {
+        "tags": [
+          "UserOperations"
+        ],
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/UserOperations/DeleteUser": {
       "delete": {
         "tags": [
@@ -1355,10 +1432,11 @@
         ],
         "parameters": [
           {
-            "name": "address",
+            "name": "addressId",
             "in": "query",
             "schema": {
-              "type": "string"
+              "type": "integer",
+              "format": "int32"
             }
           }
         ],
@@ -1423,7 +1501,15 @@
             "type": "string",
             "format": "date-time"
           },
+          "price": {
+            "type": "number",
+            "format": "double"
+          },
           "typeId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "addressId": {
             "type": "integer",
             "format": "int32"
           }
@@ -1496,6 +1582,10 @@
             "format": "double"
           },
           "typeId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "addressId": {
             "type": "integer",
             "format": "int32"
           }
@@ -1610,9 +1700,9 @@
             "minLength": 1,
             "type": "string"
           },
-          "address": {
-            "type": "string",
-            "nullable": true
+          "addressId": {
+            "type": "integer",
+            "format": "int32"
           },
           "role": {
             "type": "string",
@@ -1688,6 +1778,10 @@
           "endAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "price": {
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false

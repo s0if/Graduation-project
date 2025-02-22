@@ -18,7 +18,7 @@ namespace Graduation.DTOs.Auth
         [Required]
         
         public string Phone { get; set; }
-        public string? Address {  get; set; }
+        public int addressId {  get; set; }
         public string role { get; set; } = "consumer";
     }
 }

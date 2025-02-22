@@ -38,7 +38,7 @@ namespace Graduation.Controllers.User
             {
 
                 List<AuthGetAllUserDTOs> AllUser = new List<AuthGetAllUserDTOs>();
-                IEnumerable<ApplicationUser> GetUsers = await userManager.Users.ToListAsync();
+                IEnumerable<ApplicationUser> GetUsers = await userManager.Users.AsSplitQuery().Include(A=>A.Address).ToListAsync();
                 foreach (ApplicationUser user in GetUsers)
                 {
                     AllUser.Add(new AuthGetAllUserDTOs
@@ -47,7 +47,7 @@ namespace Graduation.Controllers.User
                         UserName = user.UserName,
                         Email = user.Email,
                         Phone = user.PhoneNumber,
-                        Address = user.Address,
+                        Address = user.Address?.Name,
                         Role = string.Join(",", await userManager.GetRolesAsync(user))
                     });
                 }
@@ -64,17 +64,34 @@ namespace Graduation.Controllers.User
             int? userId = ExtractClaims.ExtractUserId(token);
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
-            ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            ApplicationUser requestUser = await userManager.Users.AsSplitQuery().Include(A=>A.Address).FirstOrDefaultAsync(u => u.Id == userId);
             AuthGetAllUserDTOs result = new AuthGetAllUserDTOs
             {
                 Id = requestUser.Id,
                 UserName = requestUser.UserName,
                 Email = requestUser.Email,
                 Phone = requestUser.PhoneNumber,
-                Address = requestUser.PhoneNumber,
+                Address = requestUser.Address?.Name,
                 Role = string.Join(",", await userManager.GetRolesAsync(requestUser))
             };
             return Ok(result );
+        }
+
+        [HttpGet("User")]
+        public async Task<IActionResult> User(int Id)
+        {
+            
+            ApplicationUser requestUser = await userManager.Users.AsSplitQuery().Include(A=>A.Address).FirstOrDefaultAsync(u => u.Id == Id);
+            AuthGetAllUserDTOs result = new AuthGetAllUserDTOs
+            {
+                Id = requestUser.Id,
+                UserName = requestUser.UserName,
+                Email = requestUser.Email,
+                Phone = requestUser.PhoneNumber,
+                Address = requestUser.Address?.Name,
+                Role = string.Join(",", await userManager.GetRolesAsync(requestUser))
+            };
+            return Ok(result);
         }
 
         [HttpDelete("DeleteUser")]
@@ -173,7 +190,7 @@ namespace Graduation.Controllers.User
 
 
         [HttpPut("UpdateAddress")]
-        public async Task<IActionResult> UpdateAddress(string address)
+        public async Task<IActionResult> UpdateAddress(int addressId)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))
@@ -184,7 +201,7 @@ namespace Graduation.Controllers.User
             ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if (requestUser is not null)
             {
-                requestUser.Address = address;
+                requestUser.AddressId = addressId;
                 await userManager.UpdateAsync(requestUser);
 
                 return Ok(new { status = 200, message = "update successful" });

@@ -8,6 +8,7 @@ namespace Graduation.DTOs.ServiceToProject
         public string Description { get; set; }
         public double PriceRange { get; set; }
         public int TypeId { get; set; }
-        
+        public int AddressId { get; set; }
+
     }
 }

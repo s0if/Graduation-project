@@ -30,6 +30,7 @@ namespace Graduation.Data
         public DbSet<ServiceProject> services { get; set; }
         public DbSet<TypeService> typeServices { get; set; }
         public DbSet<SaveProject> saveProjects { get; set; }
+        public DbSet<AddressToProject> addresses { get; set; }
 
     }
 }

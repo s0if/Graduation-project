@@ -50,7 +50,7 @@ namespace Graduation.Controllers.ServiceToProject
                         PriceRange = request.PriceRange,
                         UsersID = requestUser.Id,
                         TypeId = request.TypeId,
-
+                        AddressId=request.AddressId,
                     };
                     await dbContext.services.AddAsync(serviceProject);
                     await dbContext.SaveChangesAsync();
@@ -61,7 +61,9 @@ namespace Graduation.Controllers.ServiceToProject
                         Description = serviceProject.Description,
                         PriceRange = serviceProject.PriceRange,
                         UsersID = serviceProject.UsersID,
-                        TypeId = serviceProject.TypeId
+                        TypeId = serviceProject.TypeId ,
+                        AddressId = serviceProject.AddressId,
+
                     };
                     return Ok(new { status = 200, getServiceDTOs });
                 }
@@ -85,7 +87,7 @@ namespace Graduation.Controllers.ServiceToProject
                 var role = await userManager.GetRolesAsync(requestUser);
                 if (role.Contains("provider") )
                 {
-                    ServiceProject result=await dbContext.services.FindAsync(serviceId);
+                    ServiceProject result=await dbContext.services.AsSplitQuery().Include(A=>A.Address).FirstOrDefaultAsync(s=>s.Id== serviceId);
                     if(result is not null)
                     {
                         if (result.UsersID== requestUser.Id|| role.Contains("admin"))
@@ -94,7 +96,6 @@ namespace Graduation.Controllers.ServiceToProject
                         if (result is not null)
                         {
                             result.Description = request.Description;
-                                result.TypeId = result.TypeId;
                             result.PriceRange = request.PriceRange;
                              dbContext.UpdateRange(result);
                             await dbContext.SaveChangesAsync();
@@ -105,7 +106,8 @@ namespace Graduation.Controllers.ServiceToProject
                             Description = result.Description,
                             PriceRange = result.PriceRange,
                             UsersID = result.UsersID,
-                            TypeId = result.TypeId
+                            TypeId = result.TypeId  ,
+                            AddressId = result.AddressId,
                         };
                         return Ok(new { status = 200, getServiceDTOs });
                         };
@@ -387,6 +389,7 @@ namespace Graduation.Controllers.ServiceToProject
                 .AsSplitQuery()
                 .Include(s => s.ImageDetails) 
                 .Include(s => s.Reviews) 
+                .Include (s => s.Address)
                 .Select(s => new GetAllServiceDTOs
                 {
                     Id = s.Id,
@@ -394,6 +397,7 @@ namespace Graduation.Controllers.ServiceToProject
                     Description = s.Description,
                     PriceRange = s.PriceRange,
                     TypeName = s.Type.Name,
+                    AddressName=s.Address.Name,
                     ImageDetails = s.ImageDetails.Select(img => new GetImageDTOs
                     {
                         Id = img.Id,

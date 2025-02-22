@@ -8,9 +8,6 @@ namespace Graduation.Model
         [ForeignKey(nameof(User))]
         public int UserId { get; set; }
         public ApplicationUser User { get; set; }
-
-
-        
         [ForeignKey(nameof(Properties))]
         public int? PropertyId { get; set; }
         public PropertyProject? Properties { get; set; }

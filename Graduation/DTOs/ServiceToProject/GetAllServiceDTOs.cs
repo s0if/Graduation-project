@@ -15,6 +15,7 @@ namespace Graduation.DTOs.ServiceToProject
         public double PriceRange { get; set; }
         public string TypeName { get; set; }
 
+        public string AddressName { get; set; }
 
         public List<GetImageDTOs> ImageDetails { get; set; } 
         public List<GetAllReviewDTOs> Reviews { get; set; } 

@@ -10,6 +10,8 @@ namespace Graduation.DTOs.PropertyToProject
         public string Description { get; set; }
         public DateTime StartAt { get; set; }
         public DateTime EndAt { get; set; }
+        public double Price { get; set; }
         public int TypeId { get; set; }
+        public int AddressId { get; set; }
     }
 }
