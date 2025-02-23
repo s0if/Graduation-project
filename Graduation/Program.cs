@@ -33,8 +33,10 @@ namespace Graduation
                 option.Password.RequireDigit = true;
                 option.Password.RequireNonAlphanumeric = true;
                 option.User.RequireUniqueEmail = true;
-                option.SignIn.RequireConfirmedEmail = true;
-            }).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+                //option.SignIn.RequireConfirmedEmail = true;
+                
+            }).AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders();
 
 
             builder.Host.UseSerilog((context, configuration) =>

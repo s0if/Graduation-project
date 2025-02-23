@@ -281,6 +281,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "code",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -294,6 +301,22 @@
       "post": {
         "tags": [
           "Auth"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "requestBody": {
           "content": {
@@ -1705,9 +1728,9 @@
       },
       "AuthRestPasswordDTOs": {
         "required": [
+          "code",
           "email",
-          "newPassword",
-          "token"
+          "newPassword"
         ],
         "type": "object",
         "properties": {
@@ -1721,7 +1744,7 @@
             "type": "string",
             "format": "password"
           },
-          "token": {
+          "code": {
             "minLength": 1,
             "type": "string"
           }

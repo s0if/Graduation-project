@@ -6,6 +6,8 @@ namespace Graduation.Model
 {
     public class ApplicationUser :IdentityUser<int>
     {
+        public string? ConfirmationCode { get; set; }
+        public DateTime? ConfirmationCodeExpiry { get; set; }
         [ForeignKey(nameof(Address))]
         public int? AddressId { get; set; }
         public AddressToProject? Address { get; set; }

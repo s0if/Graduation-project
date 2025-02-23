@@ -43,6 +43,11 @@ namespace Graduation.Controllers.Auth
         {
             if (ModelState.IsValid)
             {
+               ApplicationUser application=await userManager.FindByEmailAsync(request.Email);
+                if(application.EmailConfirmed== false)
+                {
+                    await userManager.DeleteAsync(application);
+                }
                 ApplicationUser user = new ApplicationUser()
                 {
                     Email = request.Email,
@@ -59,15 +64,17 @@ namespace Graduation.Controllers.Auth
                         return BadRequest(new {message="you cannot create an account Admin"});
 
                     }
+                    var code = new Random().Next(100000, 999999).ToString();
+                    user.ConfirmationCode = code;
+                    user.ConfirmationCodeExpiry = DateTime.UtcNow.AddMinutes(20);
+                    await userManager.UpdateAsync(user);
                     var resultRole = await userManager.AddToRoleAsync(user, request.role);
-                    string token = await authServices.CreateTokenasync(user, userManager);
-                    string confirmEmail = Url.Action("ConfirmEmail", "Auth", new { email = user.Email, token = token }, protocol: HttpContext.Request.Scheme);
 
                     EmailDTOs emailDTOs = new EmailDTOs()
                     {
                         Subject = "Confirm Email",
                         Recivers = user.Email,
-                        Body = confirmEmail
+                        Body = code
                     };
 
                     EmailSetting.SendEmail(emailDTOs);
@@ -82,30 +89,35 @@ namespace Graduation.Controllers.Auth
 
         }
         [HttpPost("ConfirmEmail")]
-        public async Task<IActionResult> ConfirmEmail(string email)
+        public async Task<IActionResult> ConfirmEmail(string email,string code)
         {
             if (ModelState.IsValid)
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
-                if (string.IsNullOrEmpty(token))
-                    return Unauthorized(new { message = "Token Is Missing" });
-                int? userId = ExtractClaims.ExtractUserId(token);
-                if (string.IsNullOrEmpty(userId.ToString()))
-                    return Unauthorized(new { message = "Token Is Missing" });
+                
 
-                ApplicationUser user = await userManager.FindByIdAsync(userId.ToString());
+                ApplicationUser user = await userManager.FindByEmailAsync(email);
                 if (user is not null && user.Email == email)
                 {
-                    user.EmailConfirmed = true;
-                    await userManager.UpdateAsync(user);
-                    return Created();
+                    if (user.ConfirmationCode == code )
+                    {
+                        if (user.ConfirmationCodeExpiry < DateTime.Now)
+                        {
+                            user.EmailConfirmed = true;
+                            await userManager.UpdateAsync(user);
+                            return Ok(new { message = "success confirm" });
+                        }
+
+                        return BadRequest(new { message = "the code is finished" });
+
+                    }
+                    return BadRequest(new { message="code error" });
                 }
                 return BadRequest(new { message = "user not found" });
             }
             return NotFound(ModelState);
         }
         [HttpPost("Login")]
-        public async Task<IActionResult> Login(AuthLoginDTOs request)
+        public async Task<IActionResult> Login(AuthLoginDTOs request,string? email, string? token)
         {
             if (ModelState.IsValid)
             {
@@ -115,8 +127,8 @@ namespace Graduation.Controllers.Auth
                     var result = await signInManager.PasswordSignInAsync(user, request.Password, true, true);
                     if (result.Succeeded)
                     {
-                        string token = await authServices.CreateTokenasync(user, userManager);
-                        return Ok(new { status = 200, message = token });
+                        string resultToken = await authServices.CreateTokenasync(user, userManager);
+                        return Ok(new { status = 200, message = resultToken });
                     }
                     if (result.IsNotAllowed)
                     {
@@ -214,14 +226,18 @@ namespace Graduation.Controllers.Auth
                 var user = await userManager.FindByEmailAsync(email);
                 if (user is not null)
                 {
-                    var token = await userManager.GeneratePasswordResetTokenAsync(user);
-                    string confirmEmail = Url.Action("ResetPassword", "Auth", new { email = user.Email, token = token }, protocol: HttpContext.Request.Scheme);
+                    var code = new Random().Next(100000, 999999).ToString();
+
+                    user.ConfirmationCode = code;
+                    user.ConfirmationCodeExpiry = DateTime.UtcNow.AddMinutes(20);
+                    await userManager.UpdateAsync(user);
+
 
                     EmailDTOs emailDTOs = new EmailDTOs()
                     {
                         Subject = "Confirm Email",
                         Recivers = user.Email,
-                        Body = confirmEmail
+                        Body = code
                     };
 
                     EmailSetting.SendEmail(emailDTOs);
@@ -241,14 +257,24 @@ namespace Graduation.Controllers.Auth
                 var user = await userManager.FindByEmailAsync(request.Email);
                 if (user is not null)
                 {
-                    var decodedToken = HttpUtility.UrlDecode(request.Token);
-                    var result = await userManager.ResetPasswordAsync(user, decodedToken, request.NewPassword);
-                    if (result.Succeeded)
+                    if (request.code == user.ConfirmationCode)
                     {
-                        return Ok(new { message = "change password successful" });
+                        if (user.ConfirmationCodeExpiry < DateTime.Now)
+                        {
+                            string token = await userManager.GeneratePasswordResetTokenAsync(user);
+                            IdentityResult result = await userManager.ResetPasswordAsync(user, token, request.NewPassword);
+                            if (result.Succeeded)
+                            {
+                                return Ok(new { message = "change password successful" });
+                            }
+                            List<string> errorMessage = result.Errors.Select(error => error.Description).ToList();
+                            return BadRequest(new { message = "change password failed" + string.Join(", ", errorMessage) });
+
+                        }
+                        return BadRequest(new { message = "the code is finished" });
                     }
-                    List<string> errorMessage = result.Errors.Select(error => error.Description).ToList();
-                    return BadRequest(new { message = "change password failed" + string.Join(", ", errorMessage) });
+                    return BadRequest(new { message = "code error" });
+                  
                 }
                 return BadRequest(new { message = "user not found " });
             }

@@ -12,6 +12,6 @@ namespace Graduation.DTOs.Auth
         [MinLength(8)]
         public string NewPassword { get; set; }
         [Required]
-        public string Token { get; set; }
+        public string code { get; set; }
     }
 }
