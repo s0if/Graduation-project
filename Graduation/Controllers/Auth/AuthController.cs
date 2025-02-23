@@ -44,10 +44,14 @@ namespace Graduation.Controllers.Auth
             if (ModelState.IsValid)
             {
                ApplicationUser application=await userManager.FindByEmailAsync(request.Email);
-                if(application.EmailConfirmed== false)
+                if(application is not null)
                 {
-                    await userManager.DeleteAsync(application);
+                    if (application.EmailConfirmed == false)
+                    {
+                        await userManager.DeleteAsync(application);
+                    }
                 }
+                
                 ApplicationUser user = new ApplicationUser()
                 {
                     Email = request.Email,
@@ -64,17 +68,70 @@ namespace Graduation.Controllers.Auth
                         return BadRequest(new {message="you cannot create an account Admin"});
 
                     }
-                    var code = new Random().Next(100000, 999999).ToString();
+                   string code = new Random().Next(100000, 999999).ToString();
                     user.ConfirmationCode = code;
                     user.ConfirmationCodeExpiry = DateTime.UtcNow.AddMinutes(20);
                     await userManager.UpdateAsync(user);
-                    var resultRole = await userManager.AddToRoleAsync(user, request.role);
-
+                    IdentityResult resultRole = await userManager.AddToRoleAsync(user, request.role);
+                    string htmlBody = $@"
+                        <!DOCTYPE html>
+                        <html dir='rtl' lang='ar'>
+                        <head>
+                            <meta charset='UTF-8'>
+                            <style>
+                                body {{
+                                    font-family: Arial, sans-serif;
+                                    background-color: #f4f4f4;
+                                    margin: 0;
+                                    padding: 0;
+                                }}
+                                .container {{
+                                    max-width: 600px;
+                                    margin: 20px auto;
+                                    padding: 20px;
+                                    background-color: #ffffff;
+                                    border-radius: 8px;
+                                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                                }}
+                                .header {{
+                                    font-size: 24px;
+                                    color: #333333;
+                                    margin-bottom: 20px;
+                                }}
+                                .code {{
+                                    font-size: 28px;
+                                    font-weight: bold;
+                                    color: #007BFF;
+                                    margin: 20px 0;
+                                    padding: 10px;
+                                    background-color: #f8f9fa;
+                                    border-radius: 4px;
+                                    text-align: center;
+                                }}
+                                .footer {{
+                                    margin-top: 20px;
+                                    font-size: 14px;
+                                    color: #666666;
+                                }}
+                            </style>
+                        </head>
+                        <body>
+                            <div class='container'>
+                                <div class='header'>تأكيد البريد الإلكتروني</div>
+                                <p>شكرًا لتسجيلك. يرجى استخدام الكود التالي لتأكيد عنوان بريدك الإلكتروني:</p>
+                                <div class='code'>{code}</div>
+                                <p>هذا الكود سينتهي خلال 20 دقيقة.</p>
+                                <div class='footer'>
+                                    إذا لم تطلب هذا الكود، يرجى تجاهل هذه الرسالة.
+                                </div>
+                            </div>
+                        </body>
+                        </html>";
                     EmailDTOs emailDTOs = new EmailDTOs()
                     {
                         Subject = "Confirm Email",
                         Recivers = user.Email,
-                        Body = code
+                        Body = htmlBody
                     };
 
                     EmailSetting.SendEmail(emailDTOs);
@@ -226,18 +283,72 @@ namespace Graduation.Controllers.Auth
                 var user = await userManager.FindByEmailAsync(email);
                 if (user is not null)
                 {
-                    var code = new Random().Next(100000, 999999).ToString();
+                    string code = new Random().Next(100000, 999999).ToString();
 
                     user.ConfirmationCode = code;
                     user.ConfirmationCodeExpiry = DateTime.UtcNow.AddMinutes(20);
                     await userManager.UpdateAsync(user);
-
+                       string htmlBody = $@"
+                            <!DOCTYPE html>
+                            <html dir='rtl' lang='ar'>
+                            <head>
+                                <meta charset='UTF-8'>
+                                <style>
+                                    body {{
+                                        font-family: Arial, sans-serif;
+                                        background-color: #f4f4f4;
+                                        margin: 0;
+                                        padding: 0;
+                                    }}
+                                    .container {{
+                                        max-width: 600px;
+                                        margin: 20px auto;
+                                        padding: 20px;
+                                        background-color: #ffffff;
+                                        border-radius: 8px;
+                                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                                    }}
+                                    .header {{
+                                        font-size: 24px;
+                                        color: #333333;
+                                        margin-bottom: 20px;
+                                    }}
+                                    .code {{
+                                        font-size: 28px;
+                                        font-weight: bold;
+                                        color: #007BFF;
+                                        margin: 20px 0;
+                                        padding: 10px;
+                                        background-color: #f8f9fa;
+                                        border-radius: 4px;
+                                        text-align: center;
+                                    }}
+                                    .footer {{
+                                        margin-top: 20px;
+                                        font-size: 14px;
+                                        color: #666666;
+                                    }}
+                                </style>
+                            </head>
+                            <body>
+                                <div class='container'>
+                                    <div class='header'>إعادة تعيين كلمة المرور</div>
+                                    <p>مرحبًا،</p>
+                                    <p>لقد تلقينا طلبًا لإعادة تعيين كلمة المرور الخاصة بحسابك.  يرجى استخدام الكود التالي لتأكيد عنوان بريدك الإلكتروني:</p>
+                                    <div class='code'>{code}</div>
+                                    <p>إذا لم تطلب إعادة تعيين كلمة المرور، يرجى تجاهل هذه الرسالة.</p>
+                                    <div class='footer'>
+                                        شكرًا لاستخدامك تطبيقنا.
+                                    </div>
+                                </div>
+                            </body>
+                            </html>";
 
                     EmailDTOs emailDTOs = new EmailDTOs()
                     {
                         Subject = "Confirm Email",
                         Recivers = user.Email,
-                        Body = code
+                        Body = htmlBody
                     };
 
                     EmailSetting.SendEmail(emailDTOs);
