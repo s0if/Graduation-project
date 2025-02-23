@@ -188,8 +188,22 @@ namespace Graduation.Controllers.Auth
                     var result = await signInManager.PasswordSignInAsync(user, request.Password, true, true);
                     if (result.Succeeded)
                     {
+                        var role = await userManager.GetRolesAsync(user);
+                        string resltRole = "";
+                        if (role.Contains("admin"))
+                        {
+                            resltRole = "admin";
+                        }
+                        else if (role.Contains("provider"))
+                        {
+                            resltRole = "provider";
+                        }
+                        else if (role.Contains("consumer"))
+                        {
+                            resltRole = "consumer";
+                        }
                         string resultToken = await authServices.CreateTokenasync(user, userManager);
-                        return Ok(new { status = 200, message = resultToken });
+                        return Ok(new { status = 200, role = resltRole, message = resultToken });
                     }
                     if (result.IsNotAllowed)
                     {
