@@ -84,6 +84,7 @@ namespace Graduation.Controllers.Auth
                                     background-color: #f4f4f4;
                                     margin: 0;
                                     padding: 0;
+                                    text-align: right;
                                 }}
                                 .container {{
                                     max-width: 600px;
@@ -92,11 +93,13 @@ namespace Graduation.Controllers.Auth
                                     background-color: #ffffff;
                                     border-radius: 8px;
                                     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                                    text-align: right;
                                 }}
                                 .header {{
                                     font-size: 24px;
                                     color: #333333;
                                     margin-bottom: 20px;
+                                    text-align: right;
                                 }}
                                 .code {{
                                     font-size: 28px;
@@ -112,6 +115,7 @@ namespace Graduation.Controllers.Auth
                                     margin-top: 20px;
                                     font-size: 14px;
                                     color: #666666;
+                                    text-align: right;
                                 }}
                             </style>
                         </head>
@@ -299,6 +303,7 @@ namespace Graduation.Controllers.Auth
                                         background-color: #f4f4f4;
                                         margin: 0;
                                         padding: 0;
+                                         text-align: right;
                                     }}
                                     .container {{
                                         max-width: 600px;
@@ -307,11 +312,13 @@ namespace Graduation.Controllers.Auth
                                         background-color: #ffffff;
                                         border-radius: 8px;
                                         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                                         text-align: right;
                                     }}
                                     .header {{
                                         font-size: 24px;
                                         color: #333333;
                                         margin-bottom: 20px;
+                                         text-align: right;
                                     }}
                                     .code {{
                                         font-size: 28px;
@@ -327,6 +334,7 @@ namespace Graduation.Controllers.Auth
                                         margin-top: 20px;
                                         font-size: 14px;
                                         color: #666666;
+                                         text-align: right;
                                     }}
                                 </style>
                             </head>
