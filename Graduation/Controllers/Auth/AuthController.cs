@@ -17,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Graduation.DTOs.TypeToProject;
 using System.Collections.Generic;
+using Microsoft.Extensions.Azure;
 
 namespace Graduation.Controllers.Auth
 {
@@ -70,7 +71,7 @@ namespace Graduation.Controllers.Auth
                     }
                    string code = new Random().Next(100000, 999999).ToString();
                     user.ConfirmationCode = code;
-                    user.ConfirmationCodeExpiry = DateTime.UtcNow.AddMinutes(20);
+                    user.ConfirmationCodeExpiry = DateTime.Today.Add(DateTime.Now.TimeOfDay).AddMinutes(20);
                     await userManager.UpdateAsync(user);
                     IdentityResult resultRole = await userManager.AddToRoleAsync(user, request.role);
                     string htmlBody = $@"
@@ -161,8 +162,9 @@ namespace Graduation.Controllers.Auth
                 {
                     if (user.ConfirmationCode == code )
                     {
-                        if (user.ConfirmationCodeExpiry < DateTime.Now)
+                        if (user.ConfirmationCodeExpiry >= DateTime.Today.Add(DateTime.Now.TimeOfDay))
                         {
+                            
                             user.EmailConfirmed = true;
                             await userManager.UpdateAsync(user);
                             return Ok(new { message = "success confirm" });
@@ -171,7 +173,7 @@ namespace Graduation.Controllers.Auth
                         return BadRequest(new { message = "the code is finished" });
 
                     }
-                    return BadRequest(new { message="code error" });
+                    return BadRequest(new { message= "invalid code" });
                 }
                 return BadRequest(new { message = "user not found" });
             }
@@ -392,7 +394,7 @@ namespace Graduation.Controllers.Auth
                 {
                     if (request.code == user.ConfirmationCode)
                     {
-                        if (user.ConfirmationCodeExpiry < DateTime.Now)
+                        if (user.ConfirmationCodeExpiry >= DateTime.Now)
                         {
                             string token = await userManager.GeneratePasswordResetTokenAsync(user);
                             IdentityResult result = await userManager.ResetPasswordAsync(user, token, request.NewPassword);
