@@ -33,8 +33,8 @@ namespace Graduation
                 option.Password.RequireDigit = true;
                 option.Password.RequireNonAlphanumeric = true;
                 option.User.RequireUniqueEmail = true;
-                //option.SignIn.RequireConfirmedEmail = true;
-                
+                option.SignIn.RequireConfirmedEmail = true;
+
             }).AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
 
