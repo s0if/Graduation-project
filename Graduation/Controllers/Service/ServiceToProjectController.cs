@@ -287,9 +287,7 @@ namespace Graduation.Controllers.ServiceToProject
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider"))
-                {
+                
                     Review review = new Review
                     {
                         Description = request.Description,
@@ -301,8 +299,6 @@ namespace Graduation.Controllers.ServiceToProject
                     await dbContext.reviews.AddAsync(review);
                     await dbContext.SaveChangesAsync();
                     return Ok(new { message = true });
-                }
-                return Unauthorized();
             }
             return NotFound();
         }
@@ -319,8 +315,7 @@ namespace Graduation.Controllers.ServiceToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider"))
-                {
+               
                     Review result=await dbContext.reviews.FindAsync(reviewId);
                     if (result is not null)
                     {
@@ -336,9 +331,6 @@ namespace Graduation.Controllers.ServiceToProject
                         return Unauthorized();
                     }
                     return BadRequest(new { message = "not found service" });
-
-                }
-                return Unauthorized();
             }
             return NotFound();
         }
@@ -356,8 +348,7 @@ namespace Graduation.Controllers.ServiceToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider"))
-                {
+               
                     Review result = await dbContext.reviews.FindAsync(reviewId);
                     if (result is not null)
                     {
@@ -371,9 +362,6 @@ namespace Graduation.Controllers.ServiceToProject
                         return Unauthorized();
                     }
                     return BadRequest(new { message = "not found service" });
-
-                }
-                return Unauthorized();
             }
             return NotFound();
         }
@@ -405,7 +393,7 @@ namespace Graduation.Controllers.ServiceToProject
                     ImageDetails = s.ImageDetails.Select(img => new GetImageDTOs
                     {
                         Id = img.Id,
-                        Name = Path.Combine(Directory.GetCurrentDirectory(), img.Image) 
+                        Name = img.Image
                     }).ToList(),
                     Reviews = s.Reviews.Select(r => new GetAllReviewDTOs
                     {
@@ -413,6 +401,7 @@ namespace Graduation.Controllers.ServiceToProject
                         description = r.Description,
                         date = r.CreateAt,
                         rating = r.Rating,
+                        UserId=r.UsersID,
                     }).ToList()
                 })
                 .ToListAsync();

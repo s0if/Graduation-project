@@ -293,9 +293,7 @@ namespace Graduation.Controllers.PropertyToProject
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider"))
-                {
+                
                     Review review = new Review
                     {
                         Description = request.Description,
@@ -307,8 +305,6 @@ namespace Graduation.Controllers.PropertyToProject
                     await dbContext.reviews.AddAsync(review);
                     await dbContext.SaveChangesAsync();
                     return Ok(new { message = true });
-                }
-                return Unauthorized();
             }
             return NotFound();
         }
@@ -325,8 +321,8 @@ namespace Graduation.Controllers.PropertyToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider"))
-                {
+                
+              
                     Review result = await dbContext.reviews.FindAsync(reviewId);
                     if (result is not null)
                     {
@@ -341,9 +337,6 @@ namespace Graduation.Controllers.PropertyToProject
                         return Unauthorized();
                     }
                     return BadRequest(new { message = "not found review" });
-
-                }
-                return Unauthorized();
             }
             return NotFound();
         }
@@ -360,9 +353,7 @@ namespace Graduation.Controllers.PropertyToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider"))
-                {
-                    Review result = await dbContext.reviews.FindAsync(reviewId);
+                Review result = await dbContext.reviews.FindAsync(reviewId);
                     if (result is not null)
                     {
                         if (result.UsersID == requestUser.Id || role.Contains("admin"))
@@ -375,9 +366,6 @@ namespace Graduation.Controllers.PropertyToProject
                         return Unauthorized();
                     }
                     return BadRequest(new { message = "not found review" });
-
-                }
-                return Unauthorized();
             }
             return NotFound();
         }
@@ -417,6 +405,7 @@ namespace Graduation.Controllers.PropertyToProject
                     Reviews = s.Reviews.Select(r => new GetAllReviewDTOs
                     {
                         Id = r.Id,
+                        UserId = r.UsersID,
                         description = r.Description,
                         date = r.CreateAt,
                         rating = r.Rating,

@@ -231,6 +231,46 @@
         "tags": [
           "Advertisement"
         ],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "address",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Advertisement/SuggestAdvertisement": {
+      "get": {
+        "tags": [
+          "Advertisement"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/Advertisement/SuggestAdvertisementReview": {
+      "get": {
+        "tags": [
+          "Advertisement"
+        ],
         "responses": {
           "200": {
             "description": "OK"
