@@ -155,8 +155,6 @@ namespace Graduation.Controllers.Auth
         {
             if (ModelState.IsValid)
             {
-                
-
                 ApplicationUser user = await userManager.FindByEmailAsync(email);
                 if (user is not null && user.Email == email)
                 {
@@ -205,7 +203,7 @@ namespace Graduation.Controllers.Auth
                             resltRole = "consumer";
                         }
                         string resultToken = await authServices.CreateTokenasync(user, userManager);
-                        return Ok(new { status = 200, role = resltRole, message = resultToken });
+                        return Ok(new { status = 200,name=user.UserName, role = resltRole, message = resultToken });
                     }
                     if (result.IsNotAllowed)
                     {
@@ -306,7 +304,7 @@ namespace Graduation.Controllers.Auth
                     string code = new Random().Next(100000, 999999).ToString();
 
                     user.ConfirmationCode = code;
-                    user.ConfirmationCodeExpiry = DateTime.UtcNow.AddMinutes(20);
+                    user.ConfirmationCodeExpiry = DateTime.Today.Add(DateTime.Now.TimeOfDay).AddMinutes(20);
                     await userManager.UpdateAsync(user);
                        string htmlBody = $@"
                             <!DOCTYPE html>
@@ -394,7 +392,7 @@ namespace Graduation.Controllers.Auth
                 {
                     if (request.code == user.ConfirmationCode)
                     {
-                        if (user.ConfirmationCodeExpiry >= DateTime.Now)
+                        if (user.ConfirmationCodeExpiry >= DateTime.Today.Add(DateTime.Now.TimeOfDay))
                         {
                             string token = await userManager.GeneratePasswordResetTokenAsync(user);
                             IdentityResult result = await userManager.ResetPasswordAsync(user, token, request.NewPassword);
