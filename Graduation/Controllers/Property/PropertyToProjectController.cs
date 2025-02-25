@@ -388,6 +388,7 @@ namespace Graduation.Controllers.PropertyToProject
                 .Include(p => p.ImageDetails)
                 .Include(p => p.Reviews)
                 .Include (p => p.Address)
+                .Include(p=>p.Type)
                 .Select(s => new GetAllPropertyDTOs
                 {
                     Id = s.Id,
@@ -415,6 +416,52 @@ namespace Graduation.Controllers.PropertyToProject
                 .ToListAsync();
 
             return Ok(new { message = true, AllProperty = allProperty });
+        }
+        [HttpGet("property")]
+        public async Task<IActionResult> property(int propertyId)
+        {
+
+
+            var Property = await dbContext.properties
+             .AsSplitQuery() 
+             .Include(p => p.ImageDetails)
+             .Include(p => p.Reviews)
+             .Include(p => p.Address)
+             .Include(p=>p.Type)
+             .FirstOrDefaultAsync(p => p.Id == propertyId);
+
+            if (Property == null)
+            {
+                return NotFound(new { message = "Property not found" });
+            }
+            var getProperty = new GetAllPropertyDTOs
+            {
+                Id = Property.Id,
+                UserID = Property.UsersID,
+                Description = Property.Description,
+                TypeName = Property.Type?.Name ?? "Unknown", 
+                StartAt = Property.StartAt,
+                EndAt = Property.EndAt,
+                AddressName = Property.Address?.Name ?? "Unknown", 
+                ImageDetails = Property.ImageDetails?
+                    .Select(img => new GetImageDTOs
+                    {
+                        Id = img.Id,
+                        Name = img.Image
+                    })
+                    .ToList() ?? new List<GetImageDTOs>(), 
+                Reviews = Property.Reviews?
+                    .Select(r => new GetAllReviewDTOs
+                    {
+                        Id = r.Id,
+                        UserId = r.UsersID,
+                        description = r.Description,
+                        date = r.CreateAt,
+                        rating = r.Rating,
+                    })
+                    .ToList() ?? new List<GetAllReviewDTOs>() 
+            };
+            return Ok(new { message = true, AllProperty = getProperty });
         }
 
 

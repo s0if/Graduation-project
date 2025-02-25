@@ -465,6 +465,22 @@
   },
   {
     "ContainingType": "Graduation.Controllers.PropertyToProject.PropertyToProjectController",
+    "Method": "property",
+    "RelativePath": "PropertyToProject/property",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "propertyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.PropertyToProject.PropertyToProjectController",
     "Method": "UpdateImageProperty",
     "RelativePath": "PropertyToProject/UpdateImageProperty",
     "HttpMethod": "PUT",
@@ -700,6 +716,22 @@
     "Parameters": [
       {
         "Name": "serviceId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.ServiceToProject.ServiceToProjectController",
+    "Method": "Service",
+    "RelativePath": "ServiceToProject/Service",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ServiceId",
         "Type": "System.Int32",
         "IsRequired": false
       }

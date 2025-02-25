@@ -382,6 +382,7 @@ namespace Graduation.Controllers.ServiceToProject
                 .Include(s => s.ImageDetails) 
                 .Include(s => s.Reviews) 
                 .Include (s => s.Address)
+                .Include(s=>s.Type)
                 .Select(s => new GetAllServiceDTOs
                 {
                     Id = s.Id,
@@ -406,6 +407,52 @@ namespace Graduation.Controllers.ServiceToProject
                 })
                 .ToListAsync();
             return Ok(new { message = true, AllService = allServices });
+        }
+
+
+
+        [HttpGet("Service")]
+        public async Task<IActionResult> Service(int ServiceId)
+        {
+            var service = await dbContext.services
+                .Include(s => s.ImageDetails)
+                .Include(s => s.Reviews)
+                .Include(s => s.Address)
+                .Include (s => s.Type)
+                .FirstOrDefaultAsync(s => s.Id == ServiceId);
+
+            if (service == null)
+            {
+                return NotFound(new { message = "Service not found" });
+            }
+            var serviceDto = new GetAllServiceDTOs
+            {
+                Id = service.Id,
+                userId = service.UsersID,
+                Description = service.Description,
+                PriceRange = service.PriceRange,
+                TypeName = service.Type?.Name ?? "Unknown", 
+                AddressName = service.Address?.Name ?? "Unknown", 
+                ImageDetails = service.ImageDetails?
+                    .Select(img => new GetImageDTOs
+                    {
+                        Id = img.Id,
+                        Name = img.Image
+                    })
+                    .ToList() ?? new List<GetImageDTOs>(), 
+                Reviews = service.Reviews?
+                    .Select(r => new GetAllReviewDTOs
+                    {
+                        Id = r.Id,
+                        description = r.Description,
+                        date = r.CreateAt,
+                        rating = r.Rating,
+                        UserId = r.UsersID,
+                    })
+                    .ToList() ?? new List<GetAllReviewDTOs>() 
+            };
+
+            return Ok(new { message = true, Service = serviceDto });
         }
 
     }

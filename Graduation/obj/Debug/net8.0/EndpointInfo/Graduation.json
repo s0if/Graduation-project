@@ -894,6 +894,28 @@
         }
       }
     },
+    "/PropertyToProject/property": {
+      "get": {
+        "tags": [
+          "PropertyToProject"
+        ],
+        "parameters": [
+          {
+            "name": "propertyId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/SaveToProject/SaveService": {
       "post": {
         "tags": [
@@ -1284,6 +1306,28 @@
             "in": "query",
             "schema": {
               "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/ServiceToProject/Service": {
+      "get": {
+        "tags": [
+          "ServiceToProject"
+        ],
+        "parameters": [
+          {
+            "name": "ServiceId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
             }
           }
         ],
