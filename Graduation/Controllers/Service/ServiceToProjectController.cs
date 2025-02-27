@@ -379,10 +379,10 @@ namespace Graduation.Controllers.ServiceToProject
             }
             var allServices = await query
                 .AsSplitQuery()
-                .Include(s => s.ImageDetails) 
-                .Include(s => s.Reviews) 
-                .Include (s => s.Address)
-                .Include(s=>s.Type)
+                .Include(s => s.ImageDetails)
+                .Include(s => s.Reviews)
+                .Include(s => s.Address)
+                .Include(s => s.Type)
                 .Select(s => new GetAllServiceDTOs
                 {
                     Id = s.Id,
@@ -390,7 +390,7 @@ namespace Graduation.Controllers.ServiceToProject
                     Description = s.Description,
                     PriceRange = s.PriceRange,
                     TypeName = s.Type.Name,
-                    AddressName=s.Address.Name,
+                    AddressName = s.Address.Name,
                     ImageDetails = s.ImageDetails.Select(img => new GetImageDTOs
                     {
                         Id = img.Id,
@@ -402,7 +402,7 @@ namespace Graduation.Controllers.ServiceToProject
                         description = r.Description,
                         date = r.CreateAt,
                         rating = r.Rating,
-                        UserId=r.UsersID,
+                        UserName = dbContext.users.Where(u => u.Id == r.UsersID).Select(u => u.UserName).FirstOrDefault()
                     }).ToList()
                 })
                 .ToListAsync();
@@ -447,7 +447,7 @@ namespace Graduation.Controllers.ServiceToProject
                         description = r.Description,
                         date = r.CreateAt,
                         rating = r.Rating,
-                        UserId = r.UsersID,
+                        UserName = dbContext.users.Where(u => u.Id == r.UsersID).Select(u => u.UserName).FirstOrDefault(),
                     })
                     .ToList() ?? new List<GetAllReviewDTOs>() 
             };
