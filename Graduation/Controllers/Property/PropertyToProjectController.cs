@@ -406,7 +406,7 @@ namespace Graduation.Controllers.PropertyToProject
                     Reviews = s.Reviews.Select(r => new GetAllReviewDTOs
                     {
                         Id = r.Id,
-                        UserName = dbContext.users.Where(u => u.Id == r.UsersID).Select(u => u.UserName).FirstOrDefault(),
+                        UserId = r.UsersID,
                         description = r.Description,
                         date = r.CreateAt,
                         rating = r.Rating,
@@ -454,7 +454,7 @@ namespace Graduation.Controllers.PropertyToProject
                     .Select(r => new GetAllReviewDTOs
                     {
                         Id = r.Id,
-                        UserName = dbContext.users.Where(u => u.Id == r.UsersID).Select(u => u.UserName).FirstOrDefault(),
+                        UserId = r.UsersID,
                         description = r.Description,
                         date = r.CreateAt,
                         rating = r.Rating,

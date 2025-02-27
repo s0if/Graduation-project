@@ -335,7 +335,7 @@ namespace Graduation.Controllers.Advertisement
                     Reviews = p.Reviews.Select(r => new GetAllReviewDTOs
                     {
                         Id = r.Id,
-                        UserName = dbContext.users.Where(u => u.Id == r.UsersID).Select(u => u.UserName).FirstOrDefault(),
+                        UserId=r.UsersID,
                         date = r.CreateAt,
                         description = r.Description,
                         rating = r.Rating,
@@ -357,7 +357,7 @@ namespace Graduation.Controllers.Advertisement
                     Reviews = ser.Reviews.Select(r => new GetAllReviewDTOs
                     {
                         Id = r.Id,
-                        UserName = dbContext.users.Where(u => u.Id == r.UsersID).Select(u => u.UserName).FirstOrDefault(),
+                        UserId = r.UsersID,
                         date = r.CreateAt,
                         description = r.Description,
                         rating = r.Rating,
@@ -439,7 +439,7 @@ namespace Graduation.Controllers.Advertisement
                             Reviews = p.Reviews.Select(r => new GetAllReviewDTOs
                             {
                                 Id = r.Id,
-                                UserName = dbContext.users.Where(u => u.Id == r.UsersID).Select(u => u.UserName).FirstOrDefault(),
+                                UserId = r.UsersID,
                                 date = r.CreateAt,
                                 description = r.Description,
                                 rating = r.Rating,
@@ -463,7 +463,7 @@ namespace Graduation.Controllers.Advertisement
                             Reviews = ser.Reviews.Select(r => new GetAllReviewDTOs
                             {
                                 Id = r.Id,
-                                UserName = dbContext.users.Where(u => u.Id == r.UsersID).Select(u => u.UserName).FirstOrDefault(),
+                                UserId = r.UsersID,
                                 date = r.CreateAt,
                                 description = r.Description,
                                 rating = r.Rating,

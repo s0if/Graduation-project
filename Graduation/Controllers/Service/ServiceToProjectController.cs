@@ -402,7 +402,7 @@ namespace Graduation.Controllers.ServiceToProject
                         description = r.Description,
                         date = r.CreateAt,
                         rating = r.Rating,
-                        UserName = dbContext.users.Where(u => u.Id == r.UsersID).Select(u => u.UserName).FirstOrDefault()
+                        UserId = r.UsersID,
                     }).ToList()
                 })
                 .ToListAsync();
@@ -447,7 +447,7 @@ namespace Graduation.Controllers.ServiceToProject
                         description = r.Description,
                         date = r.CreateAt,
                         rating = r.Rating,
-                        UserName = dbContext.users.Where(u => u.Id == r.UsersID).Select(u => u.UserName).FirstOrDefault(),
+                        UserId = r.UsersID,
                     })
                     .ToList() ?? new List<GetAllReviewDTOs>() 
             };
