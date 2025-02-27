@@ -40,7 +40,7 @@ namespace Graduation.Service
             signingCredentials: new SigningCredentials(keyAuth,
            SecurityAlgorithms.HmacSha256Signature),
             //can change dateTime
-            expires: DateTime.UtcNow.AddDays(1)
+            expires: DateTime.UtcNow.AddHours(6)
             );
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
