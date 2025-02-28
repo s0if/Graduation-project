@@ -11,9 +11,9 @@ namespace Graduation.DTOs.PropertyToProject
         public string Description { get; set; }
         public DateTime StartAt { get; set; }
         public DateTime EndAt { get; set; }
-        public int UserID { get; set; }
+        public int? UserID { get; set; }
         public string TypeName { get; set; }
-
+        public string? userName { get; set; }
         public string AddressName { get; set; }
 
         public List<GetImageDTOs> ImageDetails { get; set; }

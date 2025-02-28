@@ -586,14 +586,62 @@
   },
   {
     "ContainingType": "Graduation.Controllers.Save.SaveToProjectController",
-    "Method": "UnSave",
-    "RelativePath": "SaveToProject/UnSave",
+    "Method": "StatusProperty",
+    "RelativePath": "SaveToProject/StatusProperty",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Save.SaveToProjectController",
+    "Method": "StatusService",
+    "RelativePath": "SaveToProject/StatusService",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Save.SaveToProjectController",
+    "Method": "UnSaveProperty",
+    "RelativePath": "SaveToProject/UnSaveProperty",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "saveId",
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Save.SaveToProjectController",
+    "Method": "UnSaveService",
+    "RelativePath": "SaveToProject/UnSaveService",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
         "Type": "System.Int32",
         "IsRequired": false
       }

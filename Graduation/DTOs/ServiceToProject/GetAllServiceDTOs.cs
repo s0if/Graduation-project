@@ -10,7 +10,8 @@ namespace Graduation.DTOs.ServiceToProject
 
 
         public int Id { get; set; }
-        public int userId { get; set; }
+        public int? userId { get; set; }
+        public string? UserName { get; set; }
         public string Description { get; set; }
         public double PriceRange { get; set; }
         public string TypeName { get; set; }

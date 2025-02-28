@@ -960,14 +960,36 @@
         }
       }
     },
-    "/SaveToProject/UnSave": {
+    "/SaveToProject/UnSaveService": {
       "delete": {
         "tags": [
           "SaveToProject"
         ],
         "parameters": [
           {
-            "name": "saveId",
+            "name": "Id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/SaveToProject/UnSaveProperty": {
+      "delete": {
+        "tags": [
+          "SaveToProject"
+        ],
+        "parameters": [
+          {
+            "name": "Id",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -986,6 +1008,50 @@
       "get": {
         "tags": [
           "SaveToProject"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/SaveToProject/StatusService": {
+      "get": {
+        "tags": [
+          "SaveToProject"
+        ],
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/SaveToProject/StatusProperty": {
+      "get": {
+        "tags": [
+          "SaveToProject"
+        ],
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
         ],
         "responses": {
           "200": {
