@@ -136,15 +136,28 @@ namespace Graduation.Controllers.ServiceToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider"))
-                {
-                    ServiceProject result=await dbContext.services.FindAsync(serviceId);
+               
+                    ServiceProject result=await dbContext.services
+                    .Include(s=>s.ImageDetails)
+                    .Include(s=>s.Reviews)
+                    .FirstOrDefaultAsync(u => u.Id == serviceId);
                     if(result is not null)
                     {
                        if(result.UsersID == requestUser.Id||role.Contains("admin"))
                         {
-                           
-                            dbContext.services.RemoveRange(result);
+                        if (result.ImageDetails.Any()) 
+                            foreach (var image in result.ImageDetails)
+                            {
+                                await FileSettings.DeleteFileAsync(image.Image); 
+                                dbContext.images.Remove(image);
+                            }
+                        if (result.Reviews.Any())
+                            foreach (var review in result.Reviews)
+                            {
+                                dbContext.reviews.Remove(review); 
+                            }
+
+                        dbContext.services.RemoveRange(result);
                             await dbContext.SaveChangesAsync();
                             
                             return Ok();
@@ -152,7 +165,7 @@ namespace Graduation.Controllers.ServiceToProject
                        return Unauthorized() ;
                     }
                     return BadRequest(new {message= "not found service" });
-                }
+                
                 return Unauthorized();
             }
             return NotFound();
@@ -409,9 +422,6 @@ namespace Graduation.Controllers.ServiceToProject
                 .ToListAsync();
             return Ok(new { message = true, AllService = allServices });
         }
-
-
-
         [HttpGet("Service")]
         public async Task<IActionResult> Service(int ServiceId)
         {

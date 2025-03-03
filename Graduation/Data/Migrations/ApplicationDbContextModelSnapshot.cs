@@ -36,7 +36,7 @@ namespace Graduation.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("addresses");
+                    b.ToTable("addresses", (string)null);
                 });
 
             modelBuilder.Entity("Graduation.Model.AdvertisementProject", b =>
@@ -55,7 +55,7 @@ namespace Graduation.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("advertisements");
+                    b.ToTable("advertisements", (string)null);
                 });
 
             modelBuilder.Entity("Graduation.Model.ApplicationUser", b =>
@@ -167,7 +167,7 @@ namespace Graduation.Data.Migrations
 
                     b.HasIndex("UsersID");
 
-                    b.ToTable("complaints");
+                    b.ToTable("complaints", (string)null);
                 });
 
             modelBuilder.Entity("Graduation.Model.ImageDetails", b =>
@@ -194,7 +194,7 @@ namespace Graduation.Data.Migrations
 
                     b.HasIndex("ServiceId");
 
-                    b.ToTable("images");
+                    b.ToTable("images", (string)null);
                 });
 
             modelBuilder.Entity("Graduation.Model.PropertyProject", b =>
@@ -240,7 +240,7 @@ namespace Graduation.Data.Migrations
 
                     b.HasIndex("UsersID");
 
-                    b.ToTable("properties");
+                    b.ToTable("properties", (string)null);
                 });
 
             modelBuilder.Entity("Graduation.Model.Review", b =>
@@ -281,7 +281,7 @@ namespace Graduation.Data.Migrations
 
                     b.HasIndex("UsersID");
 
-                    b.ToTable("reviews");
+                    b.ToTable("reviews", (string)null);
                 });
 
             modelBuilder.Entity("Graduation.Model.SaveProject", b =>
@@ -309,7 +309,7 @@ namespace Graduation.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("saveProjects");
+                    b.ToTable("saveProjects", (string)null);
                 });
 
             modelBuilder.Entity("Graduation.Model.ServiceProject", b =>
@@ -349,7 +349,7 @@ namespace Graduation.Data.Migrations
 
                     b.HasIndex("UsersID");
 
-                    b.ToTable("services");
+                    b.ToTable("services", (string)null);
                 });
 
             modelBuilder.Entity("Graduation.Model.TypeProperty", b =>
@@ -366,7 +366,7 @@ namespace Graduation.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("typeProperties");
+                    b.ToTable("typeProperties", (string)null);
                 });
 
             modelBuilder.Entity("Graduation.Model.TypeService", b =>
@@ -383,7 +383,7 @@ namespace Graduation.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("typeServices");
+                    b.ToTable("typeServices", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>

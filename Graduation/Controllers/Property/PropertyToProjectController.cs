@@ -88,9 +88,8 @@ namespace Graduation.Controllers.PropertyToProject
                 var role = await userManager.GetRolesAsync(requestUser);
                 if (role.Contains("provider"))
                 {
-                    PropertyProject result=await dbContext.properties.FindAsync(propertyId);
-                    if(result is not null)
-                    {
+                    PropertyProject result = await dbContext.properties.FindAsync(propertyId);
+                    
                      if(result.UsersID== requestUser.Id || role.Contains("admin"))
                         {
                             result.Description = request.Description;
@@ -117,10 +116,7 @@ namespace Graduation.Controllers.PropertyToProject
                         return Unauthorized() ;
                     }
                     return BadRequest(new { message = "not found property" });
-                   
-                    
-                }
-                return Unauthorized();
+                
             }
             return NotFound();
 
@@ -138,15 +134,27 @@ namespace Graduation.Controllers.PropertyToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider"))
-                {
-                    PropertyProject result = await dbContext.properties.FindAsync(propertyId);
+                    PropertyProject result = await dbContext.properties
+                    .Include(p=>p.ImageDetails)
+                    .Include(p=>p.Reviews)
+                    .FirstOrDefaultAsync(p=>p.Id==propertyId);
                     if (result is not null)
                     {
                         if (result.UsersID == requestUser.Id || role.Contains("admin"))
                         {
-                            
-                            dbContext.RemoveRange(result);
+                        if (result.ImageDetails.Any())
+                            foreach (var image in result.ImageDetails)
+                            {
+                                await FileSettings.DeleteFileAsync(image.Image);
+                                dbContext.images.Remove(image);
+                            }
+                        if (result.Reviews.Any())
+                            foreach (var review in result.Reviews)
+                            {
+                                dbContext.reviews.Remove(review);
+                            }
+
+                        dbContext.RemoveRange(result);
                             await dbContext.SaveChangesAsync();
 
                           
@@ -158,8 +166,6 @@ namespace Graduation.Controllers.PropertyToProject
                     return BadRequest(new { message = "not found property" });
 
 
-                }
-                return Unauthorized();
             }
             return NotFound();
 
