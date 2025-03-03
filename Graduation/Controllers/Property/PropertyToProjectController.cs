@@ -397,6 +397,7 @@ namespace Graduation.Controllers.PropertyToProject
                     TypeName = s.Type.Name,
                     StartAt = s.StartAt,
                     EndAt = s.EndAt,
+                    Price = s.Price,
                     AddressName = s.Address.Name,
                     ImageDetails = s.ImageDetails.Select(img => new GetImageDTOs
                     {
@@ -411,16 +412,19 @@ namespace Graduation.Controllers.PropertyToProject
                         date = r.CreateAt,
                         rating = r.Rating,
                     }).ToList(),
+                       
+                    AvgRating=s.Reviews.Any()?s.Reviews.Average(r=>r.Rating):0
                    
-                })
+                }
+                )
                 .ToListAsync();
 
+           
             return Ok(new { message = true, AllProperty = allProperty });
         }
         [HttpGet("property")]
         public async Task<IActionResult> property(int propertyId)
         {
-
 
             var Property = await dbContext.properties
              .AsSplitQuery() 
@@ -433,12 +437,13 @@ namespace Graduation.Controllers.PropertyToProject
             if (Property == null)
             {
                 return NotFound(new { message = "Property not found" });
-            }
-            var getProperty = new GetAllPropertyDTOs
+            }  
+            GetAllPropertyDTOs getProperty = new GetAllPropertyDTOs
             {
                 Id = Property.Id,
                 UserID = Property.UsersID,
                 Description = Property.Description,
+                Price = Property.Price,
                 TypeName = Property.Type?.Name ?? "Unknown", 
                 StartAt = Property.StartAt,
                 EndAt = Property.EndAt,
@@ -451,16 +456,24 @@ namespace Graduation.Controllers.PropertyToProject
                     })
                     .ToList() ?? new List<GetImageDTOs>(), 
                 Reviews = Property.Reviews?
-                    .Select(r => new GetAllReviewDTOs
-                    {
-                        Id = r.Id,
-                        UserId = r.UsersID,
-                        description = r.Description,
-                        date = r.CreateAt,
-                        rating = r.Rating,
-                    })
-                    .ToList() ?? new List<GetAllReviewDTOs>() 
-            };
+                    .Select(r =>
+                     new GetAllReviewDTOs
+                        {
+                            Id = r.Id,
+                            UserId = r.UsersID,
+                            description = r.Description,
+                            date = r.CreateAt,
+                            rating = r.Rating,
+
+                        }
+                    
+                    )
+                    .ToList() ?? new List<GetAllReviewDTOs>()  ,
+                 
+                AvgRating = Property.Reviews.Any()? Property.Reviews.Average(r => r.Rating):0
+            
+        };
+           
             return Ok(new { message = true, AllProperty = getProperty });
         }
 

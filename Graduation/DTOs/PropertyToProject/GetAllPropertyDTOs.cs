@@ -11,6 +11,8 @@ namespace Graduation.DTOs.PropertyToProject
         public string Description { get; set; }
         public DateTime StartAt { get; set; }
         public DateTime EndAt { get; set; }
+        public double Price { get; set; }
+        public double AvgRating { get; set; }
         public int? UserID { get; set; }
         public string TypeName { get; set; }
         public string? userName { get; set; }

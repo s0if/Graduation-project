@@ -403,7 +403,8 @@ namespace Graduation.Controllers.ServiceToProject
                         date = r.CreateAt,
                         rating = r.Rating,
                         UserId = r.UsersID,
-                    }).ToList()
+                    }).ToList(),
+                    AvgRating=s.Reviews.Any()?s.Reviews.Average(r=>r.Rating):0
                 })
                 .ToListAsync();
             return Ok(new { message = true, AllService = allServices });
@@ -449,7 +450,8 @@ namespace Graduation.Controllers.ServiceToProject
                         rating = r.Rating,
                         UserId = r.UsersID,
                     })
-                    .ToList() ?? new List<GetAllReviewDTOs>() 
+                    .ToList() ?? new List<GetAllReviewDTOs>()     ,
+                AvgRating = service.Reviews.Any() ? service.Reviews.Average(r => r.Rating) : 0
             };
 
             return Ok(new { message = true, Service = serviceDto });

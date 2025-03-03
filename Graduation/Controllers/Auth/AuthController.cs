@@ -253,7 +253,7 @@ namespace Graduation.Controllers.Auth
             return NotFound(ModelState);
         }
         [HttpPut("ChangeEmail")]
-        public async Task<IActionResult> ChangePassword(AuthChangeEmailDTOs request)
+        public async Task<IActionResult> ChangeEmail(AuthChangeEmailDTOs request)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))
@@ -269,18 +269,76 @@ namespace Graduation.Controllers.Auth
                 {
                     if (userId == user.Id)
                     {
+                        string code = new Random().Next(100000, 999999).ToString();
                         user.Email = request.NewEmail;
                         user.EmailConfirmed = false;
-
+                        user.ConfirmationCode = code;
+                        user.ConfirmationCodeExpiry = DateTime.Today.Add(DateTime.Now.TimeOfDay).AddMinutes(20);
                         await userManager.UpdateAsync(user);
-                        string newtoken = await authServices.CreateTokenasync(user, userManager);
-                        string confirmEmail = Url.Action("ConfirmEmail", "Auth", new { email = user.Email, token = newtoken }, protocol: HttpContext.Request.Scheme);
+                        string htmlBody = $@"
+                        <!DOCTYPE html>
+                        <html dir='rtl' lang='ar'>
+                        <head>
+                            <meta charset='UTF-8'>
+                            <style>
+                                body {{
+                                    font-family: Arial, sans-serif;
+                                    background-color: #f4f4f4;
+                                    margin: 0;
+                                    padding: 0;
+                                    text-align: right;
+                                }}
+                                .container {{
+                                    max-width: 600px;
+                                    margin: 20px auto;
+                                    padding: 20px;
+                                    background-color: #ffffff;
+                                    border-radius: 8px;
+                                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                                    text-align: right;
+                                }}
+                                .header {{
+                                    font-size: 24px;
+                                    color: #333333;
+                                    margin-bottom: 20px;
+                                    text-align: right;
+                                }}
+                                .code {{
+                                    font-size: 28px;
+                                    font-weight: bold;
+                                    color: #007BFF;
+                                    margin: 20px 0;
+                                    padding: 10px;
+                                    background-color: #f8f9fa;
+                                    border-radius: 4px;
+                                    text-align: center;
+                                }}
+                                .footer {{
+                                    margin-top: 20px;
+                                    font-size: 14px;
+                                    color: #666666;
+                                    text-align: right;
+                                }}
+                            </style>
+                        </head>
+                        <body>
+                            <div class='container'>
+                                <div class='header'>تأكيد البريد الإلكتروني</div>
+                                <p>شكرًا لتسجيلك. يرجى استخدام الكود التالي لتأكيد عنوان بريدك الإلكتروني:</p>
+                                <div class='code'>{code}</div>
+                                <p>هذا الكود سينتهي خلال 20 دقيقة.</p>
+                                <div class='footer'>
+                                    إذا لم تطلب هذا الكود، يرجى تجاهل هذه الرسالة.
+                                </div>
+                            </div>
+                        </body>
+                        </html>";
 
                         EmailDTOs emailDTOs = new EmailDTOs()
                         {
                             Subject = "Confirm Email",
                             Recivers = user.Email,
-                            Body = confirmEmail
+                            Body = htmlBody
                         };
 
                         EmailSetting.SendEmail(emailDTOs);
