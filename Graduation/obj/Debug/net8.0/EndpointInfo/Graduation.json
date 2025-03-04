@@ -503,21 +503,38 @@
         "tags": [
           "Complaints"
         ],
+        "parameters": [
+          {
+            "name": "NameComplaint",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Content",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/AddComplaintDTOs"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AddComplaintDTOs"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/AddComplaintDTOs"
+                "type": "object",
+                "properties": {
+                  "Image": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "Image": {
+                  "style": "form"
+                }
               }
             }
           }
@@ -1482,6 +1499,18 @@
         }
       }
     },
+    "/UserOperations/UserProvider": {
+      "get": {
+        "tags": [
+          "UserOperations"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/UserOperations/profile": {
       "get": {
         "tags": [
@@ -1611,28 +1640,66 @@
           }
         }
       }
+    },
+    "/UserOperations/SendEmail": {
+      "post": {
+        "tags": [
+          "UserOperations"
+        ],
+        "parameters": [
+          {
+            "name": "Title",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Body",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "UserId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "Image": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "Image": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
-      "AddComplaintDTOs": {
-        "type": "object",
-        "properties": {
-          "nameComplaint": {
-            "type": "string",
-            "nullable": true
-          },
-          "content": {
-            "type": "string",
-            "nullable": true
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "AddPropertyAdvertisementDTOs": {
         "type": "object",
         "properties": {
@@ -1909,8 +1976,7 @@
             "format": "int32"
           },
           "newStatus": {
-            "type": "string",
-            "nullable": true
+            "type": "boolean"
           }
         },
         "additionalProperties": false

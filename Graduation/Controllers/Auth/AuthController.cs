@@ -269,8 +269,19 @@ namespace Graduation.Controllers.Auth
                 {
                     if (userId == user.Id)
                     {
+                     
+                        if (user.EmailConfirmed==false)
+                        {
+                            return BadRequest(new {message="email not found"});
+                        }
                         string code = new Random().Next(100000, 999999).ToString();
                         user.Email = request.NewEmail;
+                        IdentityResult updateUser=await userManager.UpdateAsync(user);
+                        if(!updateUser.Succeeded)
+                        {
+                            List<string> errorMessage = updateUser.Errors.Select(error => error.Description).ToList();
+                            return BadRequest(string.Join(", ", errorMessage));
+                        }
                         user.EmailConfirmed = false;
                         user.ConfirmationCode = code;
                         user.ConfirmationCodeExpiry = DateTime.Today.Add(DateTime.Now.TimeOfDay).AddMinutes(20);

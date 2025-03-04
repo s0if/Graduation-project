@@ -4,6 +4,7 @@ using Graduation.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Graduation.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250304092803_changeStatusComplimantToBool")]
+    partial class changeStatusComplimantToBool
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -187,16 +190,11 @@ namespace Graduation.Data.Migrations
                     b.Property<int?>("ServiceId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("complaintId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("PropertyId");
 
                     b.HasIndex("ServiceId");
-
-                    b.HasIndex("complaintId");
 
                     b.ToTable("images");
                 });
@@ -555,13 +553,6 @@ namespace Graduation.Data.Migrations
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Graduation.Model.Complaint", "Complaint")
-                        .WithMany("ImageDetails")
-                        .HasForeignKey("complaintId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Complaint");
-
                     b.Navigation("Properties");
 
                     b.Navigation("Services");
@@ -759,11 +750,6 @@ namespace Graduation.Data.Migrations
                     b.Navigation("Saves");
 
                     b.Navigation("Services");
-                });
-
-            modelBuilder.Entity("Graduation.Model.Complaint", b =>
-                {
-                    b.Navigation("ImageDetails");
                 });
 
             modelBuilder.Entity("Graduation.Model.PropertyProject", b =>

@@ -1,5 +1,7 @@
 ﻿using Graduation.Data;
 using Graduation.DTOs.Auth;
+using Graduation.DTOs.Email;
+using Graduation.Helpers;
 using Graduation.Model;
 using Graduation.Service;
 using Microsoft.AspNetCore.Http;
@@ -16,7 +18,7 @@ namespace Graduation.Controllers.User
         private readonly UserManager<ApplicationUser> userManager;
         private readonly ApplicationDbContext dbContext;
 
-        public UserOperationsController(UserManager<ApplicationUser> userManager,ApplicationDbContext dbContext)
+        public UserOperationsController(UserManager<ApplicationUser> userManager, ApplicationDbContext dbContext)
         {
             this.userManager = userManager;
             this.dbContext = dbContext;
@@ -38,7 +40,7 @@ namespace Graduation.Controllers.User
             {
 
                 List<AuthGetAllUserDTOs> AllUser = new List<AuthGetAllUserDTOs>();
-                IEnumerable<ApplicationUser> GetUsers = await userManager.Users.AsSplitQuery().Include(A=>A.Address).ToListAsync();
+                IEnumerable<ApplicationUser> GetUsers = await userManager.Users.AsSplitQuery().Include(A => A.Address).ToListAsync();
                 foreach (ApplicationUser user in GetUsers)
                 {
                     AllUser.Add(new AuthGetAllUserDTOs
@@ -55,6 +57,44 @@ namespace Graduation.Controllers.User
             }
             return Unauthorized();
         }
+        [HttpGet("UserProvider")]
+        public async Task<IActionResult> UserProvider()
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(new { message = "Token Is Missing" });
+            int? userId = ExtractClaims.ExtractUserId(token);
+            if (string.IsNullOrEmpty(userId.ToString()))
+                return Unauthorized(new { message = "Token Is Missing" });
+            ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            IList<string> role = await userManager.GetRolesAsync(requestUser);
+
+            if (role.Contains("admin"))
+            {
+
+                List<AuthGetAllUserDTOs> AllUser = new List<AuthGetAllUserDTOs>();
+                IEnumerable<ApplicationUser> GetUsers = await userManager.Users.AsSplitQuery().Include(A => A.Address).ToListAsync();
+                foreach (ApplicationUser user in GetUsers)
+                {
+                    var result = await userManager.GetRolesAsync(user);
+                    if (result.Contains("provider"))
+                    {
+
+                        AllUser.Add(new AuthGetAllUserDTOs
+                        {
+                            Id = user.Id,
+                            UserName = user.UserName,
+                            Email = user.Email,
+                            Phone = user.PhoneNumber,
+                            Address = user.Address?.Name,
+                            Role = string.Join(",", await userManager.GetRolesAsync(user))
+                        });
+                    }
+                }
+                return Ok(AllUser);
+            }
+            return Unauthorized();
+        }
         [HttpGet("profile")]
         public async Task<IActionResult> profile()
         {
@@ -64,7 +104,7 @@ namespace Graduation.Controllers.User
             int? userId = ExtractClaims.ExtractUserId(token);
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
-            ApplicationUser requestUser = await userManager.Users.AsSplitQuery().Include(A=>A.Address).FirstOrDefaultAsync(u => u.Id == userId);
+            ApplicationUser requestUser = await userManager.Users.AsSplitQuery().Include(A => A.Address).FirstOrDefaultAsync(u => u.Id == userId);
             AuthGetAllUserDTOs result = new AuthGetAllUserDTOs
             {
                 Id = requestUser.Id,
@@ -74,14 +114,14 @@ namespace Graduation.Controllers.User
                 Address = requestUser.Address?.Name,
                 Role = string.Join(",", await userManager.GetRolesAsync(requestUser))
             };
-            return Ok(result );
+            return Ok(result);
         }
 
         [HttpGet("User")]
         public async Task<IActionResult> User(int Id)
         {
-            
-            ApplicationUser requestUser = await userManager.Users.AsSplitQuery().Include(A=>A.Address).FirstOrDefaultAsync(u => u.Id == Id);
+
+            ApplicationUser requestUser = await userManager.Users.AsSplitQuery().Include(A => A.Address).FirstOrDefaultAsync(u => u.Id == Id);
             AuthGetAllUserDTOs result = new AuthGetAllUserDTOs
             {
                 Id = requestUser.Id,
@@ -104,14 +144,14 @@ namespace Graduation.Controllers.User
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
             ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-            IList<string> role =await userManager.GetRolesAsync(requestUser);
-            if (role.Contains("admin"))
+            IList<string> role = await userManager.GetRolesAsync(requestUser);
+            if (role.Contains("admin") || requestUser.Id == Id)
             {
-                ApplicationUser User = await userManager.Users.FirstOrDefaultAsync(u=>u.Id==Id);
+                ApplicationUser User = await userManager.Users.FirstOrDefaultAsync(u => u.Id == Id);
                 await userManager.DeleteAsync(User);
                 return Ok(new { message = "delete successful" });
             }
-           
+
             return Unauthorized();
         }
         [HttpPut("changeRole")]
@@ -158,12 +198,6 @@ namespace Graduation.Controllers.User
             return NotFound();
 
         }
-
-
-
-
-
-
         [HttpPut("UpdatePhone")]
         public async Task<IActionResult> UpdatePhone(string phone)
         {
@@ -174,20 +208,18 @@ namespace Graduation.Controllers.User
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
             ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                if (requestUser is not null)
+            if (requestUser is not null)
             {
                 requestUser.PhoneNumber = phone;
                 await userManager.UpdateAsync(requestUser);
-               
+
                 return Ok(new { status = 200, message = "update successful" });
             }
-          
-                ;
-                return BadRequest(new {message="user not found"});
-           
+
+               ;
+            return BadRequest(new { message = "user not found" });
+
         }
-
-
 
         [HttpPut("UpdateAddress")]
         public async Task<IActionResult> UpdateAddress(int addressId)
@@ -209,6 +241,62 @@ namespace Graduation.Controllers.User
 
                ;
             return BadRequest(new { message = "user not found" });
+
+        }
+
+
+        [HttpPost("SendEmail")]
+        public async Task<IActionResult> SendEmail(SendEmailDTOs request)
+        {
+            if (ModelState.IsValid)
+            {
+
+                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+                if (string.IsNullOrEmpty(token))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                int? userId = ExtractClaims.ExtractUserId(token);
+                if (string.IsNullOrEmpty(userId.ToString()))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                var role = await userManager.GetRolesAsync(requestUser);
+
+                if (role.Contains("admin"))
+                {
+                    ApplicationUser user = await dbContext.users.FindAsync(request.UserId);
+                    if (user is not null)
+                    {
+
+
+                        ImageDetails imageDetails = new ImageDetails()
+                        {
+                            Image = await FileSettings.UploadFileAsync(request.Image),
+                        };
+                        await dbContext.images.AddAsync(imageDetails);
+                        await dbContext.SaveChangesAsync();
+                        var imageName = imageDetails.Image;
+                        string Body = $@"
+                            <html>
+                            <body>
+                                <p>{request.Body}</p>
+                                <img src='{imageName}' alt='Embedded Image' style='max-width: 50%; height: auto;'/>
+                            </body>
+                            </html>";
+                        EmailDTOs email = new EmailDTOs()
+                        {
+                            Subject = request.Title,
+                            Recivers = user.Email,
+                            Body = Body
+                        };
+
+                        EmailSetting.SendEmail(email);
+                        return Ok(new { mwssage = "Send email successful" });
+                    }
+                    return BadRequest(new { message = "not found user" });
+
+                }
+                return Unauthorized();
+            }
+            return NotFound();
 
         }
     }

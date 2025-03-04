@@ -318,6 +318,7 @@ namespace Graduation.Controllers.Advertisement
                 Id = adv.Id,
                 StartAt = adv.StartAt,
                 EndAt = adv.EndAt,
+
                 Properties = adv.Properties.Select(p => new GetAllPropertyDTOs
                 {
                     Id = p.Id,
@@ -326,6 +327,7 @@ namespace Graduation.Controllers.Advertisement
                     EndAt = p.EndAt,
                     UserID = p.UsersID,
                     TypeName = p.Type != null ? p.Type.Name : null,
+                    userName =p.User.UserName,
                     AddressName = p.Address.Name,
                     ImageDetails = p.ImageDetails.Select(img => new GetImageDTOs
                     {

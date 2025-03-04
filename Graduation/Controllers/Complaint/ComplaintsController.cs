@@ -1,14 +1,21 @@
 ﻿using Graduation.Data;
 using Graduation.DTOs.Complaints;
+using Graduation.DTOs.Email;
+using Graduation.DTOs.Images;
+using Graduation.Helpers;
 using Graduation.Model;
 using Graduation.Service;
 using Mapster;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.OpenApi.Extensions;
+using static System.Net.Mime.MediaTypeNames;
+
 
 namespace Graduation.Controllers.ComplaintFolder
 {
@@ -44,11 +51,17 @@ namespace Graduation.Controllers.ComplaintFolder
                     {
                         Name = addComplaint.NameComplaint,
                         Description = addComplaint.Content,
-                        status = addComplaint.status,
+                        status = false,
                         UsersID=requestUser.Id,
-                       
                     };
                     await dbContext.AddAsync(complaint);
+                    await dbContext.SaveChangesAsync();
+                    ImageDetails details = new ImageDetails()
+                    {
+                        complaintId = complaint.Id,
+                        Image = await FileSettings.UploadFileAsync(addComplaint.Image)
+                    };
+                    await dbContext.images.AddAsync(details);
                     await dbContext.SaveChangesAsync();
                     return Ok(new {status=200,message= "Complaint added successfully" });
                 }
@@ -72,10 +85,26 @@ namespace Graduation.Controllers.ComplaintFolder
 
             if (role.Contains("admin"))
             {
-                var time = DateTime.Now.Day;
+                IEnumerable<Complaint> deleteEnd = dbContext.complaints
+                   .Include(c=>c.ImageDetails)   
+                   .Where(c => c.status==true)
+                    .ToList();
+                
+                foreach (var item in deleteEnd)
+                {
+                    if (item.ImageDetails.Any())
+                        foreach (var image in item.ImageDetails)
+                        {
+                            await FileSettings.DeleteFileAsync(image.Image);
+                            dbContext.images.Remove(image);
+                        }
+                    dbContext.RemoveRange(item);
+                    await dbContext.SaveChangesAsync();
+                }
+                //var time = DateTime.Today.AddDays(-120);
+                //    . Where(c => (time <= c.CreatedDate))
                 IEnumerable<Complaint> request =  dbContext.complaints
-                    .AsEnumerable()
-                    . Where(c => (DateTime.Now - c.CreatedDate).TotalDays <120)
+                    .Include (c=>c.ImageDetails)
                      .ToList();
                 List<GetAllComplaintDTOs> complaints=new List<GetAllComplaintDTOs>();
                 foreach (var complaint in request)
@@ -83,13 +112,18 @@ namespace Graduation.Controllers.ComplaintFolder
                     complaints.Add(
                         new GetAllComplaintDTOs
                         {
-                           Id = complaint.Id,
-                           UsersID = complaint.UsersID,
-                           Name = complaint.Name,
-                           Description = complaint.Description, 
-                           status=complaint.status,
-                           CreatedDate=complaint.CreatedDate,
-                        } );
+                            Id = complaint.Id,
+                            UsersID = complaint.UsersID,
+                            Name = complaint.Name,
+                            Description = complaint.Description,
+                            status = complaint.status,
+                            CreatedDate = complaint.CreatedDate,
+                            Images = complaint.ImageDetails.Select(img => new GetImageDTOs
+                            {
+                                Id=img.Id,
+                                Name=img.Image
+                            }) .ToList(),
+                        });
                 }
                 return Ok(complaints);
             }

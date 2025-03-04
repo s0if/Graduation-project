@@ -14,5 +14,8 @@ namespace Graduation.Model
         [ForeignKey(nameof(Services))]
         public int? ServiceId { get; set; }
         public ServiceProject? Services { get; set; }
+        [ForeignKey(nameof(Complaint))]
+        public int? complaintId { get; set; }
+        public Complaint? Complaint { get; set; }
     }
 }

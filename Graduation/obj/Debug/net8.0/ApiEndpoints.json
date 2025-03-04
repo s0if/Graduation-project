@@ -308,9 +308,19 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "addComplaint",
-        "Type": "Graduation.DTOs.Complaints.AddComplaintDTOs",
-        "IsRequired": true
+        "Name": "NameComplaint",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Content",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Image",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -955,6 +965,37 @@
   },
   {
     "ContainingType": "Graduation.Controllers.User.UserOperationsController",
+    "Method": "SendEmail",
+    "RelativePath": "UserOperations/SendEmail",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Title",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Body",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "UserId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "Image",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.User.UserOperationsController",
     "Method": "UpdateAddress",
     "RelativePath": "UserOperations/UpdateAddress",
     "HttpMethod": "PUT",
@@ -999,6 +1040,16 @@
         "IsRequired": false
       }
     ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.User.UserOperationsController",
+    "Method": "UserProvider",
+    "RelativePath": "UserOperations/UserProvider",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
     "ReturnTypes": []
   }
 ]

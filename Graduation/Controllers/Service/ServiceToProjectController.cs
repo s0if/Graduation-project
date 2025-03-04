@@ -41,7 +41,7 @@ namespace Graduation.Controllers.ServiceToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider"))
+                if (role.Contains("provider")||role.Contains("admin"))
                 {
 
                     ServiceProject serviceProject = new ServiceProject
