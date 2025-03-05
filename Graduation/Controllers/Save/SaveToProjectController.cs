@@ -165,14 +165,18 @@ namespace Graduation.Controllers.Save
                     UserId = project.UserId,
                     allProperty = await dbContext.properties.Where(p => p.Id == project.PropertyId)
                     .Include(p => p.User)
+                    .Include(p=>p.Type)
+                    .Include(p=>p.Address)
                         .Select(p => new GetAllPropertyDTOs
                         {
                             Id = p.Id,
                             Description = p.Description,
                             StartAt = p.StartAt,
                             EndAt = p.EndAt,
-                            //UserID = p.UsersID,
+                            UserID = p.UsersID,
                             userName = p.User.UserName,
+                            TypeName=p.Type.Name,
+                            AddressName=p.Address.Name,
                             ImageDetails = p.ImageDetails.Select(img => new GetImageDTOs
                             {
                                 Id = img.Id,
@@ -190,14 +194,17 @@ namespace Graduation.Controllers.Save
                         }).ToListAsync(),
                     allService = await dbContext.services.Where(s => s.Id == project.ServiceId)
                                     .Include(p => p.User)
+                                    .Include (p => p.Type)
+                                    .Include(p=>p.Address)
                                     .Select(s => new GetAllServiceDTOs
                                     {
                                         Id = s.Id,
-                                        //userId = s.UsersID,
+                                        userId = s.UsersID,
                                         UserName = s.User.UserName,
                                         Description = s.Description,
                                         PriceRange = s.PriceRange,
                                         TypeName = s.Type.Name,
+                                        AddressName = s.Address.Name,
                                         ImageDetails = s.ImageDetails.Select(img => new GetImageDTOs
                                         {
                                             Id = img.Id,

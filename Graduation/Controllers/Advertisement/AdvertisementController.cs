@@ -116,8 +116,7 @@ namespace Graduation.Controllers.Advertisement
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider"))
-                {
+               
                     AdvertisementProject result = await dbContext.advertisements.FindAsync(AdvertisementId);
 
                     if (result is not null)
@@ -138,8 +137,6 @@ namespace Graduation.Controllers.Advertisement
                         return BadRequest(new { message = "not found service" });
                     }
                     return BadRequest(new { message = "not found Advertisement" });
-                }
-                return Unauthorized();
             }
             return NotFound();
         }
@@ -156,8 +153,7 @@ namespace Graduation.Controllers.Advertisement
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider"))
-                {
+                
                     AdvertisementProject result = await dbContext.advertisements.FindAsync(AdvertisementId);
 
                     if (result is not null)
@@ -178,8 +174,7 @@ namespace Graduation.Controllers.Advertisement
                         return BadRequest(new { message = "not found property" });
                     }
                     return BadRequest(new { message = "not found Advertisement" });
-                }
-                return Unauthorized();
+               
             }
             return NotFound();
         }
@@ -196,8 +191,7 @@ namespace Graduation.Controllers.Advertisement
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider"))
-                {
+                
                     AdvertisementProject result = await dbContext.advertisements.FindAsync(AdvertisementId);
 
                     if (result is not null)
@@ -218,9 +212,6 @@ namespace Graduation.Controllers.Advertisement
                     }
                     return BadRequest(new { message = "not found Advertisement" });
 
-
-                }
-                return Unauthorized();
             }
             return NotFound();
         }
@@ -237,8 +228,7 @@ namespace Graduation.Controllers.Advertisement
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider"))
-                {
+                
                     AdvertisementProject result = await dbContext.advertisements.FindAsync(AdvertisementId);
 
                     if (result is not null)
@@ -258,8 +248,6 @@ namespace Graduation.Controllers.Advertisement
                         return BadRequest(new { message = "not found property" });
                     }
                     return BadRequest(new { message = "not found Advertisement" });
-                }
-                return Unauthorized();
             }
             return NotFound();
         }
@@ -350,6 +338,7 @@ namespace Graduation.Controllers.Advertisement
                     PriceRange = ser.PriceRange,
                     TypeName = ser.Type != null ? ser.Type.Name : null,
                     userId = ser.UsersID,
+                    UserName = ser.User.UserName,
                     AddressName = ser.Address.Name,
                     ImageDetails = ser.ImageDetails.Select(img => new GetImageDTOs
                     {
@@ -431,6 +420,7 @@ namespace Graduation.Controllers.Advertisement
                             StartAt = p.StartAt,
                             EndAt = p.EndAt,
                             UserID = p.UsersID,
+                            userName=p.User.UserName,
                             AddressName = p.Address.Name,
                             TypeName = p.Type != null ? p.Type.Name : null,
                             ImageDetails = p.ImageDetails.Select(img => new GetImageDTOs
@@ -456,6 +446,7 @@ namespace Graduation.Controllers.Advertisement
                             PriceRange = ser.PriceRange,
                             TypeName = ser.Type != null ? ser.Type.Name : null,
                             userId = ser.UsersID,
+                            UserName = ser.User.UserName,
                             AddressName = ser.Address.Name,
                             ImageDetails = ser.ImageDetails.Select(img => new GetImageDTOs
                             {
