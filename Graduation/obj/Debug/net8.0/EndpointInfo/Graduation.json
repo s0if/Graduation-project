@@ -254,7 +254,7 @@
         }
       }
     },
-    "/Advertisement/SuggestAdvertisement": {
+    "/Advertisement/Suggest": {
       "get": {
         "tags": [
           "Advertisement"
@@ -266,7 +266,7 @@
         }
       }
     },
-    "/Advertisement/SuggestAdvertisementReview": {
+    "/Advertisement/SuggestAddress": {
       "get": {
         "tags": [
           "Advertisement"
@@ -1515,6 +1515,28 @@
       "get": {
         "tags": [
           "UserOperations"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/UserOperations/profileProvider": {
+      "get": {
+        "tags": [
+          "UserOperations"
+        ],
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
         ],
         "responses": {
           "200": {

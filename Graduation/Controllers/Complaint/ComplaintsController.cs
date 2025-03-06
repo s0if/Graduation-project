@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.OpenApi.Extensions;
+using System.Diagnostics.CodeAnalysis;
 using static System.Net.Mime.MediaTypeNames;
 
 
@@ -56,13 +57,17 @@ namespace Graduation.Controllers.ComplaintFolder
                     };
                     await dbContext.AddAsync(complaint);
                     await dbContext.SaveChangesAsync();
-                    ImageDetails details = new ImageDetails()
+                    if (addComplaint.Image is not null)
                     {
-                        complaintId = complaint.Id,
-                        Image = await FileSettings.UploadFileAsync(addComplaint.Image)
-                    };
-                    await dbContext.images.AddAsync(details);
-                    await dbContext.SaveChangesAsync();
+
+                        ImageDetails details = new ImageDetails()
+                        {
+                            complaintId = complaint.Id,
+                            Image = await FileSettings.UploadFileAsync(addComplaint.Image)
+                        };
+                        await dbContext.images.AddAsync(details);
+                        await dbContext.SaveChangesAsync();
+                    }
                     return Ok(new {status=200,message= "Complaint added successfully" });
                 }
                 return Unauthorized();

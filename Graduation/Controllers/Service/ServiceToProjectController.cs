@@ -85,8 +85,7 @@ namespace Graduation.Controllers.ServiceToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider") )
-                {
+               
                     ServiceProject result=await dbContext.services.AsSplitQuery().Include(A=>A.Address).FirstOrDefaultAsync(s=>s.Id== serviceId);
                     if(result is not null)
                     {
@@ -117,8 +116,6 @@ namespace Graduation.Controllers.ServiceToProject
 
                     }
                     return BadRequest(new {message= "not found service" });
-                }
-                return Unauthorized();
             }
             return NotFound();
         }
@@ -184,7 +181,7 @@ namespace Graduation.Controllers.ServiceToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider"))
+                if (role.Contains("provider")||role.Contains("admin"))
                 {
                     ImageDetails details = new ImageDetails
                     {
@@ -213,8 +210,7 @@ namespace Graduation.Controllers.ServiceToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider"))
-                {
+               
                     ImageDetails resultImage = await dbContext.images.FindAsync(imageId);
                     if (resultImage is not null)
                     {
@@ -236,11 +232,6 @@ namespace Graduation.Controllers.ServiceToProject
 
                     }
                     return BadRequest(new { message = "not found image" });
-
-
-
-                }
-                return Unauthorized();
             }
             return NotFound();
         }
@@ -258,8 +249,7 @@ namespace Graduation.Controllers.ServiceToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider"))
-                {
+                
                     ImageDetails resultImage = await dbContext.images.FindAsync(imageId);
                     if (resultImage is not null)
                     {
@@ -280,11 +270,6 @@ namespace Graduation.Controllers.ServiceToProject
 
                     }
                     return BadRequest(new { message = "not found image" });
-
-
-
-                }
-                return Unauthorized();
             }
             return NotFound();
         }

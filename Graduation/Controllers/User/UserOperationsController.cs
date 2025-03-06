@@ -1,6 +1,11 @@
 ﻿using Graduation.Data;
 using Graduation.DTOs.Auth;
 using Graduation.DTOs.Email;
+using Graduation.DTOs.Images;
+using Graduation.DTOs.Profile;
+using Graduation.DTOs.PropertyToProject;
+using Graduation.DTOs.Reviews;
+using Graduation.DTOs.ServiceToProject;
 using Graduation.Helpers;
 using Graduation.Model;
 using Graduation.Service;
@@ -8,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Graduation.Controllers.User
 {
@@ -114,6 +120,108 @@ namespace Graduation.Controllers.User
                 Address = requestUser.Address?.Name,
                 Role = string.Join(",", await userManager.GetRolesAsync(requestUser))
             };
+            return Ok(result);
+        }
+
+        [HttpGet("profileProvider")]
+        public async Task<IActionResult> profileProvider(int Id)
+        {
+
+            ApplicationUser requestUser = await userManager.Users.
+                FirstOrDefaultAsync(u=>u.Id==Id);
+            var role=await userManager.GetRolesAsync(requestUser);  
+            if (requestUser is null)
+            {
+                return BadRequest(new { message = "provider not found" });
+            }
+
+
+            var resultProperty =await dbContext.properties
+                .Include(p => p.Address)
+                .Include(p=>p.Type)
+                .Include(p=>p.ImageDetails)
+                .Include(p=>p.Reviews)
+                .Where(p=>p.UsersID == Id).ToListAsync();
+            var resultService=await dbContext.services
+                .Include(s => s.Address)
+                .Include(s => s.Type)
+                .Include(s => s.ImageDetails)
+                .Include(s => s.Reviews)
+                .Where(s=>s.UsersID == Id).ToListAsync();
+            if (resultProperty.Count<1 && resultService.Count<1)
+            {
+                return NotFound("No properties or services found for the given user ID.");
+            }
+            ProviderDTOs result = new ProviderDTOs
+            {
+              PropertyDTOs= resultProperty?.Select(RP => new GetAllPropertyDTOs
+              {
+                  Id = RP.Id,
+                  AddressName = RP.Address.Name,
+                  Description = RP.Description,
+                  StartAt = RP.StartAt,
+                  EndAt = RP.EndAt,
+                  Price = RP.Price,
+                  TypeName = RP.Type.Name,
+                  userName = requestUser.UserName,
+                  UserID = Id,
+                  ImageDetails = RP.ImageDetails?
+                  .Select(img => new GetImageDTOs
+                  {
+                      Id = img.Id,
+                      Name = img.Image
+                  }).ToList() ?? new List<GetImageDTOs>(),
+                  Reviews = RP.Reviews?
+                  .Select(r =>
+                   new GetAllReviewDTOs
+                   {
+                       Id = r.Id,
+                       UserId = r.UsersID,
+                       description = r.Description,
+                       date = r.CreateAt,
+                       rating = r.Rating,
+
+                   }
+
+                  ).ToList() ?? new List<GetAllReviewDTOs>(),
+
+                  AvgRating = RP.Reviews.Any() ? RP.Reviews.Average(r => r.Rating) : 0
+              }).ToList() ?? new List<GetAllPropertyDTOs>(),
+              ServiceDTOs = resultService?.Select(RS => new GetAllServiceDTOs
+              {
+                  Id = RS.Id,
+                  userId = Id,
+                  UserName = requestUser.UserName,
+                  Description = RS.Description,
+                  AddressName = RS.Address.Name,
+                  PriceRange = RS.PriceRange,
+                  TypeName = RS.Type.Name,
+                  ImageDetails = RS.ImageDetails?
+                   .Select(img => new GetImageDTOs
+                   {
+                       Id = img.Id,
+                       Name = img.Image
+                   })
+                   .ToList() ?? new List<GetImageDTOs>(),
+                  Reviews = RS.Reviews?
+                   .Select(r =>
+                    new GetAllReviewDTOs
+                    {
+                        Id = r.Id,
+                        UserId = r.UsersID,
+                        description = r.Description,
+                        date = r.CreateAt,
+                        rating = r.Rating,
+
+                    }
+
+                   )
+                   .ToList() ?? new List<GetAllReviewDTOs>(),
+
+                  AvgRating = RS.Reviews.Any() ? RS.Reviews.Average(r => r.Rating) : 0
+              }).ToList() ?? new List<GetAllServiceDTOs>(),
+            };
+            
             return Ok(result);
         }
 
@@ -266,21 +374,35 @@ namespace Graduation.Controllers.User
                     if (user is not null)
                     {
 
-
-                        ImageDetails imageDetails = new ImageDetails()
+                        string Body = "";
+                        if (request.Image is not null)
                         {
-                            Image = await FileSettings.UploadFileAsync(request.Image),
-                        };
-                        await dbContext.images.AddAsync(imageDetails);
-                        await dbContext.SaveChangesAsync();
-                        var imageName = imageDetails.Image;
-                        string Body = $@"
-                            <html>
-                            <body>
-                                <p>{request.Body}</p>
-                                <img src='{imageName}' alt='Embedded Image' style='max-width: 50%; height: auto;'/>
-                            </body>
-                            </html>";
+
+                            ImageDetails imageDetails = new ImageDetails()
+                            {
+                                Image = await FileSettings.UploadFileAsync(request.Image),
+                            };
+                            await dbContext.images.AddAsync(imageDetails);
+                            await dbContext.SaveChangesAsync();
+                            var imageName = imageDetails.Image;
+                             Body = $@"
+                                <html>
+                                <body>
+                                    <p>{request.Body}</p>
+                                    <img src='{imageName}' alt='Embedded Image' style='max-width: 50%; height: auto;'/>
+                                </body>
+                                </html>";
+                        }
+                        if (Body == "")
+                        {
+                            Body = $@"
+                                <html>
+                                <body>
+                                    <p>{request.Body}</p>
+                                   
+                                </body>
+                                </html>";
+                        }
                         EmailDTOs email = new EmailDTOs()
                         {
                             Subject = request.Title,
@@ -299,5 +421,6 @@ namespace Graduation.Controllers.User
             return NotFound();
 
         }
+
     }
 }

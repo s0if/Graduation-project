@@ -274,7 +274,8 @@ namespace Graduation.Controllers.Advertisement
                 queryP = queryP.Where(p => p.Address.Name.Contains(address));
             }
 
-            var deleteEnd = await dbContext.advertisements.Where(adv => adv.EndAt < DateTime.Now)
+            var deleteEnd = await dbContext.advertisements
+                .Where(adv => adv.EndAt <= DateTime.Now)
                 .Include(adv => adv.Services)
                 .Include(adv => adv.Properties)
                 .ToListAsync();
@@ -292,7 +293,7 @@ namespace Graduation.Controllers.Advertisement
             .Include(a => a.Properties)
                 .ThenInclude(p => p.Reviews)
                  .Include(a => a.Properties)
-     .ThenInclude(p => p.Address)
+            .ThenInclude(p => p.Address)
             .Include(a => a.Services)
                 .ThenInclude(s => s.Type)
             .Include(a => a.Services)
@@ -300,7 +301,8 @@ namespace Graduation.Controllers.Advertisement
             .Include(a => a.Services)
                 .ThenInclude(s => s.Reviews)
                 .Include(a => a.Services)
-    .ThenInclude(s => s.Address)
+            .ThenInclude(s => s.Address)
+                .OrderByDescending(adv => adv.Id)
             .Select(adv => new GetAllAdvertisementDTOs
             {
                 Id = adv.Id,
@@ -358,9 +360,127 @@ namespace Graduation.Controllers.Advertisement
             return Ok(result);
 
         }
+        [HttpGet("Suggest")]
+        public async Task<IActionResult> Suggest()
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(new { message = "Token Is Missing" });
+            int? userId = ExtractClaims.ExtractUserId(token);
+            if (string.IsNullOrEmpty(userId.ToString()))
+                return Unauthorized(new { message = "Token Is Missing" });
+            var user = await userManager.Users
+                .Include(u => u.Address)
+                .FirstOrDefaultAsync(u => u.Id == userId);
 
-        [HttpGet("SuggestAdvertisement")]
-        public async Task<IActionResult> SuggestAdvertisement()
+            if (user == null || user.Address == null)
+                return NotFound(new { message = "User or Address Not Found" });
+
+            string userCity = user.Address.Name;
+            var lastReview = await dbContext.reviews
+                .Where(r => r.UsersID == userId)
+                .OrderByDescending(r => r.CreateAt)
+                .FirstOrDefaultAsync();
+            var deleteEnd = await dbContext.advertisements
+                .Where(adv => adv.EndAt <= DateTime.Now)
+                .Include(adv => adv.Services)
+                .Include(adv => adv.Properties)
+                .ToListAsync();
+
+            foreach (var adv in deleteEnd)
+            {
+                dbContext.advertisements.RemoveRange(adv);
+                await dbContext.SaveChangesAsync();
+            }
+            var result = await dbContext.advertisements
+                .Include(a => a.Properties)
+                    .ThenInclude(p => p.Type)
+                .Include(a => a.Properties)
+                    .ThenInclude(p => p.ImageDetails)
+                .Include(a => a.Properties)
+                    .ThenInclude(p => p.Reviews)
+                .Include(a => a.Properties)
+                    .ThenInclude(p => p.Address)
+                .Include(a => a.Services)
+                    .ThenInclude(s => s.Type)
+                .Include(a => a.Services)
+                    .ThenInclude(s => s.ImageDetails)
+                .Include(a => a.Services)
+                    .ThenInclude(s => s.Reviews)
+                .Include(a => a.Services)
+                    .ThenInclude(s => s.Address)
+                .Where(adv =>
+                    (adv.Properties.Any(p => p.Address.Name == userCity)) ||
+                    (adv.Services.Any(s => s.Address.Name == userCity)))
+                .Select(adv => new GetAllAdvertisementDTOs
+                {
+                    Id = adv.Id,
+                    StartAt = adv.StartAt,
+                    EndAt = adv.EndAt,
+                    Properties = adv.Properties
+                        .Select(p => new GetAllPropertyDTOs
+                        {
+                            Id = p.Id,
+                            Description = p.Description,
+                            StartAt = p.StartAt,
+                            EndAt = p.EndAt,
+                            UserID = p.UsersID,
+                            AddressName = p.Address.Name,
+                            TypeName = p.Type != null ? p.Type.Name : null,
+                            userName = p.User.UserName,
+                            Price = p.Price,
+                            AvgRating = p.Reviews.Average(r => r.Rating),
+                            ImageDetails = p.ImageDetails.Select(img => new GetImageDTOs
+                            {
+                                Id = img.Id,
+                                Name = img.Image
+                            }).ToList(),
+                            Reviews = p.Reviews.Select(r => new GetAllReviewDTOs
+                            {
+                                Id = r.Id,
+                                date = r.CreateAt,
+                                description = r.Description,
+                                rating = r.Rating,
+                            }).ToList(),
+                        }).ToList(),
+                    Services = adv.Services
+                        .Select(ser => new GetAllServiceDTOs
+                        {
+                            Id = ser.Id,
+                            Description = ser.Description,
+                            PriceRange = ser.PriceRange,
+                            TypeName = ser.Type != null ? ser.Type.Name : null,
+                            userId = ser.UsersID,
+                            UserName = ser.User.UserName,
+                            AddressName = ser.Address.Name,
+                            AvgRating = ser.Reviews.Average(r => r.Rating),
+                            ImageDetails = ser.ImageDetails.Select(img => new GetImageDTOs
+                            {
+                                Id = img.Id,
+                                Name = img.Image
+                            }).ToList(),
+                            Reviews = ser.Reviews.Select(r => new GetAllReviewDTOs
+                            {
+                                Id = r.Id,
+                                date = r.CreateAt,
+                                description = r.Description,
+                                rating = r.Rating,
+                            }).ToList(),
+                        }).ToList()
+                }).ToListAsync();
+
+            var sortedAdvertisements = result
+                  .OrderByDescending(adv =>
+                      Math.Max(
+                          adv.Properties.Any() ? adv.Properties.Max(p => p.AvgRating) : 0,
+                          adv.Services.Any() ? adv.Services.Max(s => s.AvgRating) : 0
+                      ))
+                  .ToList();
+            return Ok(sortedAdvertisements);
+        }
+
+        [HttpGet("SuggestAddress")]
+        public async Task<IActionResult> SuggestAddress()
         {
            
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
@@ -376,7 +496,7 @@ namespace Graduation.Controllers.Advertisement
                 return NotFound(new { message = "User or Address Not Found" });
             string userCity = user.Address.Name; 
             var deleteEnd = await dbContext.advertisements
-                .Where(adv => adv.EndAt < DateTime.Now)
+                .Where(adv => adv.EndAt <= DateTime.Now)
                 .Include(adv => adv.Services)
                 .Include(adv => adv.Properties)
                 .ToListAsync();
@@ -466,267 +586,6 @@ namespace Graduation.Controllers.Advertisement
 
             return Ok(result);
         }
-
-
-
-
-        //[HttpGet("SuggestAdvertisementReview")]
-        //public async Task<IActionResult> SuggestAdvertisementReview()
-        //{
-        //    // Extract and validate the token
-        //    string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
-        //    if (string.IsNullOrEmpty(token))
-        //        return Unauthorized(new { message = "Token Is Missing" });
-
-        //    // Extract the user ID from the token
-        //    int? userId = ExtractClaims.ExtractUserId(token);
-        //    if (string.IsNullOrEmpty(userId.ToString()))
-        //        return Unauthorized(new { message = "Token Is Missing" });
-
-        //    // Fetch the user's address
-        //    var user = await userManager.Users
-        //        .Include(u => u.Address) // Assuming the user has an Address navigation property
-        //        .FirstOrDefaultAsync(u => u.Id == userId);
-
-        //    if (user == null || user.Address == null)
-        //        return NotFound(new { message = "User or Address Not Found" });
-
-        //    string userCity = user.Address.Name; // Assuming the address has a Name property
-
-        //    // Fetch the user's last review (either for a service or property)
-        //    var lastReview = await dbContext.reviews
-        //        .Where(r => r.UsersID == userId)
-        //        .OrderByDescending(r => r.CreateAt)
-        //        .FirstOrDefaultAsync();
-
-        //    double? userRating = lastReview?.Rating; // Get the rating from the last review
-
-        //    // Delete expired advertisements
-        //    var deleteEnd = await dbContext.advertisements
-        //        .Where(adv => adv.EndAt < DateTime.Now)
-        //        .Include(adv => adv.Services)
-        //        .Include(adv => adv.Properties)
-        //        .ToListAsync();
-
-        //    foreach (var adv in deleteEnd)
-        //    {
-        //        dbContext.advertisements.RemoveRange(adv);
-        //        await dbContext.SaveChangesAsync();
-        //    }
-
-        //    // Fetch advertisements with similar addresses and matching ratings
-        //    var result = await dbContext.advertisements
-        //        .Include(a => a.Properties)
-        //            .ThenInclude(p => p.Type)
-        //        .Include(a => a.Properties)
-        //            .ThenInclude(p => p.ImageDetails)
-        //        .Include(a => a.Properties)
-        //            .ThenInclude(p => p.Reviews)
-        //        .Include(a => a.Properties)
-        //            .ThenInclude(p => p.Address)
-        //        .Include(a => a.Services)
-        //            .ThenInclude(s => s.Type)
-        //        .Include(a => a.Services)
-        //            .ThenInclude(s => s.ImageDetails)
-        //        .Include(a => a.Services)
-        //            .ThenInclude(s => s.Reviews)
-        //        .Include(a => a.Services)
-        //            .ThenInclude(s => s.Address)
-        //        .Where(adv =>
-        //            (adv.Properties.Any(p => p.Address.Name == userCity &&
-        //                                    (!userRating.HasValue || p.Reviews.Any(r => r.Rating >= userRating)))) ||
-        //            (adv.Services.Any(s => s.Address.Name == userCity &&
-        //                                  (!userRating.HasValue || s.Reviews.Any(r => r.Rating >= userRating))))  )
-        //        .Select(adv => new GetAllAdvertisementDTOs
-        //        {
-        //            Id = adv.Id,
-        //            StartAt = adv.StartAt,
-        //            EndAt = adv.EndAt,
-        //            Properties = adv.Properties
-        //                .Where(p => p.Address.Name == userCity &&
-        //                            (!userRating.HasValue || p.Reviews.Any(r => r.Rating >= userRating)))
-        //                .Select(p => new GetAllPropertyDTOs
-        //                {
-        //                    Id = p.Id,
-        //                    Description = p.Description,
-        //                    StartAt = p.StartAt,
-        //                    EndAt = p.EndAt,
-        //                    UserID = p.UsersID,
-        //                    AddressName = p.Address.Name,
-        //                    TypeName = p.Type != null ? p.Type.Name : null,
-        //                    ImageDetails = p.ImageDetails.Select(img => new GetImageDTOs
-        //                    {
-        //                        Id = img.Id,
-        //                        Name = img.Image
-        //                    }).ToList(),
-        //                    Reviews = p.Reviews.Select(r => new GetAllReviewDTOs
-        //                    {
-        //                        Id = r.Id,
-        //                        date = r.CreateAt,
-        //                        description = r.Description,
-        //                        rating = r.Rating,
-        //                    }).ToList(),
-        //                }).ToList(),
-        //            Services = adv.Services
-        //                .Where(s => s.Address.Name == userCity &&
-        //                            (!userRating.HasValue || s.Reviews.Any(r => r.Rating >= userRating)))
-        //                .Select(ser => new GetAllServiceDTOs
-        //                {
-        //                    Id = ser.Id,
-        //                    Description = ser.Description,
-        //                    PriceRange = ser.PriceRange,
-        //                    TypeName = ser.Type != null ? ser.Type.Name : null,
-        //                    userId = ser.UsersID,
-        //                    AddressName = ser.Address.Name,
-        //                    ImageDetails = ser.ImageDetails.Select(img => new GetImageDTOs
-        //                    {
-        //                        Id = img.Id,
-        //                        Name = img.Image
-        //                    }).ToList(),
-        //                    Reviews = ser.Reviews.Select(r => new GetAllReviewDTOs
-        //                    {
-        //                        Id = r.Id,
-        //                        date = r.CreateAt,
-        //                        description = r.Description,
-        //                        rating = r.Rating,
-        //                    }).ToList(),
-        //                }).ToList()
-        //        }).ToListAsync();
-
-        //    return Ok(result);
-        //}
-
-
-
-
-
-        [HttpGet("SuggestAdvertisementReview")]
-        public async Task<IActionResult> SuggestAdvertisementReview()
-        {
-            // Extract and validate the token
-            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
-            if (string.IsNullOrEmpty(token))
-                return Unauthorized(new { message = "Token Is Missing" });
-
-            // Extract the user ID from the token
-            int? userId = ExtractClaims.ExtractUserId(token);
-            if (string.IsNullOrEmpty(userId.ToString()))
-                return Unauthorized(new { message = "Token Is Missing" });
-
-            // Fetch the user's address
-            var user = await userManager.Users
-                .Include(u => u.Address) // Assuming the user has an Address navigation property
-                .FirstOrDefaultAsync(u => u.Id == userId);
-
-            if (user == null || user.Address == null)
-                return NotFound(new { message = "User or Address Not Found" });
-
-            string userCity = user.Address.Name; // Assuming the address has a Name property
-
-            // Fetch the user's last review (either for a service or property)
-            var lastReview = await dbContext.reviews
-                .Where(r => r.UsersID == userId)
-                .OrderByDescending(r => r.CreateAt)
-                .FirstOrDefaultAsync();
-
-            double? userRating = lastReview?.Rating; // Get the rating from the last review
-
-            // Delete expired advertisements
-            var deleteEnd = await dbContext.advertisements
-                .Where(adv => adv.EndAt < DateTime.Now)
-                .Include(adv => adv.Services)
-                .Include(adv => adv.Properties)
-                .ToListAsync();
-
-            foreach (var adv in deleteEnd)
-            {
-                dbContext.advertisements.RemoveRange(adv);
-                await dbContext.SaveChangesAsync();
-            }
-
-            // Fetch advertisements with similar addresses and matching ratings
-            var result = await dbContext.advertisements
-                .Include(a => a.Properties)
-                    .ThenInclude(p => p.Type)
-                .Include(a => a.Properties)
-                    .ThenInclude(p => p.ImageDetails)
-                .Include(a => a.Properties)
-                    .ThenInclude(p => p.Reviews)
-                .Include(a => a.Properties)
-                    .ThenInclude(p => p.Address)
-                .Include(a => a.Services)
-                    .ThenInclude(s => s.Type)
-                .Include(a => a.Services)
-                    .ThenInclude(s => s.ImageDetails)
-                .Include(a => a.Services)
-                    .ThenInclude(s => s.Reviews)
-                .Include(a => a.Services)
-                    .ThenInclude(s => s.Address)
-                .Where(adv =>
-                    (adv.Properties.Any(p => p.Address.Name == userCity &&
-                                            (!userRating.HasValue || p.Reviews.Average(r => r.Rating) >= userRating))) ||
-                    (adv.Services.Any(s => s.Address.Name == userCity &&
-                                          (!userRating.HasValue || s.Reviews.Average(r => r.Rating) >= userRating))))
-                .Select(adv => new GetAllAdvertisementDTOs
-                {
-                    Id = adv.Id,
-                    StartAt = adv.StartAt,
-                    EndAt = adv.EndAt,
-                    Properties = adv.Properties
-                        .Where(p => p.Address.Name == userCity &&
-                                    (!userRating.HasValue || p.Reviews.Average(r => r.Rating) >= userRating))
-                        .Select(p => new GetAllPropertyDTOs
-                        {
-                            Id = p.Id,
-                            Description = p.Description,
-                            StartAt = p.StartAt,
-                            EndAt = p.EndAt,
-                            UserID = p.UsersID,
-                            AddressName = p.Address.Name,
-                            TypeName = p.Type != null ? p.Type.Name : null,
-                            ImageDetails = p.ImageDetails.Select(img => new GetImageDTOs
-                            {
-                                Id = img.Id,
-                                Name = img.Image
-                            }).ToList(),
-                            Reviews = p.Reviews.Select(r => new GetAllReviewDTOs
-                            {
-                                Id = r.Id,
-                                date = r.CreateAt,
-                                description = r.Description,
-                                rating = r.Rating,
-                            }).ToList(),
-                        }).ToList(),
-                    Services = adv.Services
-                        .Where(s => s.Address.Name == userCity &&
-                                    (!userRating.HasValue || s.Reviews.Average(r => r.Rating) >= userRating))
-                        .Select(ser => new GetAllServiceDTOs
-                        {
-                            Id = ser.Id,
-                            Description = ser.Description,
-                            PriceRange = ser.PriceRange,
-                            TypeName = ser.Type != null ? ser.Type.Name : null,
-                            userId = ser.UsersID,
-                            AddressName = ser.Address.Name,
-                            ImageDetails = ser.ImageDetails.Select(img => new GetImageDTOs
-                            {
-                                Id = img.Id,
-                                Name = img.Image
-                            }).ToList(),
-                            Reviews = ser.Reviews.Select(r => new GetAllReviewDTOs
-                            {
-                                Id = r.Id,
-                                date = r.CreateAt,
-                                description = r.Description,
-                                rating = r.Rating,
-                            }).ToList(),
-                        }).ToList()
-                }).ToListAsync();
-
-            return Ok(result);
-        }
-
-
 
     }
 }

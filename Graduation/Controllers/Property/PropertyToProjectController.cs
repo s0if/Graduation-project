@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using System;
 
@@ -257,8 +258,7 @@ namespace Graduation.Controllers.PropertyToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider"))
-                {
+               
                     ImageDetails resultImage = await dbContext.images.FindAsync(imageId);
                     if (resultImage is not null)
                     {
@@ -279,11 +279,6 @@ namespace Graduation.Controllers.PropertyToProject
 
                     }
                     return BadRequest(new { message = "not found image" });
-
-
-
-                }
-                return Unauthorized();
             }
             return NotFound();
         }
@@ -395,6 +390,7 @@ namespace Graduation.Controllers.PropertyToProject
                 .Include(p => p.Reviews)
                 .Include (p => p.Address)
                 .Include(p=>p.Type)
+                .Include(p => p.User)
                 .Select(s => new GetAllPropertyDTOs
                 {
                     Id = s.Id,
@@ -405,6 +401,7 @@ namespace Graduation.Controllers.PropertyToProject
                     EndAt = s.EndAt,
                     Price = s.Price,
                     AddressName = s.Address.Name,
+                    userName = s.User.UserName,
                     ImageDetails = s.ImageDetails.Select(img => new GetImageDTOs
                     {
                         Id = img.Id,
@@ -438,12 +435,13 @@ namespace Graduation.Controllers.PropertyToProject
              .Include(p => p.Reviews)
              .Include(p => p.Address)
              .Include(p=>p.Type)
+             .Include(p=>p.User)
              .FirstOrDefaultAsync(p => p.Id == propertyId);
 
             if (Property == null)
             {
                 return NotFound(new { message = "Property not found" });
-            }  
+            }
             GetAllPropertyDTOs getProperty = new GetAllPropertyDTOs
             {
                 Id = Property.Id,
@@ -454,6 +452,7 @@ namespace Graduation.Controllers.PropertyToProject
                 StartAt = Property.StartAt,
                 EndAt = Property.EndAt,
                 AddressName = Property.Address?.Name ?? "Unknown", 
+                userName= Property.User.UserName,
                 ImageDetails = Property.ImageDetails?
                     .Select(img => new GetImageDTOs
                     {

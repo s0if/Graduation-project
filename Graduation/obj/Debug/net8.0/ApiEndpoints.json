@@ -112,8 +112,8 @@
   },
   {
     "ContainingType": "Graduation.Controllers.Advertisement.AdvertisementController",
-    "Method": "SuggestAdvertisement",
-    "RelativePath": "Advertisement/SuggestAdvertisement",
+    "Method": "Suggest",
+    "RelativePath": "Advertisement/Suggest",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -122,8 +122,8 @@
   },
   {
     "ContainingType": "Graduation.Controllers.Advertisement.AdvertisementController",
-    "Method": "SuggestAdvertisementReview",
-    "RelativePath": "Advertisement/SuggestAdvertisementReview",
+    "Method": "SuggestAddress",
+    "RelativePath": "Advertisement/SuggestAddress",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -961,6 +961,22 @@
     "IsController": true,
     "Order": 0,
     "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.User.UserOperationsController",
+    "Method": "profileProvider",
+    "RelativePath": "UserOperations/profileProvider",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": []
   },
   {
