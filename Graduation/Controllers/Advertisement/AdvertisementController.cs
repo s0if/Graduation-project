@@ -60,7 +60,7 @@ namespace Graduation.Controllers.Advertisement
                     return BadRequest(new { message = "There is an advertisement" });
 
                 }
-                return Unauthorized();
+                return Unauthorized(new { message = "Only Admins or provider Can Delete Type Services" });
             }
             return NotFound();
         }
@@ -99,7 +99,8 @@ namespace Graduation.Controllers.Advertisement
                     }
                     return BadRequest(new { message = "There is an advertisement" });
                 }
-                return Unauthorized();
+                return Unauthorized(new { message = "Only Admins or provider Can Delete Type Services" });
+
             }
             return NotFound();
         }
@@ -132,9 +133,9 @@ namespace Graduation.Controllers.Advertisement
                                 await dbContext.SaveChangesAsync();
                                 return Ok(new { message = "update successful" });
                             }
-                            return Unauthorized();
-                        }
-                        return BadRequest(new { message = "not found service" });
+                        return Unauthorized(new { message = "Only Admins or the service provider can update this advertisement" });
+                    }
+                    return BadRequest(new { message = "not found service" });
                     }
                     return BadRequest(new { message = "not found Advertisement" });
             }
@@ -169,8 +170,8 @@ namespace Graduation.Controllers.Advertisement
                                 await dbContext.SaveChangesAsync();
                                 return Ok(new { message = "update successful" });
                             }
-                            return Unauthorized();
-                        }
+                            return Unauthorized(); return Unauthorized(new { message = "Only Admins or the property provider can update this advertisement" });
+                    }
                         return BadRequest(new { message = "not found property" });
                     }
                     return BadRequest(new { message = "not found Advertisement" });
@@ -206,8 +207,8 @@ namespace Graduation.Controllers.Advertisement
                                 await dbContext.SaveChangesAsync();
                                 return Ok(new { message = "remove successful" });
                             }
-                            return Unauthorized();
-                        }
+                        return Unauthorized(new { message = "Only Admins or the service provider can delete this advertisement" });
+                    }
                         return BadRequest(new { message = "not found service" });
                     }
                     return BadRequest(new { message = "not found Advertisement" });
@@ -243,8 +244,8 @@ namespace Graduation.Controllers.Advertisement
                                 await dbContext.SaveChangesAsync();
                                 return Ok(new { message = "delete successful" });
                             }
-                            return Unauthorized();
-                        }
+                        return Unauthorized(new { message = "Only Admins or the property provider can delete this advertisement" });
+                    }
                         return BadRequest(new { message = "not found property" });
                     }
                     return BadRequest(new { message = "not found Advertisement" });

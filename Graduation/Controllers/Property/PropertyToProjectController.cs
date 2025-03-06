@@ -70,7 +70,7 @@ namespace Graduation.Controllers.PropertyToProject
                     };
                     return Ok(new { status = 200, returnProperty });
                 }
-                return Unauthorized();
+                return Unauthorized(new { message = "Only admin or a provider can add this property" });
             }
             return NotFound();
         }
@@ -87,9 +87,9 @@ namespace Graduation.Controllers.PropertyToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider"))
-                {
                     PropertyProject result = await dbContext.properties.FindAsync(propertyId);
+                if (result is not null)
+                {
                     
                      if(result.UsersID== requestUser.Id || role.Contains("admin"))
                         {
@@ -114,8 +114,8 @@ namespace Graduation.Controllers.PropertyToProject
                             return Ok(new { status = 200, returnProperty });
 
                         }
-                        return Unauthorized() ;
-                    }
+                    return Unauthorized(new { message = "Only admin or the provider can update this property" });
+                }
                     return BadRequest(new { message = "not found property" });
                 
             }
@@ -162,8 +162,8 @@ namespace Graduation.Controllers.PropertyToProject
                             return Ok(new { status = 200 });
 
                         }
-                        return Unauthorized();
-                    }
+                    return Unauthorized(new { message = "Only admin or the provider can delete this property" });
+                }
                     return BadRequest(new { message = "not found property" });
 
 
@@ -184,7 +184,7 @@ namespace Graduation.Controllers.PropertyToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider"))
+                if (role.Contains("provider")||role.Contains("admin"))
                 {
                     ImageDetails details = new ImageDetails
                     {
@@ -195,7 +195,7 @@ namespace Graduation.Controllers.PropertyToProject
                     await dbContext.SaveChangesAsync();
                     return Ok("done");
                 }
-                return Unauthorized();
+                return Unauthorized(new { message = "Only admin or the provider can add image property" });
             }
             return NotFound();
         }
@@ -213,8 +213,7 @@ namespace Graduation.Controllers.PropertyToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider"))
-                {
+                
                     ImageDetails resultImage = await dbContext.images.FindAsync(imageId);
                     if (resultImage is not null)
                     {
@@ -230,17 +229,12 @@ namespace Graduation.Controllers.PropertyToProject
                                 return Ok(new { status = 200 });
 
                             }
-                            return Unauthorized();
-                        }
+                        return Unauthorized(new { message = "Only admin or the provider can update image property" });
+                    }
                         return BadRequest(new { message = "not found property" });
 
                     }
                     return BadRequest(new { message = "not found image" });
-
-
-
-                }
-                return Unauthorized();
             }
             return NotFound();
         }
@@ -273,8 +267,8 @@ namespace Graduation.Controllers.PropertyToProject
                                 return Created();
 
                             }
-                            return Unauthorized();
-                        }
+                        return Unauthorized(new { message = "Only admin or the provider can delete image property" });
+                    }
                         return BadRequest(new { message = "not found service" });
 
                     }

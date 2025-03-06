@@ -44,10 +44,36 @@ namespace Graduation.Controllers.Address
                 await dbContext.SaveChangesAsync();
                 return Ok(new { status = 200, message = "add address successful" });
             }
-            return Unauthorized();
+            return Unauthorized(new { message = "Only Admins Can Delete Type Services" });
         }
 
-        
+        [HttpPut("UpdateAddress")]
+        public async Task<IActionResult> UpdateAddress(int Id,string name)
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(new { message = "Token Is Missing" });
+            int? userId = ExtractClaims.ExtractUserId(token);
+            if (string.IsNullOrEmpty(userId.ToString()))
+                return Unauthorized(new { message = "Token Is Missing" });
+            ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
+            var role = await userManager.GetRolesAsync(requestUser);
+            if (role.Contains("admin"))
+            {
+               
+                var type = await dbContext.addresses.FindAsync(Id);
+                if (type is null)
+                    return BadRequest(new { message = "not found address" });
+                type.Name = name;
+                dbContext.Update(type);
+                await dbContext.SaveChangesAsync();
+                return Ok(new { status = 200, message = "update address successful" });
+            }
+            return Unauthorized(new { message = "Only Admins Can Delete Type Services" });
+        }
+
+
+
         [HttpGet("GetAddress")]
         public async Task<IActionResult> GetAddress()
         {
@@ -56,26 +82,6 @@ namespace Graduation.Controllers.Address
             return Ok(new { status = 200, typeService });
         }
 
-        //[HttpDelete("DeleteAddress")]
-        //public async Task<IActionResult> DeleteAddress(int  addressId)
-        //{
-        //    string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
-        //    if (string.IsNullOrEmpty(token))
-        //        return Unauthorized(new { message = "Token Is Missing" });
-        //    int? userId = ExtractClaims.ExtractUserId(token);
-        //    if (string.IsNullOrEmpty(userId.ToString()))
-        //        return Unauthorized(new { message = "Token Is Missing" });
-        //    ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
-        //    var role = await userManager.GetRolesAsync(requestUser);
-        //    if (role.Contains("admin"))
-        //    {
-        //        AddressToProject address=await dbContext.addresses.FirstOrDefaultAsync(a=>a.Id == addressId);
-        //         dbContext.addresses.RemoveRange(address);
-        //        await dbContext.SaveChangesAsync();
-        //        return Ok(new { status = 200, message = "delete address successful" });
-        //    }
-        //    return Unauthorized();
-        //}
 
     }
 }

@@ -67,7 +67,7 @@ namespace Graduation.Controllers.ServiceToProject
                     };
                     return Ok(new { status = 200, getServiceDTOs });
                 }
-                return Unauthorized();
+                return Unauthorized(new { message = "Only admin or a provider can add this service" });
             }
             return NotFound();
         }
@@ -112,9 +112,9 @@ namespace Graduation.Controllers.ServiceToProject
                         };
                         return BadRequest(new { message = "don't find service" });
                         }
-                        return Unauthorized();
+                    return Unauthorized(new { message = "Only admin or a provider can update this service" });
 
-                    }
+                }
                     return BadRequest(new {message= "not found service" });
             }
             return NotFound();
@@ -159,8 +159,8 @@ namespace Graduation.Controllers.ServiceToProject
                             
                             return Ok();
                         }
-                       return Unauthorized() ;
-                    }
+                    return Unauthorized(new { message = "Only admin or a provider can delete this service" });
+                }
                     return BadRequest(new {message= "not found service" });
                 
                 return Unauthorized();
@@ -192,7 +192,7 @@ namespace Graduation.Controllers.ServiceToProject
                     await dbContext.SaveChangesAsync();
                     return Ok("done");
                 }
-                return Unauthorized();
+                return Unauthorized(new { message = "Only admin or a provider can add image service" });
             }
             return NotFound();
         }
@@ -226,8 +226,8 @@ namespace Graduation.Controllers.ServiceToProject
                                 return Ok(new { status = 200 });
 
                             }
-                            return Unauthorized();
-                        }
+                        return Unauthorized(new { message = "Only admin or the provider can update image service" });
+                    }
                         return BadRequest(new { message = "not found service" });
 
                     }
@@ -264,8 +264,8 @@ namespace Graduation.Controllers.ServiceToProject
                                 return Created();
 
                             }
-                            return Unauthorized();
-                        }
+                        return Unauthorized(new { message = "Only admin or the provider can delete image service" });
+                    }
                         return BadRequest(new { message = "not found service" });
 
                     }

@@ -1,4 +1,6 @@
-﻿using Graduation.Data;
+﻿using Azure.Storage.Blobs.Models;
+using Graduation.Data;
+using Graduation.DTOs.Admin;
 using Graduation.DTOs.Auth;
 using Graduation.DTOs.Email;
 using Graduation.DTOs.Images;
@@ -10,6 +12,7 @@ using Graduation.Helpers;
 using Graduation.Model;
 using Graduation.Service;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -61,7 +64,7 @@ namespace Graduation.Controllers.User
                 }
                 return Ok(AllUser);
             }
-            return Unauthorized();
+            return Unauthorized(new { message = "Only admin  can get all user" });
         }
         [HttpGet("UserProvider")]
         public async Task<IActionResult> UserProvider()
@@ -99,7 +102,7 @@ namespace Graduation.Controllers.User
                 }
                 return Ok(AllUser);
             }
-            return Unauthorized();
+            return Unauthorized(new { message = "Only admin  can get all provider" });
         }
         [HttpGet("profile")]
         public async Task<IActionResult> profile()
@@ -242,6 +245,83 @@ namespace Graduation.Controllers.User
             return Ok(result);
         }
 
+
+        [HttpGet("count")]
+        public async Task<IActionResult> count()
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(new { message = "Token Is Missing" });
+            int? userId = ExtractClaims.ExtractUserId(token);
+            if (string.IsNullOrEmpty(userId.ToString()))
+                return Unauthorized(new { message = "Token Is Missing" });
+            ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            IList<string> role = await userManager.GetRolesAsync(requestUser);
+
+            if (role.Contains("admin"))
+            {
+                int userProvider = 0;
+                int userConsumer = 0;
+                int userAdmin = 0;
+                IEnumerable<ApplicationUser> allUser = await userManager.Users.ToListAsync();
+                foreach (var item in allUser)
+                {
+                    var result = await userManager.GetRolesAsync(item);
+                    if(result.Contains("admin"))
+                    {
+                        ++userAdmin;
+                    }
+                    if (result.Contains("provider"))
+                    {
+                        ++userProvider;
+                    }
+                    if (result.Contains("consumer"))
+                    {
+                        ++userConsumer;
+                    }
+
+                }
+
+                int advertisementsService = 0;
+                int advertisementsProperty = 0;
+                IEnumerable<AdvertisementProject> advertisements=await dbContext.advertisements
+                    .Include(adv=>adv.Services)
+                    .Include(adv=>adv.Properties)
+                    .ToListAsync();
+                foreach (var item in advertisements)
+                {
+                    advertisementsService += item.Services.Count();
+                    advertisementsProperty += item.Properties.Count();
+                }
+
+                int service = await dbContext.services.CountAsync();
+                int property = await dbContext.properties.CountAsync();
+                int typeService=await dbContext.typeServices.CountAsync();
+                int typeProperty = await dbContext.typeProperties.CountAsync();
+                int complaint=await dbContext.complaints.CountAsync();
+
+                CountDTOs count = new CountDTOs()
+                {
+                    CountAdmin = userAdmin,
+                    CountProvider = userProvider,
+                    CountConsumer = userConsumer,
+                    CountUser = allUser.Count(),
+                    AdvertisementsCount = advertisements.Count(),
+                    AdvertisementsService=advertisementsService,
+                    AdvertisementsProperty=advertisementsProperty ,
+                    AllProperty=property,
+                    AllService=service      ,
+                    TypeProperty=typeProperty,
+                    TypeService=typeService,
+                    Complaint=complaint,
+                    
+                };
+                return Ok(new { message = "Site statistics", count });
+
+            }
+            return Unauthorized(new { message = "Only admin  can get all user" });
+        }
+
         [HttpDelete("DeleteUser")]
         public async Task<IActionResult> DeleteUser(int Id)
         {
@@ -255,12 +335,64 @@ namespace Graduation.Controllers.User
             IList<string> role = await userManager.GetRolesAsync(requestUser);
             if (role.Contains("admin") || requestUser.Id == Id)
             {
+                var resultProperty = await dbContext.properties
+                    .Include(p => p.Address)
+                    .Include(p => p.Type)
+                    .Include(p => p.ImageDetails)
+                    .Include(p => p.Reviews)
+                    .Where(p => p.UsersID == Id).ToListAsync();
+                var resultService = await dbContext.services
+                    .Include(s => s.Address)
+                    .Include(s => s.Type)
+                    .Include(s => s.ImageDetails)
+                    .Include(s => s.Reviews)
+                    .Where(s => s.UsersID == Id).ToListAsync();
+                if (resultProperty.Count >1 && resultService.Count >1)
+                {
+                    foreach (var result in resultProperty)
+                    {
+                        
+                        if (result.ImageDetails.Any())
+                            foreach (var image in result.ImageDetails)
+                            {
+                                await FileSettings.DeleteFileAsync(image.Image);
+                                dbContext.images.Remove(image);
+                            }
+                        if (result.Reviews.Any())
+                            foreach (var review in result.Reviews)
+                            {
+                                dbContext.reviews.Remove(review);
+                            }
+
+                        dbContext.RemoveRange(result);
+                        await dbContext.SaveChangesAsync();
+                    }
+                    foreach (var result in resultService)
+                    {
+
+                        if (result.ImageDetails.Any())
+                            foreach (var image in result.ImageDetails)
+                            {
+                                await FileSettings.DeleteFileAsync(image.Image);
+                                dbContext.images.Remove(image);
+                            }
+                        if (result.Reviews.Any())
+                            foreach (var review in result.Reviews)
+                            {
+                                dbContext.reviews.Remove(review);
+                            }
+
+                        dbContext.RemoveRange(result);
+                        await dbContext.SaveChangesAsync();
+                    }
+
+                }
                 ApplicationUser User = await userManager.Users.FirstOrDefaultAsync(u => u.Id == Id);
                 await userManager.DeleteAsync(User);
                 return Ok(new { message = "delete successful" });
             }
 
-            return Unauthorized();
+            return Unauthorized(new { message = "Only admin or the user can delete user" });
         }
         [HttpPut("changeRole")]
         public async Task<IActionResult> changeRole(AuthChangeRoleDTOs request)
@@ -301,7 +433,7 @@ namespace Graduation.Controllers.User
 
 
                 }
-                return Unauthorized();
+                return Unauthorized(new { message = "Only admin  can change role" });
             }
             return NotFound();
 
@@ -416,7 +548,7 @@ namespace Graduation.Controllers.User
                     return BadRequest(new { message = "not found user" });
 
                 }
-                return Unauthorized();
+                return Unauthorized(new { message = "Only admin  can send email" });
             }
             return NotFound();
 

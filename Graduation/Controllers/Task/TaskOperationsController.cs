@@ -45,7 +45,7 @@ namespace Graduation.Controllers.Task
                 await dbContext.SaveChangesAsync();
                 return Ok(new { status = 200, message = "add typeService successful" });
             }
-            return Unauthorized();
+            return Unauthorized(new { message = "Only admin  can add type service" });
         }
 
         [HttpPost("AddTypeProperty")]
@@ -69,7 +69,7 @@ namespace Graduation.Controllers.Task
                 await dbContext.SaveChangesAsync();
                 return Ok(new { status = 200, message = "add typeProperty successful" });
             }
-            return Unauthorized();
+            return Unauthorized(new { message = "Only admin  can add type property" });
         }
         [HttpGet("GetAllService")]
         public async Task<IActionResult> GetAllService()

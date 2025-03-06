@@ -26,6 +26,27 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "Graduation.Controllers.Address.AddressController",
+    "Method": "UpdateAddress",
+    "RelativePath": "Address/UpdateAddress",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "name",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Graduation.Controllers.Advertisement.AdvertisementController",
     "Method": "AddPropertyAdvertisement",
     "RelativePath": "Advertisement/AddPropertyAdvertisement",
@@ -935,6 +956,16 @@
         "IsRequired": true
       }
     ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.User.UserOperationsController",
+    "Method": "count",
+    "RelativePath": "UserOperations/count",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
     "ReturnTypes": []
   },
   {

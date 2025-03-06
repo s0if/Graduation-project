@@ -26,6 +26,35 @@
         }
       }
     },
+    "/Address/UpdateAddress": {
+      "put": {
+        "tags": [
+          "Address"
+        ],
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/Address/GetAddress": {
       "get": {
         "tags": [
@@ -1559,6 +1588,18 @@
               "format": "int32"
             }
           }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/UserOperations/count": {
+      "get": {
+        "tags": [
+          "UserOperations"
         ],
         "responses": {
           "200": {

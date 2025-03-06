@@ -70,7 +70,7 @@ namespace Graduation.Controllers.ComplaintFolder
                     }
                     return Ok(new {status=200,message= "Complaint added successfully" });
                 }
-                return Unauthorized();
+                return Unauthorized(new { message = "Only consumer or the provider can add this complaint" });
             }
             return NotFound();
 
@@ -132,7 +132,7 @@ namespace Graduation.Controllers.ComplaintFolder
                 }
                 return Ok(complaints);
             }
-            return Unauthorized();
+            return Unauthorized(new { message = "Only admins can get all complaint" });
         }
 
         [HttpPut("EditStatus")]
@@ -159,7 +159,7 @@ namespace Graduation.Controllers.ComplaintFolder
                 }
                 return BadRequest(new { status = 400, message = "complaint not found" });
             }
-            return Unauthorized();
+            return Unauthorized(new { message = "Only admins can edit status complaint" });
         }
     }
 }

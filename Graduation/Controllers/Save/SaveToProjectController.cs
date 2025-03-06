@@ -38,9 +38,7 @@ namespace Graduation.Controllers.Save
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
-                var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("consumer") || role.Contains("provider"))
-                {
+               
                     SaveProject save = new SaveProject
                     {
                         UserId = requestUser.Id,
@@ -49,8 +47,6 @@ namespace Graduation.Controllers.Save
                     dbContext.saveProjects.Add(save);
                     await dbContext.SaveChangesAsync();
                     return Ok(new { status = 200, message = "save successfully", saveId = save.Id });
-                }
-                return Unauthorized();
 
             }
             return NotFound();
@@ -68,9 +64,7 @@ namespace Graduation.Controllers.Save
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
-                var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("consumer") || role.Contains("provider"))
-                {
+               
                     SaveProject save = new SaveProject
                     {
                         UserId = requestUser.Id,
@@ -79,8 +73,7 @@ namespace Graduation.Controllers.Save
                     dbContext.saveProjects.Add(save);
                     await dbContext.SaveChangesAsync();
                     return Ok(new { status = 200, message = "save successfully" });
-                }
-                return Unauthorized();
+                
 
             }
             return NotFound();
