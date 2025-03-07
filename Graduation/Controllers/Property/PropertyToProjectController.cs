@@ -138,6 +138,7 @@ namespace Graduation.Controllers.PropertyToProject
                     PropertyProject result = await dbContext.properties
                     .Include(p=>p.ImageDetails)
                     .Include(p=>p.Reviews)
+                    .Include(p=>p.Saves)
                     .FirstOrDefaultAsync(p=>p.Id==propertyId);
                     if (result is not null)
                     {
@@ -154,6 +155,14 @@ namespace Graduation.Controllers.PropertyToProject
                             {
                                 dbContext.reviews.Remove(review);
                             }
+                        if (result.Saves.Any())
+                        {
+                            foreach (var item in result.Saves)
+                            {
+
+                                dbContext.saveProjects.RemoveRange(item);
+                            }
+                        }
 
                         dbContext.RemoveRange(result);
                             await dbContext.SaveChangesAsync();

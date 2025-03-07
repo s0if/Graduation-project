@@ -59,7 +59,8 @@ namespace Graduation.Controllers.User
                         Email = user.Email,
                         Phone = user.PhoneNumber,
                         Address = user.Address?.Name,
-                        Role = string.Join(",", await userManager.GetRolesAsync(user))
+                        Role = string.Join(",", await userManager.GetRolesAsync(user))  ,
+                        ConfirmEmail=user.EmailConfirmed,
                     });
                 }
                 return Ok(AllUser);

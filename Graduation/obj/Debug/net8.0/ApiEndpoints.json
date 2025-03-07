@@ -248,6 +248,22 @@
   },
   {
     "ContainingType": "Graduation.Controllers.Auth.AuthController",
+    "Method": "ConfirmEmailToAdmin",
+    "RelativePath": "Auth/ConfirmEmailToAdmin",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Auth.AuthController",
     "Method": "GenerateRestPassword",
     "RelativePath": "Auth/GenerateRestPassword",
     "HttpMethod": "POST",

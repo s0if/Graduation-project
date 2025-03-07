@@ -137,6 +137,7 @@ namespace Graduation.Controllers.ServiceToProject
                     ServiceProject result=await dbContext.services
                     .Include(s=>s.ImageDetails)
                     .Include(s=>s.Reviews)
+                    .Include (s=>s.Saves)
                     .FirstOrDefaultAsync(u => u.Id == serviceId);
                     if(result is not null)
                     {
@@ -153,6 +154,14 @@ namespace Graduation.Controllers.ServiceToProject
                             {
                                 dbContext.reviews.Remove(review); 
                             }
+                        if (result.Saves.Any())
+                        {
+                            foreach (var item in result.Saves)
+                            {
+                                
+                                dbContext.saveProjects.RemoveRange(item);
+                            }
+                        }
 
                         dbContext.services.RemoveRange(result);
                             await dbContext.SaveChangesAsync();

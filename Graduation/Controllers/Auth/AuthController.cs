@@ -177,6 +177,33 @@ namespace Graduation.Controllers.Auth
             }
             return NotFound(ModelState);
         }
+
+        [HttpPost("ConfirmEmailToAdmin")]
+        public async Task<IActionResult> ConfirmEmailToAdmin(int Id)
+        {
+            if (ModelState.IsValid)
+            {
+                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+                if (string.IsNullOrEmpty(token))
+                    return Unauthorized(new { message = "Token Is Missing" });
+                int? userId = ExtractClaims.ExtractUserId(token);
+                if (string.IsNullOrEmpty(userId.ToString()))
+                    return Unauthorized(new { message = "Token Is Missing" });
+               ApplicationUser resultUser=await userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
+                if (resultUser is null)
+                    return NotFound(new {message="User not found"});
+                var role = await userManager.GetRolesAsync(resultUser);
+                if (role.Contains("admin"))
+                {
+                    ApplicationUser user=await userManager.Users.FirstOrDefaultAsync(u=>u.Id==Id);
+                    user.EmailConfirmed = !user.EmailConfirmed;
+                    await userManager.UpdateAsync(user);
+                    
+                    return Ok(new { message = "success confirm" });
+                }
+            }
+            return NotFound(ModelState);
+        }
         [HttpPost("Login")]
         public async Task<IActionResult> Login(AuthLoginDTOs request,string? email, string? token)
         {
