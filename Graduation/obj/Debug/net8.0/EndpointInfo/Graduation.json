@@ -1700,18 +1700,6 @@
         }
       }
     },
-    "/UserOperations/countType": {
-      "get": {
-        "tags": [
-          "UserOperations"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/UserOperations/DeleteUser": {
       "delete": {
         "tags": [

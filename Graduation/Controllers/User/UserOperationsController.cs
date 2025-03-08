@@ -554,50 +554,105 @@ namespace Graduation.Controllers.User
 
                 if (role.Contains("admin"))
                 {
-                    ApplicationUser user = await dbContext.users.FindAsync(request.UserId);
-                    if (user is not null)
+                    string Body = "";
+                    if (request.UserId is not null)
                     {
+                        ApplicationUser user = await dbContext.users.FindAsync(request.UserId);
 
-                        string Body = "";
-                        if (request.Image is not null)
+                        if (user is not null)
                         {
-
-                            ImageDetails imageDetails = new ImageDetails()
+                            if (request.Image is not null)
                             {
-                                Image = await FileSettings.UploadFileAsync(request.Image),
-                            };
-                            await dbContext.images.AddAsync(imageDetails);
-                            await dbContext.SaveChangesAsync();
-                            var imageName = imageDetails.Image;
-                             Body = $@"
-                                <html>
-                                <body>
-                                    <p>{request.Body}</p>
-                                    <img src='{imageName}' alt='Embedded Image' style='max-width: 50%; height: auto;'/>
-                                </body>
-                                </html>";
-                        }
-                        if (Body == "")
-                        {
-                            Body = $@"
-                                <html>
-                                <body>
-                                    <p>{request.Body}</p>
-                                   
-                                </body>
-                                </html>";
-                        }
-                        EmailDTOs email = new EmailDTOs()
-                        {
-                            Subject = request.Title,
-                            Recivers = user.Email,
-                            Body = Body
-                        };
 
-                        EmailSetting.SendEmail(email);
-                        return Ok(new { mwssage = "Send email successful" });
+                                ImageDetails imageDetails = new ImageDetails()
+                                {
+                                    Image = await FileSettings.UploadFileAsync(request.Image),
+                                };
+                                await dbContext.images.AddAsync(imageDetails);
+                                await dbContext.SaveChangesAsync();
+                                var imageName = imageDetails.Image;
+                                Body = $@"
+                                    <html>
+                                    <body>
+                                        <p>{request.Body}</p>
+                                        <img src='{imageName}' alt='Embedded Image' style='max-width: 50%; height: auto;'/>
+                                    </body>
+                                    </html>";
+                            }
+                            if (Body == "")
+                            {
+                                Body = $@"
+                                    <html>
+                                    <body>
+                                        <p>{request.Body}</p>
+                                   
+                                    </body>
+                                    </html>";
+                            }
+                            EmailDTOs email = new EmailDTOs()
+                            {
+                                Subject = request.Title,
+                                Recivers = user.Email,
+                                Body = Body
+                            };
+
+                            EmailSetting.SendEmail(email);
+                            return Ok(new { mwssage = "Send email successful" });
+                        }
+                        return BadRequest(new { message = "not found user" });
                     }
-                    return BadRequest(new { message = "not found user" });
+                    if (request.UserId is  null)
+                    {
+                        IEnumerable <ApplicationUser> allUser = await dbContext.users.ToListAsync();
+                        if (allUser.Any() )
+                        {
+                            if (request.Image is not null)
+                            {
+
+                                ImageDetails imageDetails = new ImageDetails()
+                                {
+                                    Image = await FileSettings.UploadFileAsync(request.Image),
+                                };
+                                await dbContext.images.AddAsync(imageDetails);
+                                await dbContext.SaveChangesAsync();
+                                var imageName = imageDetails.Image;
+                                Body = $@"
+                                    <html>
+                                        <body>
+                                            <img src='{imageName}' alt='Embedded Image' style='max-width: 50%; height: auto; display: block; margin: auto;'/>
+                                            <p>{request.Body}</p>
+                                        </body>
+                                    </html> ";
+
+                            }
+                            if (Body == "")
+                            {
+                                Body = $@"
+                                    <html>
+                                    <body>
+                                        <p>{request.Body}</p>
+                                   
+                                    </body>
+                                    </html>";
+                            }
+                            foreach (var user in allUser)
+                            {
+                                EmailDTOs email = new EmailDTOs()
+                                {
+                                    Subject = request.Title,
+                                    Recivers = user.Email,
+                                    Body = Body
+                                };
+                            EmailSetting.SendEmail(email);
+                            }
+                           
+
+                            return Ok(new { mwssage = "Send email all user successful" });
+                        }
+                        return BadRequest(new { message = "not found user" });
+                    }
+                    
+                    
 
                 }
                 return Unauthorized(new { message = "Only admin  can send email" });
