@@ -47,6 +47,30 @@ namespace Graduation.Controllers.Task
             }
             return Unauthorized(new { message = "Only admin  can add type service" });
         }
+        [HttpPut("EditTypeService")]
+        public async Task<IActionResult> EditTypeService(int Id,string name)
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(new { message = "Token Is Missing" });
+            int? userId = ExtractClaims.ExtractUserId(token);
+            if (string.IsNullOrEmpty(userId.ToString()))
+                return Unauthorized(new { message = "Token Is Missing" });
+            ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
+            var role = await userManager.GetRolesAsync(requestUser);
+            if (role.Contains("admin"))
+            {
+                TypeService TypeService = await dbContext.typeServices.FindAsync(Id);
+                if (TypeService is not null)
+                {
+                    TypeService.Name = name;
+                    dbContext.UpdateRange(TypeService);
+                    await dbContext.SaveChangesAsync();
+                    return Ok(new { status = 200, message = "edit typeService successful" });
+                }
+            }
+            return Unauthorized(new { message = "Only admin  can add type service" });
+        }
 
         [HttpPost("AddTypeProperty")]
         public async Task<IActionResult> AddTypeProperty(string name)
@@ -70,6 +94,30 @@ namespace Graduation.Controllers.Task
                 return Ok(new { status = 200, message = "add typeProperty successful" });
             }
             return Unauthorized(new { message = "Only admin  can add type property" });
+        }
+        [HttpPut("EditTypeProperty")]
+        public async Task<IActionResult> EditTypeProperty(int Id, string name)
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(new { message = "Token Is Missing" });
+            int? userId = ExtractClaims.ExtractUserId(token);
+            if (string.IsNullOrEmpty(userId.ToString()))
+                return Unauthorized(new { message = "Token Is Missing" });
+            ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
+            var role = await userManager.GetRolesAsync(requestUser);
+            if (role.Contains("admin"))
+            {
+                TypeProperty typeProperty = await dbContext.typeProperties.FindAsync(Id);
+                if (typeProperty is not null)
+                {
+                    typeProperty.Name = name;
+                    dbContext.UpdateRange(typeProperty);
+                    await dbContext.SaveChangesAsync();
+                    return Ok(new { status = 200, message = "edit typeProperty successful" });
+                }
+            }
+            return Unauthorized(new { message = "Only admin  can add type service" });
         }
         [HttpGet("GetAllService")]
         public async Task<IActionResult> GetAllService()

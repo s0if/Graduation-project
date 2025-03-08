@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs.Models;
 using Graduation.Data;
+using Graduation.DTOs.Address;
 using Graduation.DTOs.Admin;
 using Graduation.DTOs.Auth;
 using Graduation.DTOs.Email;
@@ -17,6 +18,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Linq;
 
 namespace Graduation.Controllers.User
 {
@@ -311,7 +313,7 @@ namespace Graduation.Controllers.User
                     AdvertisementsService=advertisementsService,
                     AdvertisementsProperty=advertisementsProperty ,
                     AllProperty=property,
-                    AllService=service      ,
+                    AllService=service ,
                     TypeProperty=typeProperty,
                     TypeService=typeService,
                     Complaint=complaint,
@@ -319,6 +321,55 @@ namespace Graduation.Controllers.User
                 };
                 return Ok(new { message = "Site statistics", count });
 
+            }
+            return Unauthorized(new { message = "Only admin  can get all user" });
+        }
+        [HttpGet("countAddress")]
+        public async Task<IActionResult> countAddress()
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(new { message = "Token Is Missing" });
+            int? userId = ExtractClaims.ExtractUserId(token);
+            if (string.IsNullOrEmpty(userId.ToString()))
+                return Unauthorized(new { message = "Token Is Missing" });
+            ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            IList<string> role = await userManager.GetRolesAsync(requestUser);
+
+            if (role.Contains("admin"))
+            {
+                List<CountAddressDTOs> countAddressToUser = new List<CountAddressDTOs>();
+                List<CountAddressDTOs> countAddressToProperty = new List<CountAddressDTOs>();
+                List<CountAddressDTOs> countAddressToAddress = new List<CountAddressDTOs>();
+
+
+                IEnumerable<AddressToProject> address=await dbContext.addresses.ToListAsync();
+                int countAddress =  address.Count();  
+                foreach (var item in address)
+                {
+                    var user = await userManager.Users.Where(u => u.AddressId == item.Id).CountAsync();
+                    var countAddressUser = new CountAddressDTOs()
+                    {    
+                        NameAddress = item.Name,
+                        CountAddress = user
+                    };
+                    countAddressToUser.Add(countAddressUser);
+                    var property = await dbContext.properties.Where(p => p.AddressId == item.Id).CountAsync();
+                    var CountAddressProperty = new CountAddressDTOs()
+                    {
+                        NameAddress = item.Name,
+                        CountAddress = property
+                    };
+                    countAddressToProperty.Add(CountAddressProperty);
+                    var Service=await dbContext.services.Where(s=>s.AddressId==item.Id).CountAsync();
+                    var countAddressService = new CountAddressDTOs()
+                    {
+                        NameAddress = item.Name,
+                        CountAddress = Service
+                    };
+                    countAddressToAddress.Add(countAddressService);
+                }
+                return Ok(new {message="All Address", countAddress, message1="user", countAddressToUser,message2="property", countAddressToProperty,message3="service", countAddressToAddress });
             }
             return Unauthorized(new { message = "Only admin  can get all user" });
         }

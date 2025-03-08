@@ -390,10 +390,12 @@ namespace Graduation.Controllers.ServiceToProject
                 .Include(s => s.Reviews)
                 .Include(s => s.Address)
                 .Include(s => s.Type)
+                .Include(s => s.User)
                 .Select(s => new GetAllServiceDTOs
                 {
                     Id = s.Id,
                     userId = s.UsersID,
+                    UserName = s.User.UserName,
                     Description = s.Description,
                     PriceRange = s.PriceRange,
                     TypeName = s.Type.Name,
@@ -424,6 +426,7 @@ namespace Graduation.Controllers.ServiceToProject
                 .Include(s => s.Reviews)
                 .Include(s => s.Address)
                 .Include (s => s.Type)
+                .Include(s => s.User)
                 .FirstOrDefaultAsync(s => s.Id == ServiceId);
 
             if (service == null)
@@ -434,6 +437,7 @@ namespace Graduation.Controllers.ServiceToProject
             {
                 Id = service.Id,
                 userId = service.UsersID,
+                UserName=service.User.UserName,
                 Description = service.Description,
                 PriceRange = service.PriceRange,
                 TypeName = service.Type?.Name ?? "Unknown", 

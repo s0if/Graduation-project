@@ -178,8 +178,8 @@ namespace Graduation.Controllers.Auth
             return NotFound(ModelState);
         }
 
-        [HttpPost("ConfirmEmailToAdmin")]
-        public async Task<IActionResult> ConfirmEmailToAdmin(int Id)
+        [HttpPut("StatusEmail")]
+        public async Task<IActionResult> StatusEmail(int Id)
         {
             if (ModelState.IsValid)
             {

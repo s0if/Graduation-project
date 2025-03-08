@@ -248,22 +248,6 @@
   },
   {
     "ContainingType": "Graduation.Controllers.Auth.AuthController",
-    "Method": "ConfirmEmailToAdmin",
-    "RelativePath": "Auth/ConfirmEmailToAdmin",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "Id",
-        "Type": "System.Int32",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "Graduation.Controllers.Auth.AuthController",
     "Method": "GenerateRestPassword",
     "RelativePath": "Auth/GenerateRestPassword",
     "HttpMethod": "POST",
@@ -332,6 +316,22 @@
         "Name": "request",
         "Type": "Graduation.DTOs.Auth.AuthRestPasswordDTOs",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Auth.AuthController",
+    "Method": "StatusEmail",
+    "RelativePath": "Auth/StatusEmail",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -930,6 +930,48 @@
   },
   {
     "ContainingType": "Graduation.Controllers.Task.TaskOperationsController",
+    "Method": "EditTypeProperty",
+    "RelativePath": "TaskOperations/EditTypeProperty",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "name",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Task.TaskOperationsController",
+    "Method": "EditTypeService",
+    "RelativePath": "TaskOperations/EditTypeService",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "name",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.Task.TaskOperationsController",
     "Method": "GetAllProperty",
     "RelativePath": "TaskOperations/GetAllProperty",
     "HttpMethod": "GET",
@@ -978,6 +1020,26 @@
     "ContainingType": "Graduation.Controllers.User.UserOperationsController",
     "Method": "count",
     "RelativePath": "UserOperations/count",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.User.UserOperationsController",
+    "Method": "countAddress",
+    "RelativePath": "UserOperations/countAddress",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.User.UserOperationsController",
+    "Method": "countType",
+    "RelativePath": "UserOperations/countType",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,

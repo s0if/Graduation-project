@@ -366,8 +366,8 @@
         }
       }
     },
-    "/Auth/ConfirmEmailToAdmin": {
-      "post": {
+    "/Auth/StatusEmail": {
+      "put": {
         "tags": [
           "Auth"
         ],
@@ -1493,12 +1493,70 @@
         }
       }
     },
+    "/TaskOperations/EditTypeService": {
+      "put": {
+        "tags": [
+          "TaskOperations"
+        ],
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/TaskOperations/AddTypeProperty": {
       "post": {
         "tags": [
           "TaskOperations"
         ],
         "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/TaskOperations/EditTypeProperty": {
+      "put": {
+        "tags": [
+          "TaskOperations"
+        ],
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
           {
             "name": "name",
             "in": "query",
@@ -1619,6 +1677,30 @@
       }
     },
     "/UserOperations/count": {
+      "get": {
+        "tags": [
+          "UserOperations"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/UserOperations/countAddress": {
+      "get": {
+        "tags": [
+          "UserOperations"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/UserOperations/countType": {
       "get": {
         "tags": [
           "UserOperations"
