@@ -1054,6 +1054,22 @@
   },
   {
     "ContainingType": "Graduation.Controllers.User.UserOperationsController",
+    "Method": "GetChatHistory",
+    "RelativePath": "UserOperations/HistoryMessage",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.User.UserOperationsController",
     "Method": "profile",
     "RelativePath": "UserOperations/profile",
     "HttpMethod": "GET",
@@ -1105,6 +1121,22 @@
         "Name": "Image",
         "Type": "Microsoft.AspNetCore.Http.IFormFile",
         "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.User.UserOperationsController",
+    "Method": "SendMessage",
+    "RelativePath": "UserOperations/SendMessage",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.Message.ChatMessageDTOs",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []

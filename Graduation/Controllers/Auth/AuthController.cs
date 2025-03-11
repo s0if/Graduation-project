@@ -229,7 +229,7 @@ namespace Graduation.Controllers.Auth
                         {
                             resltRole = "consumer";
                         }
-                        string resultToken = await authServices.CreateTokenasync(user, userManager);
+                        string resultToken = await authServices.CreateTokenAsync(user, userManager);
                         return Ok(new { status = 200, userId = user.Id,name = user.UserName , role = resltRole, token = resultToken });
                     }
                     if (result.IsNotAllowed)

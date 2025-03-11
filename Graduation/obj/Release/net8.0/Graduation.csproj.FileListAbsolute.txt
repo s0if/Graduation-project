@@ -178,3 +178,5 @@ C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Release\net8.0\Azure.Storage.Blobs.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Release\net8.0\Azure.Storage.Common.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Release\net8.0\System.IO.Hashing.dll
+C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Release\net8.0\Microsoft.AspNetCore.Authentication.Facebook.dll
+C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Release\net8.0\Microsoft.AspNetCore.Authentication.Google.dll

@@ -5,6 +5,7 @@ using Graduation.DTOs.Admin;
 using Graduation.DTOs.Auth;
 using Graduation.DTOs.Email;
 using Graduation.DTOs.Images;
+using Graduation.DTOs.Message;
 using Graduation.DTOs.Profile;
 using Graduation.DTOs.PropertyToProject;
 using Graduation.DTOs.Reviews;
@@ -12,14 +13,15 @@ using Graduation.DTOs.ServiceToProject;
 using Graduation.Helpers;
 using Graduation.Model;
 using Graduation.Service;
+using Mapster;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Linq;
-
 namespace Graduation.Controllers.User
 {
     [Route("[controller]")]
@@ -595,6 +597,8 @@ namespace Graduation.Controllers.User
                                 Recivers = user.Email,
                                 Body = Body
                             };
+                            //SendSMS smsService = new SendSMS();
+                            //await smsService.SendMessage(user.PhoneNumber, user.ConfirmationCode);
 
                             EmailSetting.SendEmail(email);
                             return Ok(new { mwssage = "Send email successful" });
@@ -661,5 +665,75 @@ namespace Graduation.Controllers.User
 
         }
 
+
+        [HttpPost("SendMessage")]
+        public async Task<IActionResult> SendMessage(ChatMessageDTOs request)
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(new { message = "Token Is Missing" });
+
+            int? userId = ExtractClaims.ExtractUserId(token);
+            if (string.IsNullOrEmpty(userId.ToString()))
+                return Unauthorized(new { message = "Token Is Missing" });
+
+            
+            ApplicationUser requestUserSent = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == request.ReceiverId);
+            if (requestUser is null || requestUserSent is null)
+                return NotFound(new { message = "User not found" });
+
+
+            ChatMessage message = new ChatMessage
+            {
+                SenderId = requestUserSent.Id,
+                ReceiverId = request.ReceiverId,
+                Message = request.Message
+            };
+            dbContext.Messages.Add(message);
+            await dbContext.SaveChangesAsync();
+
+            
+            var hubContext = HttpContext.RequestServices.GetRequiredService<IHubContext<ChatHub>>();
+            await hubContext.Clients.User(request.ReceiverId.ToString()).SendAsync("ReceiveMessage", requestUserSent.Id, request.Message);
+
+            return Ok(new { Message = "Message sent successfully." });
+        }
+
+        [HttpGet("HistoryMessage")]
+        public async Task<IActionResult> GetChatHistory(int Id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(new { message = "Token Is Missing" });
+
+            int? userId = ExtractClaims.ExtractUserId(token);
+            if (string.IsNullOrEmpty(userId.ToString()))
+                return Unauthorized(new { message = "Token Is Missing" });
+
+            
+            ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            ApplicationUser requestUserSent = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (requestUser is null|| requestUserSent is null)
+                return NotFound(new { message = "User not found" });
+
+            IEnumerable<ChatMessage> messages = await dbContext.Messages
+                .Where(m => (m.SenderId == requestUser.Id && m.ReceiverId == Id) ||
+                           (m.SenderId == Id && m.ReceiverId == requestUser.Id))
+                .OrderBy(m => m.Timestamp)
+                .ToListAsync();
+
+            
+            IEnumerable<HistoryMessageDTOs> historyMessage = messages.Select(m => new HistoryMessageDTOs
+            {
+                Message = m.Message,
+                Timestamp = m.Timestamp,
+            });
+
+            return Ok(historyMessage);
+        }
     }
 }

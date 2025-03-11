@@ -62,8 +62,8 @@ namespace Graduation
                      ValidateIssuer = true,
                      ValidateAudience = true,
                      //from model AuthServices
-                     ValidIssuer = "project Saif",
-                     ValidAudience = "project",
+                     ValidIssuer = "GRADUATHION PROJECT",
+                     ValidAudience = "GRADUATHION",
                      ValidateLifetime = true,
                      IssuerSigningKey = new
                 SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("jwt")["secretkey"
@@ -89,6 +89,7 @@ namespace Graduation
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddSignalR();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -106,6 +107,7 @@ namespace Graduation
 
             app.MapControllers();
 
+            app.MapHub<ChatHub>("/chatHub");
             app.Run();
         }
     }

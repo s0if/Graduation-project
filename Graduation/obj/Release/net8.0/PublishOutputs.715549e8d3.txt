@@ -10,6 +10,8 @@ C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Azure.Storage.Common.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Mapster.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Mapster.Core.dll
+C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Microsoft.AspNetCore.Authentication.Facebook.dll
+C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Microsoft.AspNetCore.Authentication.Google.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Microsoft.AspNetCore.Cryptography.Internal.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Microsoft.AspNetCore.Cryptography.KeyDerivation.dll

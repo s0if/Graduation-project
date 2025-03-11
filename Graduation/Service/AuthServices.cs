@@ -16,7 +16,7 @@ namespace Graduation.Service
             this.configuration = configuration;
         }
         //UserIdentity=>this is model
-        public async Task<string> CreateTokenasync(ApplicationUser user,
+        public async Task<string> CreateTokenAsync(ApplicationUser user,
        UserManager<ApplicationUser> userManager)
         {
             //get configuration
@@ -25,7 +25,7 @@ namespace Graduation.Service
              {
              new Claim(ClaimTypes.GivenName,user.UserName) ,
              new Claim(ClaimTypes.Email,user.Email) ,
-             new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()) ,
+             new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()) 
              };
             var userRole = await userManager.GetRolesAsync(user);
             foreach (var role in userRole)
@@ -33,8 +33,8 @@ namespace Graduation.Service
             var keyAuth = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configurations));
             var token = new JwtSecurityToken(
             //optinles
-            audience: "project",
-            issuer: "project Saif",
+            audience: "GRADUATHION",
+            issuer: "GRADUATHION PROJECT",
             //requierd
             claims: Authclaim,
             signingCredentials: new SigningCredentials(keyAuth,

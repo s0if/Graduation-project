@@ -287,6 +287,7 @@ namespace Graduation.Controllers.Advertisement
                 await dbContext.SaveChangesAsync();
             }
             var result = await dbContext.advertisements
+                .Where(adv=>adv.StartAt<DateTime.Now)
             .Include(a => a.Properties)
                 .ThenInclude(p => p.Type)
             .Include(a => a.Properties)
@@ -368,8 +369,9 @@ namespace Graduation.Controllers.Advertisement
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
             int? userId = ExtractClaims.ExtractUserId(token);
-            if (string.IsNullOrEmpty(userId.ToString()))
-                return Unauthorized(new { message = "Token Is Missing" });
+            if (userId == null)
+                return Unauthorized(new { message = "Token Is Missing or Invalid" });
+
             var user = await userManager.Users
                 .Include(u => u.Address)
                 .FirstOrDefaultAsync(u => u.Id == userId);
@@ -378,19 +380,16 @@ namespace Graduation.Controllers.Advertisement
                 return NotFound(new { message = "User or Address Not Found" });
 
             string userCity = user.Address.Name;
-            var lastReview = await dbContext.reviews
-                .Where(r => r.UsersID == userId)
-                .OrderByDescending(r => r.CreateAt)
-                .FirstOrDefaultAsync();
+            if (string.IsNullOrEmpty(userCity))
+                return BadRequest(new { message = "User City Is Missing" });
+
             var deleteEnd = await dbContext.advertisements
                 .Where(adv => adv.EndAt <= DateTime.Now)
-                .Include(adv => adv.Services)
-                .Include(adv => adv.Properties)
                 .ToListAsync();
 
-            foreach (var adv in deleteEnd)
+            if (deleteEnd.Any())
             {
-                dbContext.advertisements.RemoveRange(adv);
+                dbContext.advertisements.RemoveRange(deleteEnd);
                 await dbContext.SaveChangesAsync();
             }
             var result = await dbContext.advertisements
@@ -430,7 +429,7 @@ namespace Graduation.Controllers.Advertisement
                             TypeName = p.Type != null ? p.Type.Name : null,
                             userName = p.User.UserName,
                             Price = p.Price,
-                            AvgRating = p.Reviews.Average(r => r.Rating),
+                            AvgRating = p.Reviews.Any() ? p.Reviews.Average(r => r.Rating) : 0,
                             ImageDetails = p.ImageDetails.Select(img => new GetImageDTOs
                             {
                                 Id = img.Id,
@@ -454,7 +453,7 @@ namespace Graduation.Controllers.Advertisement
                             userId = ser.UsersID,
                             UserName = ser.User.UserName,
                             AddressName = ser.Address.Name,
-                            AvgRating = ser.Reviews.Average(r => r.Rating),
+                            AvgRating = ser.Reviews.Any() ? ser.Reviews.Average(r => r.Rating) : 0,
                             ImageDetails = ser.ImageDetails.Select(img => new GetImageDTOs
                             {
                                 Id = img.Id,
@@ -471,12 +470,12 @@ namespace Graduation.Controllers.Advertisement
                 }).ToListAsync();
 
             var sortedAdvertisements = result
-                  .OrderByDescending(adv =>
-                      Math.Max(
-                          adv.Properties.Any() ? adv.Properties.Max(p => p.AvgRating) : 0,
-                          adv.Services.Any() ? adv.Services.Max(s => s.AvgRating) : 0
-                      ))
-                  .ToList();
+                .OrderByDescending(adv =>
+                    Math.Max(
+                        adv.Properties.DefaultIfEmpty().Max(p => p?.AvgRating ?? 0),
+                        adv.Services.DefaultIfEmpty().Max(s => s?.AvgRating ?? 0)
+                    ))
+                .ToList();
             return Ok(sortedAdvertisements);
         }
 
