@@ -2,23 +2,6 @@
   "version": 3,
   "targets": {
     "net8.0": {
-      "Azure.Communication.Sms/1.0.1": {
-        "type": "package",
-        "dependencies": {
-          "Azure.Core": "1.14.0",
-          "System.Text.Json": "4.6.0"
-        },
-        "compile": {
-          "lib/netstandard2.0/Azure.Communication.Sms.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/netstandard2.0/Azure.Communication.Sms.dll": {
-            "related": ".xml"
-          }
-        }
-      },
       "Azure.Core/1.44.1": {
         "type": "package",
         "dependencies": {
@@ -149,38 +132,6 @@
             "related": ".xml"
           }
         }
-      },
-      "Microsoft.AspNetCore.Authentication.Facebook/8.0.13": {
-        "type": "package",
-        "compile": {
-          "lib/net8.0/Microsoft.AspNetCore.Authentication.Facebook.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net8.0/Microsoft.AspNetCore.Authentication.Facebook.dll": {
-            "related": ".xml"
-          }
-        },
-        "frameworkReferences": [
-          "Microsoft.AspNetCore.App"
-        ]
-      },
-      "Microsoft.AspNetCore.Authentication.Google/8.0.13": {
-        "type": "package",
-        "compile": {
-          "lib/net8.0/Microsoft.AspNetCore.Authentication.Google.dll": {
-            "related": ".xml"
-          }
-        },
-        "runtime": {
-          "lib/net8.0/Microsoft.AspNetCore.Authentication.Google.dll": {
-            "related": ".xml"
-          }
-        },
-        "frameworkReferences": [
-          "Microsoft.AspNetCore.App"
-        ]
       },
       "Microsoft.AspNetCore.Authentication.JwtBearer/8.0.13": {
         "type": "package",
@@ -2448,22 +2399,6 @@
     }
   },
   "libraries": {
-    "Azure.Communication.Sms/1.0.1": {
-      "sha512": "lY6COxdSaG+Y/nK4QXdqqJD3XS6JZ8rsh3TzT0jid6r6J3VK48/cSjgCYxEm0ihgqxIILd7wUb2f4qhYbRWfeA==",
-      "type": "package",
-      "path": "azure.communication.sms/1.0.1",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "CHANGELOG.md",
-        "README.md",
-        "azure.communication.sms.1.0.1.nupkg.sha512",
-        "azure.communication.sms.nuspec",
-        "lib/netstandard2.0/Azure.Communication.Sms.dll",
-        "lib/netstandard2.0/Azure.Communication.Sms.xml",
-        "pkgicon.png"
-      ]
-    },
     "Azure.Core/1.44.1": {
       "sha512": "YyznXLQZCregzHvioip07/BkzjuWNXogJEVz9T5W6TwjNr17ax41YGzYMptlo2G10oLCuVPoyva62y0SIRDixg==",
       "type": "package",
@@ -2597,36 +2532,6 @@
         "lib/netstandard2.0/Microsoft.AspNetCore.Authentication.Abstractions.xml",
         "microsoft.aspnetcore.authentication.abstractions.2.3.0.nupkg.sha512",
         "microsoft.aspnetcore.authentication.abstractions.nuspec"
-      ]
-    },
-    "Microsoft.AspNetCore.Authentication.Facebook/8.0.13": {
-      "sha512": "veuLdXr6zmgx2xPUO8FwKhhgBWdZvzr6fMW6LLVCzW5kpdNmmlj55ZtUatl/l9bbsGsSEmExJr5h5SwlspyFLg==",
-      "type": "package",
-      "path": "microsoft.aspnetcore.authentication.facebook/8.0.13",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "Icon.png",
-        "THIRD-PARTY-NOTICES.TXT",
-        "lib/net8.0/Microsoft.AspNetCore.Authentication.Facebook.dll",
-        "lib/net8.0/Microsoft.AspNetCore.Authentication.Facebook.xml",
-        "microsoft.aspnetcore.authentication.facebook.8.0.13.nupkg.sha512",
-        "microsoft.aspnetcore.authentication.facebook.nuspec"
-      ]
-    },
-    "Microsoft.AspNetCore.Authentication.Google/8.0.13": {
-      "sha512": "pHL4Q83J6vzE8zz6+fkEwxVW7sXKFeFGiuJysD/Cbvos8CxNZgh/tkKyA6l5J67SQw4TVh+w20OVXcoN+RnaAw==",
-      "type": "package",
-      "path": "microsoft.aspnetcore.authentication.google/8.0.13",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "Icon.png",
-        "THIRD-PARTY-NOTICES.TXT",
-        "lib/net8.0/Microsoft.AspNetCore.Authentication.Google.dll",
-        "lib/net8.0/Microsoft.AspNetCore.Authentication.Google.xml",
-        "microsoft.aspnetcore.authentication.google.8.0.13.nupkg.sha512",
-        "microsoft.aspnetcore.authentication.google.nuspec"
       ]
     },
     "Microsoft.AspNetCore.Authentication.JwtBearer/8.0.13": {
@@ -6089,11 +5994,8 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
-      "Azure.Communication.Sms >= 1.0.1",
       "Azure.Storage.Blobs >= 12.23.0",
       "Mapster >= 7.4.0",
-      "Microsoft.AspNetCore.Authentication.Facebook >= 8.0.13",
-      "Microsoft.AspNetCore.Authentication.Google >= 8.0.13",
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 8.0.13",
       "Microsoft.AspNetCore.Identity.EntityFrameworkCore >= 8.0.13",
       "Microsoft.AspNetCore.SignalR >= 1.2.0",
@@ -6154,10 +6056,6 @@
       "net8.0": {
         "targetAlias": "net8.0",
         "dependencies": {
-          "Azure.Communication.Sms": {
-            "target": "Package",
-            "version": "[1.0.1, )"
-          },
           "Azure.Storage.Blobs": {
             "target": "Package",
             "version": "[12.23.0, )"
@@ -6165,14 +6063,6 @@
           "Mapster": {
             "target": "Package",
             "version": "[7.4.0, )"
-          },
-          "Microsoft.AspNetCore.Authentication.Facebook": {
-            "target": "Package",
-            "version": "[8.0.13, )"
-          },
-          "Microsoft.AspNetCore.Authentication.Google": {
-            "target": "Package",
-            "version": "[8.0.13, )"
           },
           "Microsoft.AspNetCore.Authentication.JwtBearer": {
             "target": "Package",

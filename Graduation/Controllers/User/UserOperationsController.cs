@@ -597,9 +597,6 @@ namespace Graduation.Controllers.User
                                 Recivers = user.Email,
                                 Body = Body
                             };
-                            //SendSMS smsService = new SendSMS();
-                            //await smsService.SendMessage(user.PhoneNumber, user.ConfirmationCode);
-
                             EmailSetting.SendEmail(email);
                             return Ok(new { mwssage = "Send email successful" });
                         }

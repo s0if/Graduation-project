@@ -1,10 +1,9 @@
 {
   "version": 2,
-  "dgSpecHash": "d4NU7EIXv50=",
+  "dgSpecHash": "P38b5slOkrI=",
   "success": true,
   "projectFilePath": "C:\\Users\\Saif\\Desktop\\full stack\\back end\\API\\Graduation\\Graduation\\Graduation.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Saif\\.nuget\\packages\\azure.communication.sms\\1.0.1\\azure.communication.sms.1.0.1.nupkg.sha512",
     "C:\\Users\\Saif\\.nuget\\packages\\azure.core\\1.44.1\\azure.core.1.44.1.nupkg.sha512",
     "C:\\Users\\Saif\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
     "C:\\Users\\Saif\\.nuget\\packages\\azure.storage.blobs\\12.23.0\\azure.storage.blobs.12.23.0.nupkg.sha512",
@@ -13,8 +12,6 @@
     "C:\\Users\\Saif\\.nuget\\packages\\mapster\\7.4.0\\mapster.7.4.0.nupkg.sha512",
     "C:\\Users\\Saif\\.nuget\\packages\\mapster.core\\1.2.1\\mapster.core.1.2.1.nupkg.sha512",
     "C:\\Users\\Saif\\.nuget\\packages\\microsoft.aspnetcore.authentication.abstractions\\2.3.0\\microsoft.aspnetcore.authentication.abstractions.2.3.0.nupkg.sha512",
-    "C:\\Users\\Saif\\.nuget\\packages\\microsoft.aspnetcore.authentication.facebook\\8.0.13\\microsoft.aspnetcore.authentication.facebook.8.0.13.nupkg.sha512",
-    "C:\\Users\\Saif\\.nuget\\packages\\microsoft.aspnetcore.authentication.google\\8.0.13\\microsoft.aspnetcore.authentication.google.8.0.13.nupkg.sha512",
     "C:\\Users\\Saif\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\8.0.13\\microsoft.aspnetcore.authentication.jwtbearer.8.0.13.nupkg.sha512",
     "C:\\Users\\Saif\\.nuget\\packages\\microsoft.aspnetcore.authorization\\2.3.0\\microsoft.aspnetcore.authorization.2.3.0.nupkg.sha512",
     "C:\\Users\\Saif\\.nuget\\packages\\microsoft.aspnetcore.authorization.policy\\2.3.0\\microsoft.aspnetcore.authorization.policy.2.3.0.nupkg.sha512",

@@ -38,6 +38,9 @@ namespace Graduation.Controllers.Save
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
+                var service =await dbContext.services.FindAsync(serviceId);
+                if(service is null)
+                    return NotFound(new {message="the service not found"});
                
                     SaveProject save = new SaveProject
                     {
@@ -64,6 +67,9 @@ namespace Graduation.Controllers.Save
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
+                var property=await dbContext.properties.FindAsync(propertyId);
+                if (property is null)
+                    return NotFound(new {message="the property not found"});
                
                     SaveProject save = new SaveProject
                     {
@@ -124,9 +130,9 @@ namespace Graduation.Controllers.Save
                 if (result.Any())
                 {
 
-                dbContext.saveProjects.RemoveRange(result);
-                await dbContext.SaveChangesAsync();
-                return Ok(new { status = 200, message = "delete successfully" });
+                    dbContext.saveProjects.RemoveRange(result);
+                    await dbContext.SaveChangesAsync();
+                    return Ok(new { status = 200, message = "delete successfully" });
                 }
                 return BadRequest(new { status = 400, message = "not found property" });
 
@@ -218,9 +224,6 @@ namespace Graduation.Controllers.Save
             }
             return Ok(new { status = 200, ListSave });
         }
-
-
-
         [HttpGet("StatusService")]
         public async Task<IActionResult> StatusService(int Id)
         {

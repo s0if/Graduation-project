@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace Graduation.Service
 {
-    public class ChatHub :Hub
+    public class ChatHub : Hub
     {
         private static readonly Dictionary<string, string> UserConnections = new();
 
@@ -39,5 +39,6 @@ namespace Graduation.Service
                 await Clients.Client(receiverConnectionId).SendAsync("ReceiveMessage", senderId, message);
             }
         }
+
     }
 }
