@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text;
 using testAPI_crud.Model;
+using Scalar.AspNetCore;
 
 namespace Graduation
 {
@@ -88,14 +90,24 @@ namespace Graduation
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+           
             builder.Services.AddSignalR();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
+
+            //if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
+            //{
+            //    app.UseSwagger();
+            //    app.UseSwaggerUI();
+            //}
+            if (app.Environment.IsDevelopment())
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwagger(option =>
+                {
+                    option.RouteTemplate = "openapi/{documentName}.json";
+                });
+                app.MapScalarApiReference();
             }
 
             app.UseHttpsRedirection();

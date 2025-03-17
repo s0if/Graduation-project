@@ -181,3 +181,4 @@ C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Release\
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Release\net8.0\Microsoft.Extensions.ObjectPool.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Release\net8.0\Newtonsoft.Json.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Release\net8.0\System.Net.WebSockets.WebSocketProtocol.dll
+C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Release\net8.0\Scalar.AspNetCore.dll

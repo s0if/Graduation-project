@@ -48,6 +48,7 @@ C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Microsoft.SqlServer.Server.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Microsoft.Win32.SystemEvents.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Newtonsoft.Json.dll
+C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Scalar.AspNetCore.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Serilog.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Serilog.AspNetCore.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Serilog.Extensions.Hosting.dll
