@@ -17,9 +17,9 @@ namespace Graduation.Controllers.Task
         private readonly ApplicationDbContext dbContext;
         private readonly UserManager<ApplicationUser> userManager;
 
-        public TaskOperationsController(ApplicationDbContext dbContext,UserManager<ApplicationUser> userManager)
+        public TaskOperationsController(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager)
         {
-            
+
             this.dbContext = dbContext;
             this.userManager = userManager;
         }
@@ -48,7 +48,7 @@ namespace Graduation.Controllers.Task
             return Unauthorized(new { message = "Only admin  can add type service" });
         }
         [HttpPut("EditTypeService")]
-        public async Task<IActionResult> EditTypeService(int Id,string name)
+        public async Task<IActionResult> EditTypeService(int Id, string name)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))

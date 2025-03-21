@@ -24,7 +24,7 @@ namespace Graduation.Controllers.PropertyToProject
         private readonly ApplicationDbContext dbContext;
         private readonly UserManager<ApplicationUser> userManager;
 
-        public PropertyToProjectController(ApplicationDbContext dbContext,UserManager<ApplicationUser> userManager)
+        public PropertyToProjectController(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager)
         {
             this.dbContext = dbContext;
             this.userManager = userManager;
@@ -43,30 +43,30 @@ namespace Graduation.Controllers.PropertyToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider")||role.Contains("admin"))
+                if (role.Contains("provider") || role.Contains("admin"))
                 {
                     PropertyProject project = new PropertyProject
                     {
-                      Description= request.Description,
-                      StartAt= request.StartAt,
-                      EndAt= request.EndAt,
-                      TypeId= request.TypeId,
-                      UsersID= requestUser.Id,
-                      AddressId= request.AddressId,
-                      Price= request.Price,
+                        Description = request.Description,
+                        StartAt = request.StartAt,
+                        EndAt = request.EndAt,
+                        TypeId = request.TypeId,
+                        UsersID = requestUser.Id,
+                        AddressId = request.AddressId,
+                        Price = request.Price,
                     };
                     await dbContext.properties.AddAsync(project);
                     await dbContext.SaveChangesAsync();
                     ReturnPropertyDTOs returnProperty = new ReturnPropertyDTOs
                     {
-                      Id= project.Id,
-                      Description= project.Description,
-                      StartAt= project.StartAt,
-                      EndAt= project.EndAt,
-                      TypeId= project.TypeId,
-                      userId= project.UsersID ,
-                      addressId=project.AddressId,
-                      Price= project.Price,
+                        Id = project.Id,
+                        Description = project.Description,
+                        StartAt = project.StartAt,
+                        EndAt = project.EndAt,
+                        TypeId = project.TypeId,
+                        userId = project.UsersID,
+                        addressId = project.AddressId,
+                        Price = project.Price,
                     };
                     return Ok(new { status = 200, returnProperty });
                 }
@@ -75,7 +75,7 @@ namespace Graduation.Controllers.PropertyToProject
             return NotFound();
         }
         [HttpPut("UpdateProperty")]
-        public async Task<IActionResult> UpdateProperty(UpdatePropertyDTOs request,int propertyId)
+        public async Task<IActionResult> UpdateProperty(UpdatePropertyDTOs request, int propertyId)
         {
             if (ModelState.IsValid)
             {
@@ -87,43 +87,43 @@ namespace Graduation.Controllers.PropertyToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                    PropertyProject result = await dbContext.properties.FindAsync(propertyId);
+                PropertyProject result = await dbContext.properties.FindAsync(propertyId);
                 if (result is not null)
                 {
-                    
-                     if(result.UsersID== requestUser.Id || role.Contains("admin"))
+
+                    if (result.UsersID == requestUser.Id || role.Contains("admin"))
+                    {
+                        result.Description = request.Description;
+                        result.StartAt = request.StartAt;
+                        result.EndAt = request.EndAt;
+                        result.Price = request.Price;
+                        dbContext.UpdateRange(result);
+                        await dbContext.SaveChangesAsync();
+
+                        ReturnPropertyDTOs returnProperty = new ReturnPropertyDTOs
                         {
-                            result.Description = request.Description;
-                            result.StartAt=request.StartAt;
-                            result.EndAt=request.EndAt;
-                            result.Price = request.Price;
-                            dbContext.UpdateRange(result);
-                            await dbContext.SaveChangesAsync();
+                            Id = result.Id,
+                            Description = result.Description,
+                            StartAt = result.StartAt,
+                            EndAt = result.EndAt,
+                            Price = result.Price,
+                            TypeId = result.TypeId,
+                            userId = result.UsersID,
+                            addressId = result.AddressId,
+                        };
+                        return Ok(new { status = 200, returnProperty });
 
-                            ReturnPropertyDTOs returnProperty = new ReturnPropertyDTOs
-                            {
-                                Id = result.Id,
-                                Description = result.Description,
-                                StartAt = result.StartAt,
-                                EndAt = result.EndAt,
-                                Price = result.Price,
-                                TypeId = result.TypeId,
-                                userId = result.UsersID ,
-                                addressId = result.AddressId ,
-                            };
-                            return Ok(new { status = 200, returnProperty });
-
-                        }
+                    }
                     return Unauthorized(new { message = "Only admin or the provider can update this property" });
                 }
-                    return BadRequest(new { message = "not found property" });
-                
+                return BadRequest(new { message = "not found property" });
+
             }
             return NotFound();
 
         }
         [HttpDelete("DeleteProperty")]
-        public async Task<IActionResult> DeleteProperty( int propertyId)
+        public async Task<IActionResult> DeleteProperty(int propertyId)
         {
             if (ModelState.IsValid)
             {
@@ -135,15 +135,15 @@ namespace Graduation.Controllers.PropertyToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                    PropertyProject result = await dbContext.properties
-                    .Include(p=>p.ImageDetails)
-                    .Include(p=>p.Reviews)
-                    .Include(p=>p.Saves)
-                    .FirstOrDefaultAsync(p=>p.Id==propertyId);
-                    if (result is not null)
+                PropertyProject result = await dbContext.properties
+                .Include(p => p.ImageDetails)
+                .Include(p => p.Reviews)
+                .Include(p => p.Saves)
+                .FirstOrDefaultAsync(p => p.Id == propertyId);
+                if (result is not null)
+                {
+                    if (result.UsersID == requestUser.Id || role.Contains("admin"))
                     {
-                        if (result.UsersID == requestUser.Id || role.Contains("admin"))
-                        {
                         if (result.ImageDetails.Any())
                             foreach (var image in result.ImageDetails)
                             {
@@ -165,15 +165,15 @@ namespace Graduation.Controllers.PropertyToProject
                         }
 
                         dbContext.RemoveRange(result);
-                            await dbContext.SaveChangesAsync();
+                        await dbContext.SaveChangesAsync();
 
-                          
-                            return Ok(new { status = 200 });
 
-                        }
+                        return Ok(new { status = 200 });
+
+                    }
                     return Unauthorized(new { message = "Only admin or the provider can delete this property" });
                 }
-                    return BadRequest(new { message = "not found property" });
+                return BadRequest(new { message = "not found property" });
 
 
             }
@@ -193,11 +193,11 @@ namespace Graduation.Controllers.PropertyToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider")||role.Contains("admin"))
+                if (role.Contains("provider") || role.Contains("admin"))
                 {
                     ImageDetails details = new ImageDetails
                     {
-                        PropertyId= propertyId,
+                        PropertyId = propertyId,
                         Image = await FileSettings.UploadFileAsync(request.Image),
                     };
                     await dbContext.images.AddAsync(details);
@@ -222,28 +222,28 @@ namespace Graduation.Controllers.PropertyToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                
-                    ImageDetails resultImage = await dbContext.images.FindAsync(imageId);
-                    if (resultImage is not null)
-                    {
-                        PropertyProject resultProperty = await dbContext.properties.FindAsync(resultImage.PropertyId);
-                        if (resultProperty is not null)
-                        {
-                            if (resultProperty.UsersID == requestUser.Id || role.Contains("admin"))
-                            {
-                                await FileSettings.DeleteFileAsync(resultImage.Image);
-                                resultImage.Image = await FileSettings.UploadFileAsync(request.Image);
-                                dbContext.UpdateRange(resultImage);
-                                await dbContext.SaveChangesAsync();
-                                return Ok(new { status = 200 });
 
-                            }
+                ImageDetails resultImage = await dbContext.images.FindAsync(imageId);
+                if (resultImage is not null)
+                {
+                    PropertyProject resultProperty = await dbContext.properties.FindAsync(resultImage.PropertyId);
+                    if (resultProperty is not null)
+                    {
+                        if (resultProperty.UsersID == requestUser.Id || role.Contains("admin"))
+                        {
+                            await FileSettings.DeleteFileAsync(resultImage.Image);
+                            resultImage.Image = await FileSettings.UploadFileAsync(request.Image);
+                            dbContext.UpdateRange(resultImage);
+                            await dbContext.SaveChangesAsync();
+                            return Ok(new { status = 200 });
+
+                        }
                         return Unauthorized(new { message = "Only admin or the provider can update image property" });
                     }
-                        return BadRequest(new { message = "not found property" });
+                    return BadRequest(new { message = "not found property" });
 
-                    }
-                    return BadRequest(new { message = "not found image" });
+                }
+                return BadRequest(new { message = "not found image" });
             }
             return NotFound();
         }
@@ -261,27 +261,27 @@ namespace Graduation.Controllers.PropertyToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-               
-                    ImageDetails resultImage = await dbContext.images.FindAsync(imageId);
-                    if (resultImage is not null)
-                    {
-                        PropertyProject resultProperty= await dbContext.properties.FindAsync(resultImage.PropertyId);
-                        if (resultProperty is not null)
-                        {
-                            if (resultProperty.UsersID == requestUser.Id || role.Contains("admin"))
-                            {
-                               await FileSettings.DeleteFileAsync(resultImage.Image); 
-                                dbContext.RemoveRange(resultImage);
-                                await dbContext.SaveChangesAsync();
-                                return Created();
 
-                            }
+                ImageDetails resultImage = await dbContext.images.FindAsync(imageId);
+                if (resultImage is not null)
+                {
+                    PropertyProject resultProperty = await dbContext.properties.FindAsync(resultImage.PropertyId);
+                    if (resultProperty is not null)
+                    {
+                        if (resultProperty.UsersID == requestUser.Id || role.Contains("admin"))
+                        {
+                            await FileSettings.DeleteFileAsync(resultImage.Image);
+                            dbContext.RemoveRange(resultImage);
+                            await dbContext.SaveChangesAsync();
+                            return Created();
+
+                        }
                         return Unauthorized(new { message = "Only admin or the provider can delete image property" });
                     }
-                        return BadRequest(new { message = "not found service" });
+                    return BadRequest(new { message = "not found service" });
 
-                    }
-                    return BadRequest(new { message = "not found image" });
+                }
+                return BadRequest(new { message = "not found image" });
             }
             return NotFound();
         }
@@ -297,18 +297,27 @@ namespace Graduation.Controllers.PropertyToProject
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                
-                    Review review = new Review
-                    {
-                        Description = request.Description,
-                        Rating = request.Rating,
-                        CreateAt = DateTime.Now,
-                        UsersID = requestUser.Id,
-                        PropertyId = request.PropertyId
-                    };
-                    await dbContext.reviews.AddAsync(review);
-                    await dbContext.SaveChangesAsync();
-                    return Ok(new { message = true });
+                var property=await dbContext.properties.FindAsync(request.PropertyId);
+                var reviewResult=await dbContext.reviews.Where(r=>r.UsersID == userId&&r.PropertyId==request.PropertyId).ToListAsync();
+                if (reviewResult.Any())
+                {
+                    return BadRequest(new { Message = "You didn't send a review." });
+                }
+                if(property is null)
+                {
+                    return NotFound(new {message="not found property"});
+                }
+                Review review = new Review
+                {
+                    Description = request.Description,
+                    Rating = request.Rating,
+                    CreateAt = DateTime.Now,
+                    UsersID = requestUser.Id,
+                    PropertyId = request.PropertyId
+                };
+                await dbContext.reviews.AddAsync(review);
+                await dbContext.SaveChangesAsync();
+                return Ok(new { message = true });
             }
             return NotFound();
         }
@@ -325,22 +334,22 @@ namespace Graduation.Controllers.PropertyToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                
-              
-                    Review result = await dbContext.reviews.FindAsync(reviewId);
-                    if (result is not null)
+
+
+                Review result = await dbContext.reviews.FindAsync(reviewId);
+                if (result is not null)
+                {
+                    if (result.UsersID == requestUser.Id || role.Contains("admin"))
                     {
-                        if (result.UsersID == requestUser.Id || role.Contains("admin"))
-                        {
-                            result.Description = request.Description;
-                            result.Rating = request.Rating;
-                            dbContext.UpdateRange(result);
-                            await dbContext.SaveChangesAsync();
-                            return Ok(new { message = "update successful" });
-                        }
-                        return Unauthorized();
+                        result.Description = request.Description;
+                        result.Rating = request.Rating;
+                        dbContext.UpdateRange(result);
+                        await dbContext.SaveChangesAsync();
+                        return Ok(new { message = "update successful" });
                     }
-                    return BadRequest(new { message = "not found review" });
+                    return Unauthorized();
+                }
+                return BadRequest(new { message = "not found review" });
             }
             return NotFound();
         }
@@ -358,23 +367,23 @@ namespace Graduation.Controllers.PropertyToProject
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
                 Review result = await dbContext.reviews.FindAsync(reviewId);
-                    if (result is not null)
+                if (result is not null)
+                {
+                    if (result.UsersID == requestUser.Id || role.Contains("admin"))
                     {
-                        if (result.UsersID == requestUser.Id || role.Contains("admin"))
-                        {
 
-                            dbContext.RemoveRange(result);
-                            await dbContext.SaveChangesAsync();
-                            return Ok(new { message = "remove successful" });
-                        }
-                        return Unauthorized();
+                        dbContext.RemoveRange(result);
+                        await dbContext.SaveChangesAsync();
+                        return Ok(new { message = "remove successful" });
                     }
-                    return BadRequest(new { message = "not found review" });
+                    return Unauthorized();
+                }
+                return BadRequest(new { message = "not found review" });
             }
             return NotFound();
         }
         [HttpGet("AllProperty")]
-        public async Task<IActionResult> AllProperty(string? type , string? address)
+        public async Task<IActionResult> AllProperty(string? type, string? address)
         {
             var query = dbContext.properties.AsQueryable();
 
@@ -391,8 +400,8 @@ namespace Graduation.Controllers.PropertyToProject
                 .AsSplitQuery()
                 .Include(p => p.ImageDetails)
                 .Include(p => p.Reviews)
-                .Include (p => p.Address)
-                .Include(p=>p.Type)
+                .Include(p => p.Address)
+                .Include(p => p.Type)
                 .Include(p => p.User)
                 .Select(s => new GetAllPropertyDTOs
                 {
@@ -418,14 +427,14 @@ namespace Graduation.Controllers.PropertyToProject
                         date = r.CreateAt,
                         rating = r.Rating,
                     }).ToList(),
-                       
-                    AvgRating=s.Reviews.Any()?s.Reviews.Average(r=>r.Rating):0
-                   
+
+                    AvgRating = s.Reviews.Any() ? s.Reviews.Average(r => r.Rating) : 0
+
                 }
                 )
                 .ToListAsync();
 
-           
+
             return Ok(new { message = true, AllProperty = allProperty });
         }
         [HttpGet("property")]
@@ -433,12 +442,12 @@ namespace Graduation.Controllers.PropertyToProject
         {
 
             var Property = await dbContext.properties
-             .AsSplitQuery() 
+             .AsSplitQuery()
              .Include(p => p.ImageDetails)
              .Include(p => p.Reviews)
              .Include(p => p.Address)
-             .Include(p=>p.Type)
-             .Include(p=>p.User)
+             .Include(p => p.Type)
+             .Include(p => p.User)
              .FirstOrDefaultAsync(p => p.Id == propertyId);
 
             if (Property == null)
@@ -451,37 +460,37 @@ namespace Graduation.Controllers.PropertyToProject
                 UserID = Property.UsersID,
                 Description = Property.Description,
                 Price = Property.Price,
-                TypeName = Property.Type?.Name ?? "Unknown", 
+                TypeName = Property.Type?.Name ?? "Unknown",
                 StartAt = Property.StartAt,
                 EndAt = Property.EndAt,
-                AddressName = Property.Address?.Name ?? "Unknown", 
-                userName= Property.User.UserName,
+                AddressName = Property.Address?.Name ?? "Unknown",
+                userName = Property.User.UserName,
                 ImageDetails = Property.ImageDetails?
                     .Select(img => new GetImageDTOs
                     {
                         Id = img.Id,
                         Name = img.Image
                     })
-                    .ToList() ?? new List<GetImageDTOs>(), 
+                    .ToList() ?? new List<GetImageDTOs>(),
                 Reviews = Property.Reviews?
                     .Select(r =>
                      new GetAllReviewDTOs
-                        {
-                            Id = r.Id,
-                            UserId = r.UsersID,
-                            description = r.Description,
-                            date = r.CreateAt,
-                            rating = r.Rating,
+                     {
+                         Id = r.Id,
+                         UserId = r.UsersID,
+                         description = r.Description,
+                         date = r.CreateAt,
+                         rating = r.Rating,
 
-                        }
-                    
+                     }
+
                     )
-                    .ToList() ?? new List<GetAllReviewDTOs>()  ,
-                 
-                AvgRating = Property.Reviews.Any()? Property.Reviews.Average(r => r.Rating):0
-            
-        };
-           
+                    .ToList() ?? new List<GetAllReviewDTOs>(),
+
+                AvgRating = Property.Reviews.Any() ? Property.Reviews.Average(r => r.Rating) : 0
+
+            };
+
             return Ok(new { message = true, AllProperty = getProperty });
         }
 

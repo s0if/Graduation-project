@@ -44,15 +44,15 @@ namespace Graduation.Controllers.Auth
         {
             if (ModelState.IsValid)
             {
-               ApplicationUser application=await userManager.FindByEmailAsync(request.Email);
-                if(application is not null)
+                ApplicationUser application = await userManager.FindByEmailAsync(request.Email);
+                if (application is not null)
                 {
                     if (application.EmailConfirmed == false)
                     {
                         await userManager.DeleteAsync(application);
                     }
                 }
-                
+
                 ApplicationUser user = new ApplicationUser()
                 {
                     Email = request.Email,
@@ -66,10 +66,10 @@ namespace Graduation.Controllers.Auth
                     if (request.role == "admin")
                     {
                         await userManager.DeleteAsync(user);
-                        return BadRequest(new {message="you cannot create an account Admin"});
+                        return BadRequest(new { message = "you cannot create an account Admin" });
 
                     }
-                   string code = new Random().Next(100000, 999999).ToString();
+                    string code = new Random().Next(100000, 999999).ToString();
                     user.ConfirmationCode = code;
                     user.ConfirmationCodeExpiry = DateTime.Today.Add(DateTime.Now.TimeOfDay).AddMinutes(20);
                     await userManager.UpdateAsync(user);
@@ -151,18 +151,18 @@ namespace Graduation.Controllers.Auth
 
         }
         [HttpPost("ConfirmEmail")]
-        public async Task<IActionResult> ConfirmEmail(string email,string code)
+        public async Task<IActionResult> ConfirmEmail(string email, string code)
         {
             if (ModelState.IsValid)
             {
                 ApplicationUser user = await userManager.FindByEmailAsync(email);
                 if (user is not null && user.Email == email)
                 {
-                    if (user.ConfirmationCode == code )
+                    if (user.ConfirmationCode == code)
                     {
                         if (user.ConfirmationCodeExpiry >= DateTime.Today.Add(DateTime.Now.TimeOfDay))
                         {
-                            
+
                             user.EmailConfirmed = true;
                             await userManager.UpdateAsync(user);
                             return Ok(new { message = "success confirm" });
@@ -171,7 +171,7 @@ namespace Graduation.Controllers.Auth
                         return BadRequest(new { message = "the code is finished" });
 
                     }
-                    return BadRequest(new { message= "invalid code" });
+                    return BadRequest(new { message = "invalid code" });
                 }
                 return BadRequest(new { message = "user not found" });
             }
@@ -189,23 +189,23 @@ namespace Graduation.Controllers.Auth
                 int? userId = ExtractClaims.ExtractUserId(token);
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
-               ApplicationUser resultUser=await userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
+                ApplicationUser resultUser = await userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
                 if (resultUser is null)
-                    return NotFound(new {message="User not found"});
+                    return NotFound(new { message = "User not found" });
                 var role = await userManager.GetRolesAsync(resultUser);
                 if (role.Contains("admin"))
                 {
-                    ApplicationUser user=await userManager.Users.FirstOrDefaultAsync(u=>u.Id==Id);
+                    ApplicationUser user = await userManager.Users.FirstOrDefaultAsync(u => u.Id == Id);
                     user.EmailConfirmed = !user.EmailConfirmed;
                     await userManager.UpdateAsync(user);
-                    
+
                     return Ok(new { message = "success confirm" });
                 }
             }
             return NotFound(ModelState);
         }
         [HttpPost("Login")]
-        public async Task<IActionResult> Login(AuthLoginDTOs request,string? email, string? token)
+        public async Task<IActionResult> Login(AuthLoginDTOs request, string? email, string? token)
         {
             if (ModelState.IsValid)
             {
@@ -230,7 +230,7 @@ namespace Graduation.Controllers.Auth
                             resltRole = "consumer";
                         }
                         string resultToken = await authServices.CreateTokenAsync(user, userManager);
-                        return Ok(new { status = 200, userId = user.Id,name = user.UserName , role = resltRole, token = resultToken });
+                        return Ok(new { status = 200, userId = user.Id, name = user.UserName, role = resltRole, token = resultToken });
                     }
                     if (result.IsNotAllowed)
                     {
@@ -296,15 +296,15 @@ namespace Graduation.Controllers.Auth
                 {
                     if (userId == user.Id)
                     {
-                     
-                        if (user.EmailConfirmed==false)
+
+                        if (user.EmailConfirmed == false)
                         {
-                            return BadRequest(new {message="email not found"});
+                            return BadRequest(new { message = "email not found" });
                         }
                         string code = new Random().Next(100000, 999999).ToString();
                         user.Email = request.NewEmail;
-                        IdentityResult updateUser=await userManager.UpdateAsync(user);
-                        if(!updateUser.Succeeded)
+                        IdentityResult updateUser = await userManager.UpdateAsync(user);
+                        if (!updateUser.Succeeded)
                         {
                             List<string> errorMessage = updateUser.Errors.Select(error => error.Description).ToList();
                             return BadRequest(string.Join(", ", errorMessage));
@@ -402,7 +402,7 @@ namespace Graduation.Controllers.Auth
                     user.ConfirmationCode = code;
                     user.ConfirmationCodeExpiry = DateTime.Today.Add(DateTime.Now.TimeOfDay).AddMinutes(20);
                     await userManager.UpdateAsync(user);
-                       string htmlBody = $@"
+                    string htmlBody = $@"
                             <!DOCTYPE html>
                             <html dir='rtl' lang='ar'>
                             <head>
@@ -503,7 +503,7 @@ namespace Graduation.Controllers.Auth
                         return BadRequest(new { message = "the code is finished" });
                     }
                     return BadRequest(new { message = "code error" });
-                  
+
                 }
                 return BadRequest(new { message = "user not found " });
             }
@@ -511,6 +511,6 @@ namespace Graduation.Controllers.Auth
             return NotFound(ModelState);
 
         }
-        
+
     }
 }

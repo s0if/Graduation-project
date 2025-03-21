@@ -6,5 +6,6 @@
         public string Body { get; set; }
         public int? UserId { get; set; }
         public IFormFile? Image { get; set; }
+        public List<int>? UsersId { get; set; }
     }
 }

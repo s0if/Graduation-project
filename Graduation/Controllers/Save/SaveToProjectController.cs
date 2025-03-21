@@ -38,18 +38,18 @@ namespace Graduation.Controllers.Save
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
-                var service =await dbContext.services.FindAsync(serviceId);
-                if(service is null)
-                    return NotFound(new {message="the service not found"});
-               
-                    SaveProject save = new SaveProject
-                    {
-                        UserId = requestUser.Id,
-                        ServiceId = serviceId,
-                    };
-                    dbContext.saveProjects.Add(save);
-                    await dbContext.SaveChangesAsync();
-                    return Ok(new { status = 200, message = "save successfully", saveId = save.Id });
+                var service = await dbContext.services.FindAsync(serviceId);
+                if (service is null)
+                    return NotFound(new { message = "the service not found" });
+
+                SaveProject save = new SaveProject
+                {
+                    UserId = requestUser.Id,
+                    ServiceId = serviceId,
+                };
+                dbContext.saveProjects.Add(save);
+                await dbContext.SaveChangesAsync();
+                return Ok(new { status = 200, message = "save successfully", saveId = save.Id });
 
             }
             return NotFound();
@@ -67,19 +67,19 @@ namespace Graduation.Controllers.Save
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
-                var property=await dbContext.properties.FindAsync(propertyId);
+                var property = await dbContext.properties.FindAsync(propertyId);
                 if (property is null)
-                    return NotFound(new {message="the property not found"});
-               
-                    SaveProject save = new SaveProject
-                    {
-                        UserId = requestUser.Id,
-                        PropertyId = propertyId,
-                    };
-                    dbContext.saveProjects.Add(save);
-                    await dbContext.SaveChangesAsync();
-                    return Ok(new { status = 200, message = "save successfully" });
-                
+                    return NotFound(new { message = "the property not found" });
+
+                SaveProject save = new SaveProject
+                {
+                    UserId = requestUser.Id,
+                    PropertyId = propertyId,
+                };
+                dbContext.saveProjects.Add(save);
+                await dbContext.SaveChangesAsync();
+                return Ok(new { status = 200, message = "save successfully" });
+
 
             }
             return NotFound();
@@ -98,7 +98,7 @@ namespace Graduation.Controllers.Save
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                var result = await dbContext.saveProjects.Where(s => s.UserId == userId &&  s.Services.Id == Id).ToListAsync(); 
+                var result = await dbContext.saveProjects.Where(s => s.UserId == userId && s.Services.Id == Id).ToListAsync();
                 if (result.Any())
                 {
 
@@ -126,7 +126,7 @@ namespace Graduation.Controllers.Save
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                var result = await dbContext.saveProjects.Where(s => s.UserId == userId && s.Properties.Id == Id).ToListAsync(); 
+                var result = await dbContext.saveProjects.Where(s => s.UserId == userId && s.Properties.Id == Id).ToListAsync();
                 if (result.Any())
                 {
 
@@ -164,8 +164,8 @@ namespace Graduation.Controllers.Save
                     UserId = project.UserId,
                     allProperty = await dbContext.properties.Where(p => p.Id == project.PropertyId)
                     .Include(p => p.User)
-                    .Include(p=>p.Type)
-                    .Include(p=>p.Address)
+                    .Include(p => p.Type)
+                    .Include(p => p.Address)
                         .Select(p => new GetAllPropertyDTOs
                         {
                             Id = p.Id,
@@ -174,8 +174,8 @@ namespace Graduation.Controllers.Save
                             EndAt = p.EndAt,
                             UserID = p.UsersID,
                             userName = p.User.UserName,
-                            TypeName=p.Type.Name,
-                            AddressName=p.Address.Name,
+                            TypeName = p.Type.Name,
+                            AddressName = p.Address.Name,
                             ImageDetails = p.ImageDetails.Select(img => new GetImageDTOs
                             {
                                 Id = img.Id,
@@ -193,8 +193,8 @@ namespace Graduation.Controllers.Save
                         }).ToListAsync(),
                     allService = await dbContext.services.Where(s => s.Id == project.ServiceId)
                                     .Include(p => p.User)
-                                    .Include (p => p.Type)
-                                    .Include(p=>p.Address)
+                                    .Include(p => p.Type)
+                                    .Include(p => p.Address)
                                     .Select(s => new GetAllServiceDTOs
                                     {
                                         Id = s.Id,
@@ -236,7 +236,7 @@ namespace Graduation.Controllers.Save
             var result = await dbContext.saveProjects.Where(s => s.UserId == userId).ToListAsync();
             List<GetSavesDTOs> ListSave = new List<GetSavesDTOs>();
             bool status = false;
-            
+
             foreach (var project in result)
             {
                 GetSavesDTOs savesDTOs = new GetSavesDTOs
@@ -298,8 +298,8 @@ namespace Graduation.Controllers.Save
                 ListSave.Add(savesDTOs);
             }
 
-            status = ListSave.Any(s =>  s.allService.Any(p => p.Id == Id));
-              return Ok(status);
+            status = ListSave.Any(s => s.allService.Any(p => p.Id == Id));
+            return Ok(status);
         }
 
         [HttpGet("StatusProperty")]
@@ -379,7 +379,5 @@ namespace Graduation.Controllers.Save
             status = ListSave.Any(s => s.allProperty.Any(p => p.Id == Id));
             return Ok(status);
         }
-
-
     }
 }

@@ -1823,6 +1823,17 @@
               "type": "integer",
               "format": "int32"
             }
+          },
+          {
+            "name": "UsersId",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
           }
         ],
         "requestBody": {

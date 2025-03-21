@@ -23,13 +23,14 @@ namespace Graduation.Service
             var configurations = configuration.GetSection("jwt")["secretkey"];
             var Authclaim = new List<Claim>()
              {
-             new Claim(ClaimTypes.GivenName,user.UserName) ,
-             new Claim(ClaimTypes.Email,user.Email) ,
-             new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()) 
+                 new Claim(ClaimTypes.GivenName,user.UserName) ,
+                 new Claim(ClaimTypes.Email,user.Email) ,
+                 new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()) 
              };
             var userRole = await userManager.GetRolesAsync(user);
-            foreach (var role in userRole)
-                Authclaim.Add(new Claim(ClaimTypes.Role, role));
+           
+            //foreach (var role in userRole)
+            //    Authclaim.Add(new Claim(ClaimTypes.Role, role));
             var keyAuth = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configurations));
             var token = new JwtSecurityToken(
             //optinles

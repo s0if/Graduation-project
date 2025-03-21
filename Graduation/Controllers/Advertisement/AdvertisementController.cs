@@ -117,27 +117,27 @@ namespace Graduation.Controllers.Advertisement
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-               
-                    AdvertisementProject result = await dbContext.advertisements.FindAsync(AdvertisementId);
 
-                    if (result is not null)
+                AdvertisementProject result = await dbContext.advertisements.FindAsync(AdvertisementId);
+
+                if (result is not null)
+                {
+                    ServiceProject resultService = await dbContext.services.FirstOrDefaultAsync(x => x.AdvertisementID == result.Id);
+                    if (resultService is not null)
                     {
-                        ServiceProject resultService = await dbContext.services.FirstOrDefaultAsync(x => x.AdvertisementID == result.Id);
-                        if (resultService is not null)
+                        if (resultService.UsersID == requestUser.Id || role.Contains("admin"))
                         {
-                            if (resultService.UsersID == requestUser.Id || role.Contains("admin"))
-                            {
-                                result.StartAt = request.StartAt;
-                                result.EndAt = request.EndAt;
-                                dbContext.advertisements.UpdateRange(result);
-                                await dbContext.SaveChangesAsync();
-                                return Ok(new { message = "update successful" });
-                            }
+                            result.StartAt = request.StartAt;
+                            result.EndAt = request.EndAt;
+                            dbContext.advertisements.UpdateRange(result);
+                            await dbContext.SaveChangesAsync();
+                            return Ok(new { message = "update successful" });
+                        }
                         return Unauthorized(new { message = "Only Admins or the service provider can update this advertisement" });
                     }
                     return BadRequest(new { message = "not found service" });
-                    }
-                    return BadRequest(new { message = "not found Advertisement" });
+                }
+                return BadRequest(new { message = "not found Advertisement" });
             }
             return NotFound();
         }
@@ -154,28 +154,28 @@ namespace Graduation.Controllers.Advertisement
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                
-                    AdvertisementProject result = await dbContext.advertisements.FindAsync(AdvertisementId);
 
-                    if (result is not null)
+                AdvertisementProject result = await dbContext.advertisements.FindAsync(AdvertisementId);
+
+                if (result is not null)
+                {
+                    PropertyProject resultService = await dbContext.properties.FirstOrDefaultAsync(x => x.AdvertisementID == result.Id);
+                    if (resultService is not null)
                     {
-                        PropertyProject resultService = await dbContext.properties.FirstOrDefaultAsync(x => x.AdvertisementID == result.Id);
-                        if (resultService is not null)
+                        if (resultService.UsersID == requestUser.Id || role.Contains("admin"))
                         {
-                            if (resultService.UsersID == requestUser.Id || role.Contains("admin"))
-                            {
-                                result.StartAt = request.StartAt;
-                                result.EndAt = request.EndAt;
-                                dbContext.advertisements.UpdateRange(result);
-                                await dbContext.SaveChangesAsync();
-                                return Ok(new { message = "update successful" });
-                            }
-                            return Unauthorized(); return Unauthorized(new { message = "Only Admins or the property provider can update this advertisement" });
+                            result.StartAt = request.StartAt;
+                            result.EndAt = request.EndAt;
+                            dbContext.advertisements.UpdateRange(result);
+                            await dbContext.SaveChangesAsync();
+                            return Ok(new { message = "update successful" });
+                        }
+                        return Unauthorized(); return Unauthorized(new { message = "Only Admins or the property provider can update this advertisement" });
                     }
-                        return BadRequest(new { message = "not found property" });
-                    }
-                    return BadRequest(new { message = "not found Advertisement" });
-               
+                    return BadRequest(new { message = "not found property" });
+                }
+                return BadRequest(new { message = "not found Advertisement" });
+
             }
             return NotFound();
         }
@@ -192,26 +192,26 @@ namespace Graduation.Controllers.Advertisement
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                
-                    AdvertisementProject result = await dbContext.advertisements.FindAsync(AdvertisementId);
 
-                    if (result is not null)
+                AdvertisementProject result = await dbContext.advertisements.FindAsync(AdvertisementId);
+
+                if (result is not null)
+                {
+                    ServiceProject resultService = await dbContext.services.FirstOrDefaultAsync(x => x.AdvertisementID == result.Id);
+                    if (resultService is not null)
                     {
-                        ServiceProject resultService = await dbContext.services.FirstOrDefaultAsync(x => x.AdvertisementID == result.Id);
-                        if (resultService is not null)
+                        if (resultService.UsersID == requestUser.Id || role.Contains("admin"))
                         {
-                            if (resultService.UsersID == requestUser.Id || role.Contains("admin"))
-                            {
 
-                                dbContext.advertisements.RemoveRange(result);
-                                await dbContext.SaveChangesAsync();
-                                return Ok(new { message = "remove successful" });
-                            }
+                            dbContext.advertisements.RemoveRange(result);
+                            await dbContext.SaveChangesAsync();
+                            return Ok(new { message = "remove successful" });
+                        }
                         return Unauthorized(new { message = "Only Admins or the service provider can delete this advertisement" });
                     }
-                        return BadRequest(new { message = "not found service" });
-                    }
-                    return BadRequest(new { message = "not found Advertisement" });
+                    return BadRequest(new { message = "not found service" });
+                }
+                return BadRequest(new { message = "not found Advertisement" });
 
             }
             return NotFound();
@@ -229,26 +229,26 @@ namespace Graduation.Controllers.Advertisement
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
-                
-                    AdvertisementProject result = await dbContext.advertisements.FindAsync(AdvertisementId);
 
-                    if (result is not null)
+                AdvertisementProject result = await dbContext.advertisements.FindAsync(AdvertisementId);
+
+                if (result is not null)
+                {
+                    PropertyProject resultService = await dbContext.properties.FirstOrDefaultAsync(x => x.AdvertisementID == result.Id);
+                    if (resultService is not null)
                     {
-                        PropertyProject resultService = await dbContext.properties.FirstOrDefaultAsync(x => x.AdvertisementID == result.Id);
-                        if (resultService is not null)
+                        if (resultService.UsersID == requestUser.Id || role.Contains("admin"))
                         {
-                            if (resultService.UsersID == requestUser.Id || role.Contains("admin"))
-                            {
 
-                                dbContext.advertisements.RemoveRange(result);
-                                await dbContext.SaveChangesAsync();
-                                return Ok(new { message = "delete successful" });
-                            }
+                            dbContext.advertisements.RemoveRange(result);
+                            await dbContext.SaveChangesAsync();
+                            return Ok(new { message = "delete successful" });
+                        }
                         return Unauthorized(new { message = "Only Admins or the property provider can delete this advertisement" });
                     }
-                        return BadRequest(new { message = "not found property" });
-                    }
-                    return BadRequest(new { message = "not found Advertisement" });
+                    return BadRequest(new { message = "not found property" });
+                }
+                return BadRequest(new { message = "not found Advertisement" });
             }
             return NotFound();
         }
@@ -287,7 +287,7 @@ namespace Graduation.Controllers.Advertisement
                 await dbContext.SaveChangesAsync();
             }
             var result = await dbContext.advertisements
-                .Where(adv=>adv.StartAt<DateTime.Now)
+                .Where(adv => adv.StartAt < DateTime.Now)
             .Include(a => a.Properties)
                 .ThenInclude(p => p.Type)
             .Include(a => a.Properties)
@@ -319,7 +319,7 @@ namespace Graduation.Controllers.Advertisement
                     EndAt = p.EndAt,
                     UserID = p.UsersID,
                     TypeName = p.Type != null ? p.Type.Name : null,
-                    userName =p.User.UserName,
+                    userName = p.User.UserName,
                     AddressName = p.Address.Name,
                     ImageDetails = p.ImageDetails.Select(img => new GetImageDTOs
                     {
@@ -329,7 +329,7 @@ namespace Graduation.Controllers.Advertisement
                     Reviews = p.Reviews.Select(r => new GetAllReviewDTOs
                     {
                         Id = r.Id,
-                        UserId=r.UsersID,
+                        UserId = r.UsersID,
                         date = r.CreateAt,
                         description = r.Description,
                         rating = r.Rating,
@@ -482,7 +482,7 @@ namespace Graduation.Controllers.Advertisement
         [HttpGet("SuggestAddress")]
         public async Task<IActionResult> SuggestAddress()
         {
-           
+
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
@@ -490,11 +490,11 @@ namespace Graduation.Controllers.Advertisement
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
             var user = await userManager.Users
-                .Include(u => u.Address) 
+                .Include(u => u.Address)
                 .FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null || user.Address == null)
                 return NotFound(new { message = "User or Address Not Found" });
-            string userCity = user.Address.Name; 
+            string userCity = user.Address.Name;
             var deleteEnd = await dbContext.advertisements
                 .Where(adv => adv.EndAt <= DateTime.Now)
                 .Include(adv => adv.Services)
@@ -524,8 +524,8 @@ namespace Graduation.Controllers.Advertisement
                 .Include(a => a.Services)
                     .ThenInclude(s => s.Address)
                 .Where(adv =>
-                    (adv.Properties.Any(p => p.Address.Name == userCity )) ||
-                    (adv.Services.Any(s => s.Address.Name == userCity))  )
+                    (adv.Properties.Any(p => p.Address.Name == userCity)) ||
+                    (adv.Services.Any(s => s.Address.Name == userCity)))
                 .Select(adv => new GetAllAdvertisementDTOs
                 {
                     Id = adv.Id,
@@ -540,7 +540,7 @@ namespace Graduation.Controllers.Advertisement
                             StartAt = p.StartAt,
                             EndAt = p.EndAt,
                             UserID = p.UsersID,
-                            userName=p.User.UserName,
+                            userName = p.User.UserName,
                             AddressName = p.Address.Name,
                             TypeName = p.Type != null ? p.Type.Name : null,
                             ImageDetails = p.ImageDetails.Select(img => new GetImageDTOs

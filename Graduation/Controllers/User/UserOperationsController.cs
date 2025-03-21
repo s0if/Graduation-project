@@ -63,8 +63,8 @@ namespace Graduation.Controllers.User
                         Email = user.Email,
                         Phone = user.PhoneNumber,
                         Address = user.Address?.Name,
-                        Role = string.Join(",", await userManager.GetRolesAsync(user))  ,
-                        ConfirmEmail=user.EmailConfirmed,
+                        Role = string.Join(",", await userManager.GetRolesAsync(user)),
+                        ConfirmEmail = user.EmailConfirmed,
                     });
                 }
                 return Ok(AllUser);
@@ -136,100 +136,100 @@ namespace Graduation.Controllers.User
         {
 
             ApplicationUser requestUser = await userManager.Users.
-                FirstOrDefaultAsync(u=>u.Id==Id);
-            var role=await userManager.GetRolesAsync(requestUser);  
+                FirstOrDefaultAsync(u => u.Id == Id);
+            var role = await userManager.GetRolesAsync(requestUser);
             if (requestUser is null)
             {
                 return BadRequest(new { message = "provider not found" });
             }
 
 
-            var resultProperty =await dbContext.properties
+            var resultProperty = await dbContext.properties
                 .Include(p => p.Address)
-                .Include(p=>p.Type)
-                .Include(p=>p.ImageDetails)
-                .Include(p=>p.Reviews)
-                .Where(p=>p.UsersID == Id).ToListAsync();
-            var resultService=await dbContext.services
+                .Include(p => p.Type)
+                .Include(p => p.ImageDetails)
+                .Include(p => p.Reviews)
+                .Where(p => p.UsersID == Id).ToListAsync();
+            var resultService = await dbContext.services
                 .Include(s => s.Address)
                 .Include(s => s.Type)
                 .Include(s => s.ImageDetails)
                 .Include(s => s.Reviews)
-                .Where(s=>s.UsersID == Id).ToListAsync();
-            if (resultProperty.Count<1 && resultService.Count<1)
+                .Where(s => s.UsersID == Id).ToListAsync();
+            if (resultProperty.Count < 1 && resultService.Count < 1)
             {
                 return NotFound("No properties or services found for the given user ID.");
             }
             ProviderDTOs result = new ProviderDTOs
             {
-              PropertyDTOs= resultProperty?.Select(RP => new GetAllPropertyDTOs
-              {
-                  Id = RP.Id,
-                  AddressName = RP.Address.Name,
-                  Description = RP.Description,
-                  StartAt = RP.StartAt,
-                  EndAt = RP.EndAt,
-                  Price = RP.Price,
-                  TypeName = RP.Type.Name,
-                  userName = requestUser.UserName,
-                  UserID = Id,
-                  ImageDetails = RP.ImageDetails?
-                  .Select(img => new GetImageDTOs
-                  {
-                      Id = img.Id,
-                      Name = img.Image
-                  }).ToList() ?? new List<GetImageDTOs>(),
-                  Reviews = RP.Reviews?
-                  .Select(r =>
-                   new GetAllReviewDTOs
-                   {
-                       Id = r.Id,
-                       UserId = r.UsersID,
-                       description = r.Description,
-                       date = r.CreateAt,
-                       rating = r.Rating,
-
-                   }
-
-                  ).ToList() ?? new List<GetAllReviewDTOs>(),
-
-                  AvgRating = RP.Reviews.Any() ? RP.Reviews.Average(r => r.Rating) : 0
-              }).ToList() ?? new List<GetAllPropertyDTOs>(),
-              ServiceDTOs = resultService?.Select(RS => new GetAllServiceDTOs
-              {
-                  Id = RS.Id,
-                  userId = Id,
-                  UserName = requestUser.UserName,
-                  Description = RS.Description,
-                  AddressName = RS.Address.Name,
-                  PriceRange = RS.PriceRange,
-                  TypeName = RS.Type.Name,
-                  ImageDetails = RS.ImageDetails?
-                   .Select(img => new GetImageDTOs
-                   {
-                       Id = img.Id,
-                       Name = img.Image
-                   })
-                   .ToList() ?? new List<GetImageDTOs>(),
-                  Reviews = RS.Reviews?
-                   .Select(r =>
-                    new GetAllReviewDTOs
+                PropertyDTOs = resultProperty?.Select(RP => new GetAllPropertyDTOs
+                {
+                    Id = RP.Id,
+                    AddressName = RP.Address.Name,
+                    Description = RP.Description,
+                    StartAt = RP.StartAt,
+                    EndAt = RP.EndAt,
+                    Price = RP.Price,
+                    TypeName = RP.Type.Name,
+                    userName = requestUser.UserName,
+                    UserID = Id,
+                    ImageDetails = RP.ImageDetails?
+                    .Select(img => new GetImageDTOs
                     {
-                        Id = r.Id,
-                        UserId = r.UsersID,
-                        description = r.Description,
-                        date = r.CreateAt,
-                        rating = r.Rating,
+                        Id = img.Id,
+                        Name = img.Image
+                    }).ToList() ?? new List<GetImageDTOs>(),
+                    Reviews = RP.Reviews?
+                    .Select(r =>
+                     new GetAllReviewDTOs
+                     {
+                         Id = r.Id,
+                         UserId = r.UsersID,
+                         description = r.Description,
+                         date = r.CreateAt,
+                         rating = r.Rating,
 
-                    }
+                     }
 
-                   )
-                   .ToList() ?? new List<GetAllReviewDTOs>(),
+                    ).ToList() ?? new List<GetAllReviewDTOs>(),
 
-                  AvgRating = RS.Reviews.Any() ? RS.Reviews.Average(r => r.Rating) : 0
-              }).ToList() ?? new List<GetAllServiceDTOs>(),
+                    AvgRating = RP.Reviews.Any() ? RP.Reviews.Average(r => r.Rating) : 0
+                }).ToList() ?? new List<GetAllPropertyDTOs>(),
+                ServiceDTOs = resultService?.Select(RS => new GetAllServiceDTOs
+                {
+                    Id = RS.Id,
+                    userId = Id,
+                    UserName = requestUser.UserName,
+                    Description = RS.Description,
+                    AddressName = RS.Address.Name,
+                    PriceRange = RS.PriceRange,
+                    TypeName = RS.Type.Name,
+                    ImageDetails = RS.ImageDetails?
+                     .Select(img => new GetImageDTOs
+                     {
+                         Id = img.Id,
+                         Name = img.Image
+                     })
+                     .ToList() ?? new List<GetImageDTOs>(),
+                    Reviews = RS.Reviews?
+                     .Select(r =>
+                      new GetAllReviewDTOs
+                      {
+                          Id = r.Id,
+                          UserId = r.UsersID,
+                          description = r.Description,
+                          date = r.CreateAt,
+                          rating = r.Rating,
+
+                      }
+
+                     )
+                     .ToList() ?? new List<GetAllReviewDTOs>(),
+
+                    AvgRating = RS.Reviews.Any() ? RS.Reviews.Average(r => r.Rating) : 0
+                }).ToList() ?? new List<GetAllServiceDTOs>(),
             };
-            
+
             return Ok(result);
         }
 
@@ -249,8 +249,6 @@ namespace Graduation.Controllers.User
             };
             return Ok(result);
         }
-
-
         [HttpGet("count")]
         public async Task<IActionResult> count()
         {
@@ -272,7 +270,7 @@ namespace Graduation.Controllers.User
                 foreach (var item in allUser)
                 {
                     var result = await userManager.GetRolesAsync(item);
-                    if(result.Contains("admin"))
+                    if (result.Contains("admin"))
                     {
                         ++userAdmin;
                     }
@@ -289,9 +287,9 @@ namespace Graduation.Controllers.User
 
                 int advertisementsService = 0;
                 int advertisementsProperty = 0;
-                IEnumerable<AdvertisementProject> advertisements=await dbContext.advertisements
-                    .Include(adv=>adv.Services)
-                    .Include(adv=>adv.Properties)
+                IEnumerable<AdvertisementProject> advertisements = await dbContext.advertisements
+                    .Include(adv => adv.Services)
+                    .Include(adv => adv.Properties)
                     .ToListAsync();
                 foreach (var item in advertisements)
                 {
@@ -301,9 +299,9 @@ namespace Graduation.Controllers.User
 
                 int service = await dbContext.services.CountAsync();
                 int property = await dbContext.properties.CountAsync();
-                int typeService=await dbContext.typeServices.CountAsync();
+                int typeService = await dbContext.typeServices.CountAsync();
                 int typeProperty = await dbContext.typeProperties.CountAsync();
-                int complaint=await dbContext.complaints.CountAsync();
+                int complaint = await dbContext.complaints.CountAsync();
 
                 CountDTOs count = new CountDTOs()
                 {
@@ -312,14 +310,14 @@ namespace Graduation.Controllers.User
                     CountConsumer = userConsumer,
                     CountUser = allUser.Count(),
                     AdvertisementsCount = advertisements.Count(),
-                    AdvertisementsService=advertisementsService,
-                    AdvertisementsProperty=advertisementsProperty ,
-                    AllProperty=property,
-                    AllService=service ,
-                    TypeProperty=typeProperty,
-                    TypeService=typeService,
-                    Complaint=complaint,
-                    
+                    AdvertisementsService = advertisementsService,
+                    AdvertisementsProperty = advertisementsProperty,
+                    AllProperty = property,
+                    AllService = service,
+                    TypeProperty = typeProperty,
+                    TypeService = typeService,
+                    Complaint = complaint,
+
                 };
                 return Ok(new { message = "Site statistics", count });
 
@@ -345,13 +343,13 @@ namespace Graduation.Controllers.User
                 List<CountAddressDTOs> countAddressToAddress = new List<CountAddressDTOs>();
 
 
-                IEnumerable<AddressToProject> address=await dbContext.addresses.ToListAsync();
-                int countAddress =  address.Count();  
+                IEnumerable<AddressToProject> address = await dbContext.addresses.ToListAsync();
+                int countAddress = address.Count();
                 foreach (var item in address)
                 {
                     var user = await userManager.Users.Where(u => u.AddressId == item.Id).CountAsync();
                     var countAddressUser = new CountAddressDTOs()
-                    {    
+                    {
                         NameAddress = item.Name,
                         CountAddress = user
                     };
@@ -363,7 +361,7 @@ namespace Graduation.Controllers.User
                         CountAddress = property
                     };
                     countAddressToProperty.Add(CountAddressProperty);
-                    var Service=await dbContext.services.Where(s=>s.AddressId==item.Id).CountAsync();
+                    var Service = await dbContext.services.Where(s => s.AddressId == item.Id).CountAsync();
                     var countAddressService = new CountAddressDTOs()
                     {
                         NameAddress = item.Name,
@@ -371,11 +369,10 @@ namespace Graduation.Controllers.User
                     };
                     countAddressToAddress.Add(countAddressService);
                 }
-                return Ok(new {message="All Address", countAddress, message1="user", countAddressToUser,message2="property", countAddressToProperty,message3="service", countAddressToAddress });
+                return Ok(new { message = "All Address", countAddress, message1 = "user", countAddressToUser, message2 = "property", countAddressToProperty, message3 = "service", countAddressToAddress });
             }
             return Unauthorized(new { message = "Only admin  can get all user" });
         }
-
         [HttpDelete("DeleteUser")]
         public async Task<IActionResult> DeleteUser(int Id)
         {
@@ -401,11 +398,11 @@ namespace Graduation.Controllers.User
                     .Include(s => s.ImageDetails)
                     .Include(s => s.Reviews)
                     .Where(s => s.UsersID == Id).ToListAsync();
-                if (resultProperty.Count >1 && resultService.Count >1)
+                if (resultProperty.Count > 1 && resultService.Count > 1)
                 {
                     foreach (var result in resultProperty)
                     {
-                        
+
                         if (result.ImageDetails.Any())
                             foreach (var image in result.ImageDetails)
                             {
@@ -514,7 +511,6 @@ namespace Graduation.Controllers.User
             return BadRequest(new { message = "user not found" });
 
         }
-
         [HttpPut("UpdateAddress")]
         public async Task<IActionResult> UpdateAddress(int addressId)
         {
@@ -537,8 +533,6 @@ namespace Graduation.Controllers.User
             return BadRequest(new { message = "user not found" });
 
         }
-
-
         [HttpPost("SendEmail")]
         public async Task<IActionResult> SendEmail(SendEmailDTOs request)
         {
@@ -602,10 +596,71 @@ namespace Graduation.Controllers.User
                         }
                         return BadRequest(new { message = "not found user" });
                     }
-                    if (request.UserId is  null)
+                    else if (request.UsersId is not null)
                     {
-                        IEnumerable <ApplicationUser> allUser = await dbContext.users.ToListAsync();
-                        if (allUser.Any() )
+                        List<ApplicationUser> users= new List<ApplicationUser>();
+                        foreach (var item in request.UsersId)
+                        {
+                            
+                            ApplicationUser user = await dbContext.users.FindAsync(item);
+                            
+                           
+                            if (user is not null)
+                            {
+                                users.Add(user);
+                                continue;
+                            }
+                            return BadRequest(new { message = $"User with ID {item} not found." });
+                        }
+                        if (users.Count > 0)
+                        {
+                            foreach (var item in users)
+                            {
+                                
+                                if (request.Image is not null)
+                                {
+
+                                    ImageDetails imageDetails = new ImageDetails()
+                                    {
+                                        Image = await FileSettings.UploadFileAsync(request.Image),
+                                    };
+                                    await dbContext.images.AddAsync(imageDetails);
+                                    await dbContext.SaveChangesAsync();
+                                    var imageName = imageDetails.Image;
+                                    Body = $@"
+                                            <html>
+                                            <body>
+                                                <p>{request.Body}</p>
+                                                <img src='{imageName}' alt='Embedded Image' style='max-width: 50%; height: auto;'/>
+                                            </body>
+                                            </html>";
+                                }
+                                if (Body == "")
+                                {
+                                    Body = $@"
+                                            <html>
+                                            <body>
+                                                <p>{request.Body}</p>
+                                   
+                                            </body>
+                                            </html>";
+                                }
+                                EmailDTOs email = new EmailDTOs()
+                                {
+                                    Subject = request.Title,
+                                    Recivers = item.Email,
+                                    Body = Body
+                                };
+                                EmailSetting.SendEmail(email);
+                                return Ok(new { mwssage = "Send email successful" });
+                            }
+                        }
+                           
+                    }
+                    else
+                    {
+                        IEnumerable<ApplicationUser> allUser = await dbContext.users.ToListAsync();
+                        if (allUser.Any())
                         {
                             if (request.Image is not null)
                             {
@@ -644,25 +699,20 @@ namespace Graduation.Controllers.User
                                     Recivers = user.Email,
                                     Body = Body
                                 };
-                            EmailSetting.SendEmail(email);
+                                EmailSetting.SendEmail(email);
                             }
-                           
+
 
                             return Ok(new { mwssage = "Send email all user successful" });
                         }
                         return BadRequest(new { message = "not found user" });
                     }
-                    
-                    
-
                 }
                 return Unauthorized(new { message = "Only admin  can send email" });
             }
             return NotFound();
 
         }
-
-
         [HttpPost("SendMessage")]
         public async Task<IActionResult> SendMessage(ChatMessageDTOs request)
         {
@@ -674,7 +724,7 @@ namespace Graduation.Controllers.User
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
 
-            
+
             ApplicationUser requestUserSent = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
             ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == request.ReceiverId);
             if (requestUser is null || requestUserSent is null)
@@ -690,13 +740,12 @@ namespace Graduation.Controllers.User
             dbContext.Messages.Add(message);
             await dbContext.SaveChangesAsync();
 
-            
+
             var hubContext = HttpContext.RequestServices.GetRequiredService<IHubContext<ChatHub>>();
             await hubContext.Clients.User(request.ReceiverId.ToString()).SendAsync("ReceiveMessage", requestUserSent.Id, request.Message);
 
             return Ok(new { Message = "Message sent successfully." });
         }
-
         [HttpGet("HistoryMessage")]
         public async Task<IActionResult> GetChatHistory(int Id)
         {
@@ -711,10 +760,10 @@ namespace Graduation.Controllers.User
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
 
-            
+
             ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
             ApplicationUser requestUserSent = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-            if (requestUser is null|| requestUserSent is null)
+            if (requestUser is null || requestUserSent is null)
                 return NotFound(new { message = "User not found" });
 
             IEnumerable<ChatMessage> messages = await dbContext.Messages
@@ -723,7 +772,7 @@ namespace Graduation.Controllers.User
                 .OrderBy(m => m.Timestamp)
                 .ToListAsync();
 
-            
+
             IEnumerable<HistoryMessageDTOs> historyMessage = messages.Select(m => new HistoryMessageDTOs
             {
                 Message = m.Message,

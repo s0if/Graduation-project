@@ -46,14 +46,14 @@ namespace Graduation.Controllers.ComplaintFolder
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
                 var role = await userManager.GetRolesAsync(requestUser);
 
-                if (role.Contains("consumer")||role.Contains("provider"))
+                if (role.Contains("consumer") || role.Contains("provider"))
                 {
                     Complaint complaint = new Complaint
                     {
                         Name = addComplaint.NameComplaint,
                         Description = addComplaint.Content,
                         status = false,
-                        UsersID=requestUser.Id,
+                        UsersID = requestUser.Id,
                     };
                     await dbContext.AddAsync(complaint);
                     await dbContext.SaveChangesAsync();
@@ -68,7 +68,7 @@ namespace Graduation.Controllers.ComplaintFolder
                         await dbContext.images.AddAsync(details);
                         await dbContext.SaveChangesAsync();
                     }
-                    return Ok(new {status=200,message= "Complaint added successfully" });
+                    return Ok(new { status = 200, message = "Complaint added successfully" });
                 }
                 return Unauthorized(new { message = "Only consumer or the provider can add this complaint" });
             }
@@ -91,10 +91,10 @@ namespace Graduation.Controllers.ComplaintFolder
             if (role.Contains("admin"))
             {
                 IEnumerable<Complaint> deleteEnd = dbContext.complaints
-                   .Include(c=>c.ImageDetails)   
-                   .Where(c => c.status==true)
+                   .Include(c => c.ImageDetails)
+                   .Where(c => c.status == true)
                     .ToList();
-                
+
                 foreach (var item in deleteEnd)
                 {
                     if (item.ImageDetails.Any())
@@ -108,10 +108,10 @@ namespace Graduation.Controllers.ComplaintFolder
                 }
                 //var time = DateTime.Today.AddDays(-120);
                 //    . Where(c => (time <= c.CreatedDate))
-                IEnumerable<Complaint> request =  dbContext.complaints
-                    .Include (c=>c.ImageDetails)
+                IEnumerable<Complaint> request = dbContext.complaints
+                    .Include(c => c.ImageDetails)
                      .ToList();
-                List<GetAllComplaintDTOs> complaints=new List<GetAllComplaintDTOs>();
+                List<GetAllComplaintDTOs> complaints = new List<GetAllComplaintDTOs>();
                 foreach (var complaint in request)
                 {
                     complaints.Add(
@@ -125,9 +125,9 @@ namespace Graduation.Controllers.ComplaintFolder
                             CreatedDate = complaint.CreatedDate,
                             Images = complaint.ImageDetails.Select(img => new GetImageDTOs
                             {
-                                Id=img.Id,
-                                Name=img.Image
-                            }) .ToList(),
+                                Id = img.Id,
+                                Name = img.Image
+                            }).ToList(),
                         });
                 }
                 return Ok(complaints);

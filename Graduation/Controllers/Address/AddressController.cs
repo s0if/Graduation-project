@@ -18,7 +18,7 @@ namespace Graduation.Controllers.Address
         private readonly ApplicationDbContext dbContext;
         private readonly UserManager<ApplicationUser> userManager;
 
-        public AddressController(ApplicationDbContext dbContext,UserManager<ApplicationUser> userManager)
+        public AddressController(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager)
         {
             this.dbContext = dbContext;
             this.userManager = userManager;
@@ -46,9 +46,8 @@ namespace Graduation.Controllers.Address
             }
             return Unauthorized(new { message = "Only Admins Can Delete Type Services" });
         }
-
         [HttpPut("UpdateAddress")]
-        public async Task<IActionResult> UpdateAddress(int Id,string name)
+        public async Task<IActionResult> UpdateAddress(int Id, string name)
         {
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))
@@ -60,7 +59,7 @@ namespace Graduation.Controllers.Address
             var role = await userManager.GetRolesAsync(requestUser);
             if (role.Contains("admin"))
             {
-               
+
                 var type = await dbContext.addresses.FindAsync(Id);
                 if (type is null)
                     return BadRequest(new { message = "not found address" });
@@ -71,9 +70,6 @@ namespace Graduation.Controllers.Address
             }
             return Unauthorized(new { message = "Only Admins Can Delete Type Services" });
         }
-
-
-
         [HttpGet("GetAddress")]
         public async Task<IActionResult> GetAddress()
         {
@@ -81,7 +77,5 @@ namespace Graduation.Controllers.Address
             IEnumerable<GetTypeDTOs> typeService = result.Adapt<IEnumerable<GetTypeDTOs>>();
             return Ok(new { status = 200, typeService });
         }
-
-
     }
 }
