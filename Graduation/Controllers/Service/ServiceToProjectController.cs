@@ -21,11 +21,13 @@ namespace Graduation.Controllers.ServiceToProject
     {
         private readonly ApplicationDbContext dbContext;
         private readonly UserManager<ApplicationUser> userManager;
+        private readonly ExtractClaims extractClaims;
 
-        public ServiceToProjectController(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager)
+        public ServiceToProjectController(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager,ExtractClaims extractClaims)
         {
             this.dbContext = dbContext;
             this.userManager = userManager;
+            this.extractClaims = extractClaims;
         }
 
         [HttpPost("AddService")]
@@ -36,7 +38,7 @@ namespace Graduation.Controllers.ServiceToProject
                 string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
                 if (string.IsNullOrEmpty(token))
                     return Unauthorized(new { message = "Token Is Missing" });
-                int? userId = ExtractClaims.ExtractUserId(token);
+                int? userId = await extractClaims.ExtractUserId(token);
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
@@ -80,7 +82,7 @@ namespace Graduation.Controllers.ServiceToProject
                 string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
                 if (string.IsNullOrEmpty(token))
                     return Unauthorized(new { message = "Token Is Missing" });
-                int? userId = ExtractClaims.ExtractUserId(token);
+                int? userId = await extractClaims.ExtractUserId(token);
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
@@ -128,7 +130,7 @@ namespace Graduation.Controllers.ServiceToProject
                 string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
                 if (string.IsNullOrEmpty(token))
                     return Unauthorized(new { message = "Token Is Missing" });
-                int? userId = ExtractClaims.ExtractUserId(token);
+                int? userId = await extractClaims.ExtractUserId(token);
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
@@ -185,7 +187,7 @@ namespace Graduation.Controllers.ServiceToProject
                 string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
                 if (string.IsNullOrEmpty(token))
                     return Unauthorized(new { message = "Token Is Missing" });
-                int? userId = ExtractClaims.ExtractUserId(token);
+                int? userId = await extractClaims.ExtractUserId(token);
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
@@ -214,7 +216,7 @@ namespace Graduation.Controllers.ServiceToProject
                 string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
                 if (string.IsNullOrEmpty(token))
                     return Unauthorized(new { message = "Token Is Missing" });
-                int? userId = ExtractClaims.ExtractUserId(token);
+                int? userId = await extractClaims.ExtractUserId(token);
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
@@ -253,7 +255,7 @@ namespace Graduation.Controllers.ServiceToProject
                 string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
                 if (string.IsNullOrEmpty(token))
                     return Unauthorized(new { message = "Token Is Missing" });
-                int? userId = ExtractClaims.ExtractUserId(token);
+                int? userId = await extractClaims.ExtractUserId(token);
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
@@ -290,7 +292,7 @@ namespace Graduation.Controllers.ServiceToProject
                 string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
                 if (string.IsNullOrEmpty(token))
                     return Unauthorized(new { message = "Token Is Missing" });
-                int? userId = ExtractClaims.ExtractUserId(token);
+                int? userId = await extractClaims.ExtractUserId(token);
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
@@ -330,7 +332,7 @@ namespace Graduation.Controllers.ServiceToProject
                 string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
                 if (string.IsNullOrEmpty(token))
                     return Unauthorized(new { message = "Token Is Missing" });
-                int? userId = ExtractClaims.ExtractUserId(token);
+                int? userId = await extractClaims.ExtractUserId(token);
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
@@ -363,7 +365,7 @@ namespace Graduation.Controllers.ServiceToProject
                 string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
                 if (string.IsNullOrEmpty(token))
                     return Unauthorized(new { message = "Token Is Missing" });
-                int? userId = ExtractClaims.ExtractUserId(token);
+                int? userId = await extractClaims.ExtractUserId(token);
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);

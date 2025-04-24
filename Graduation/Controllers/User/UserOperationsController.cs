@@ -32,11 +32,13 @@ namespace Graduation.Controllers.User
     {
         private readonly UserManager<ApplicationUser> userManager;
         private readonly ApplicationDbContext dbContext;
+        private readonly ExtractClaims extractClaims;
 
-        public UserOperationsController(UserManager<ApplicationUser> userManager, ApplicationDbContext dbContext)
+        public UserOperationsController(UserManager<ApplicationUser> userManager, ApplicationDbContext dbContext, ExtractClaims extractClaims)
         {
             this.userManager = userManager;
             this.dbContext = dbContext;
+            this.extractClaims = extractClaims;
         }
 
         [HttpGet("AllUser")]
@@ -45,7 +47,7 @@ namespace Graduation.Controllers.User
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
-            int? userId = ExtractClaims.ExtractUserId(token);
+            int? userId = await extractClaims.ExtractUserId(token);
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
             ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
@@ -79,7 +81,7 @@ namespace Graduation.Controllers.User
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
-            int? userId = ExtractClaims.ExtractUserId(token);
+            int? userId = await extractClaims.ExtractUserId(token);
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
             ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
@@ -117,7 +119,7 @@ namespace Graduation.Controllers.User
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
-            int? userId = ExtractClaims.ExtractUserId(token);
+            int? userId = await extractClaims.ExtractUserId(token);
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
             ApplicationUser requestUser = await userManager.Users.AsSplitQuery().Include(A => A.Address).FirstOrDefaultAsync(u => u.Id == userId);
@@ -257,7 +259,7 @@ namespace Graduation.Controllers.User
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
-            int? userId = ExtractClaims.ExtractUserId(token);
+            int? userId = await extractClaims.ExtractUserId(token);
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
             ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
@@ -332,7 +334,7 @@ namespace Graduation.Controllers.User
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
-            int? userId = ExtractClaims.ExtractUserId(token);
+            int? userId = await extractClaims.ExtractUserId(token);
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
             ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
@@ -381,7 +383,7 @@ namespace Graduation.Controllers.User
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
-            int? userId = ExtractClaims.ExtractUserId(token);
+            int? userId = await extractClaims.ExtractUserId(token);
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
             ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
@@ -455,7 +457,7 @@ namespace Graduation.Controllers.User
                 string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
                 if (string.IsNullOrEmpty(token))
                     return Unauthorized(new { message = "Token Is Missing" });
-                int? userId = ExtractClaims.ExtractUserId(token);
+                int? userId = await extractClaims.ExtractUserId(token);
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
@@ -497,7 +499,7 @@ namespace Graduation.Controllers.User
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
-            int? userId = ExtractClaims.ExtractUserId(token);
+            int? userId = await extractClaims.ExtractUserId(token);
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
             ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
@@ -519,7 +521,7 @@ namespace Graduation.Controllers.User
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
-            int? userId = ExtractClaims.ExtractUserId(token);
+            int? userId = await extractClaims.ExtractUserId(token);
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
             ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
@@ -544,7 +546,7 @@ namespace Graduation.Controllers.User
                 string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
                 if (string.IsNullOrEmpty(token))
                     return Unauthorized(new { message = "Token Is Missing" });
-                int? userId = ExtractClaims.ExtractUserId(token);
+                int? userId = await extractClaims.ExtractUserId(token);
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
@@ -702,7 +704,7 @@ namespace Graduation.Controllers.User
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
 
-            int? userId = ExtractClaims.ExtractUserId(token);
+            int? userId = await extractClaims.ExtractUserId(token);
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
 
@@ -738,7 +740,7 @@ namespace Graduation.Controllers.User
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
 
-            int? userId = ExtractClaims.ExtractUserId(token);
+            int? userId = await extractClaims.ExtractUserId(token);
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
 

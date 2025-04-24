@@ -20,11 +20,13 @@ namespace Graduation.Controllers.Save
     {
         private readonly ApplicationDbContext dbContext;
         private readonly UserManager<ApplicationUser> userManager;
+        private readonly ExtractClaims extractClaims;
 
-        public SaveToProjectController(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager)
+        public SaveToProjectController(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager,ExtractClaims extractClaims)
         {
             this.dbContext = dbContext;
             this.userManager = userManager;
+            this.extractClaims = extractClaims;
         }
         [HttpPost("SaveService")]
         public async Task<IActionResult> SaveService(int serviceId)
@@ -34,7 +36,7 @@ namespace Graduation.Controllers.Save
                 string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
                 if (string.IsNullOrEmpty(token))
                     return Unauthorized(new { message = "Token Is Missing" });
-                int? userId = ExtractClaims.ExtractUserId(token);
+                int? userId = await extractClaims.ExtractUserId(token);
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
@@ -63,7 +65,7 @@ namespace Graduation.Controllers.Save
                 string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
                 if (string.IsNullOrEmpty(token))
                     return Unauthorized(new { message = "Token Is Missing" });
-                int? userId = ExtractClaims.ExtractUserId(token);
+                int? userId = await extractClaims.ExtractUserId(token);
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
@@ -93,7 +95,7 @@ namespace Graduation.Controllers.Save
                 string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
                 if (string.IsNullOrEmpty(token))
                     return Unauthorized(new { message = "Token Is Missing" });
-                int? userId = ExtractClaims.ExtractUserId(token);
+                int? userId = await extractClaims.ExtractUserId(token);
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
@@ -121,7 +123,7 @@ namespace Graduation.Controllers.Save
                 string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
                 if (string.IsNullOrEmpty(token))
                     return Unauthorized(new { message = "Token Is Missing" });
-                int? userId = ExtractClaims.ExtractUserId(token);
+                int? userId = await extractClaims.ExtractUserId(token);
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
@@ -151,7 +153,7 @@ namespace Graduation.Controllers.Save
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
-            int? userId = ExtractClaims.ExtractUserId(token);
+            int? userId = await extractClaims.ExtractUserId(token);
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
             var result = await dbContext.saveProjects.Where(s => s.UserId == userId).ToListAsync();
@@ -230,7 +232,7 @@ namespace Graduation.Controllers.Save
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
-            int? userId = ExtractClaims.ExtractUserId(token);
+            int? userId = await extractClaims.ExtractUserId(token);
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
             var result = await dbContext.saveProjects.Where(s => s.UserId == userId).ToListAsync();
@@ -308,7 +310,7 @@ namespace Graduation.Controllers.Save
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
-            int? userId = ExtractClaims.ExtractUserId(token);
+            int? userId = await extractClaims.ExtractUserId(token);
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
             var result = await dbContext.saveProjects.Where(s => s.UserId == userId).ToListAsync();

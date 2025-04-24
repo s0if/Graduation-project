@@ -31,15 +31,17 @@ namespace Graduation.Controllers.Auth
         private readonly AuthServices authServices;
         private readonly UserManager<ApplicationUser> userManager;
         private readonly SignInManager<ApplicationUser> signInManager;
+        private readonly ExtractClaims extractClaims;
 
         public AuthController(
             ApplicationDbContext dbContext, AuthServices authServices,
-            UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+            UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ExtractClaims extractClaims)
         {
             this.dbContext = dbContext;
             this.authServices = authServices;
             this.userManager = userManager;
             this.signInManager = signInManager;
+            this.extractClaims = extractClaims;
         }
         [HttpPost("Register")]
         public async Task<IActionResult> Register(AuthRegisterDTOs request, bool? WhatsApp)
@@ -240,7 +242,7 @@ namespace Graduation.Controllers.Auth
                 string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
                 if (string.IsNullOrEmpty(token))
                     return Unauthorized(new { message = "Token Is Missing" });
-                int? userId = ExtractClaims.ExtractUserId(token);
+                int? userId = await extractClaims.ExtractUserId(token);
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser resultUser = await userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
@@ -322,7 +324,7 @@ namespace Graduation.Controllers.Auth
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
-            int? userId = ExtractClaims.ExtractUserId(token);
+            int? userId = await extractClaims.ExtractUserId(token);
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
 
@@ -356,7 +358,7 @@ namespace Graduation.Controllers.Auth
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
-            int? userId = ExtractClaims.ExtractUserId(token);
+            int? userId = await extractClaims.ExtractUserId(token);
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
             if (ModelState.IsValid)

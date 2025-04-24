@@ -25,13 +25,17 @@ namespace Graduation.Service
              {
                  new Claim(ClaimTypes.GivenName,user.UserName) ,
                  new Claim(ClaimTypes.Email,user.Email) ,
-                 new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()) 
+                 new Claim(ClaimTypes.NameIdentifier,user.Id.ToString())
              };
             var userRole = await userManager.GetRolesAsync(user);
 
             foreach (var role in userRole)
                 Authclaim.Add(new Claim(ClaimTypes.Role, role));
             var keyAuth = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configurations));
+            var tokenId = Guid.NewGuid().ToString(); 
+            Authclaim.Add(new Claim("TokenId", tokenId));
+            user.CurrentTokenId = tokenId;
+            await userManager.UpdateAsync(user);
             var token = new JwtSecurityToken(
             //optinles
             audience: "GRADUATHION",

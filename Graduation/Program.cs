@@ -50,6 +50,7 @@ namespace Graduation
             builder.Services.AddProblemDetails();
 
             builder.Services.AddScoped<AuthServices>();
+            builder.Services.AddScoped<ExtractClaims>();
             builder.Services.AddAuthentication(
              options =>
              {

@@ -17,11 +17,13 @@ namespace Graduation.Controllers.Address
     {
         private readonly ApplicationDbContext dbContext;
         private readonly UserManager<ApplicationUser> userManager;
+        private readonly ExtractClaims extractClaims;
 
-        public AddressController(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager)
+        public AddressController(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager,ExtractClaims extractClaims)
         {
             this.dbContext = dbContext;
             this.userManager = userManager;
+            this.extractClaims = extractClaims;
         }
         [HttpPost("AddAddress")]
         public async Task<IActionResult> AddAddress(string name)
@@ -29,7 +31,7 @@ namespace Graduation.Controllers.Address
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
-            int? userId = ExtractClaims.ExtractUserId(token);
+            int? userId = await extractClaims.ExtractUserId(token);
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
             ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
@@ -52,7 +54,7 @@ namespace Graduation.Controllers.Address
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
-            int? userId = ExtractClaims.ExtractUserId(token);
+            int? userId = await extractClaims.ExtractUserId(token);
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
             ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
