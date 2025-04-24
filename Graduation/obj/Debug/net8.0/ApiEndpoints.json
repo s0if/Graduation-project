@@ -1071,14 +1071,14 @@
     "ContainingType": "Graduation.Controllers.User.UserOperationsController",
     "Method": "HelpSearch",
     "RelativePath": "UserOperations/HelpSearch",
-    "HttpMethod": "POST",
+    "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "request",
-        "Type": "Graduation.DTOs.Search.HelpSearchDTOs",
-        "IsRequired": true
+        "Name": "Search",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []

@@ -1,6 +1,7 @@
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Graduation.exe
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\appsettings.Development.json
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\appsettings.json
+C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\libman.json
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Graduation.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Graduation.runtimeconfig.json
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Graduation.pdb
@@ -48,6 +49,7 @@ C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Microsoft.SqlServer.Server.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Microsoft.Win32.SystemEvents.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Newtonsoft.Json.dll
+C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\RestSharp.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Scalar.AspNetCore.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Serilog.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Release\net8.0\PubTmp\Out\Serilog.AspNetCore.dll

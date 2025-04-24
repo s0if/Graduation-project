@@ -1,4 +1,5 @@
-﻿using Azure.Storage.Blobs.Models;
+﻿using Azure.Core;
+using Azure.Storage.Blobs.Models;
 using Graduation.Data;
 using Graduation.DTOs.Address;
 using Graduation.DTOs.Admin;
@@ -763,149 +764,131 @@ namespace Graduation.Controllers.User
             return Ok(historyMessage);
         }
 
-        [HttpPost("HelpSearch")]
-        public async Task<IActionResult> HelpSearch([FromBody] HelpSearchDTOs request)
+        [HttpGet("HelpSearch")]
+        public async Task<IActionResult> HelpSearch(string Search)
         {
-            if (request?.Type == null)
-                return BadRequest(new { message = "Type is required (must be 'service' or 'property')" });
 
-            if (request.Type == "service")
+
+
+            var serviceQuery = dbContext.services
+       .Include(s => s.ImageDetails)
+       .Include(s => s.Reviews)
+       .Include(s => s.Address)
+       .Include(s => s.Type)
+       .Include(s => s.User)
+       .Where(s => s.User.UserName == Search || s.Address.Name == Search || s.Type.Name == Search)
+       .AsQueryable();
+
+            var propertyQuery = dbContext.properties
+                .Include(p => p.ImageDetails)
+                .Include(p => p.Reviews)
+                .Include(p => p.Address)
+                .Include(p => p.Type)
+                .Include(p => p.User)
+                .Where(p => p.User.UserName == Search || p.Address.Name == Search || p.Type.Name == Search)
+                .AsQueryable();
+
+
+
+
+            var services = await serviceQuery.ToListAsync();
+            var serviceDTOs = services.Select(item => new GetAllServiceDTOs
             {
-                var serviceQuery = dbContext.services
-                    .Include(s => s.ImageDetails)
-                    .Include(s => s.Reviews)
-                    .Include(s => s.Address)
-                    .Include(s => s.Type)
-                    .Include(s => s.User)
-                    .AsQueryable();
-
-                if (request.LessRangePrice is not null && request.LargeRangePrice is not null)
+                UserName = item.User.UserName,
+                AddressName = item.Address.Name,
+                TypeName = item.Type.Name,
+                PriceRange = item.PriceRange,
+                Description = item.Description,
+                Id = item.Id,
+                userId = item.User.Id,
+                ImageDetails = item.ImageDetails.Select(img => new GetImageDTOs
                 {
-                    serviceQuery = serviceQuery.Where(s => s.PriceRange > request.LessRangePrice &&
-                                                        s.PriceRange < request.LargeRangePrice);
-                }
-                else if (request.LessRangePrice is not null)
+                    Id = img.Id,
+                    Name = img.Image
+                }).ToList(),
+                Reviews = item.Reviews.Select(r => new GetAllReviewDTOs
                 {
-                    serviceQuery = serviceQuery.Where(s => s.PriceRange > request.LessRangePrice);
-                }
-                else if (request.LargeRangePrice is not null)
-                {
-                    serviceQuery = serviceQuery.Where(s => s.PriceRange < request.LargeRangePrice);
-                }
+                    Id = r.Id,
+                    description = r.Description,
+                    date = r.CreateAt,
+                    rating = r.Rating,
+                    UserId = r.UsersID,
+                }).ToList(),
+                AvgRating = item.Reviews.Any() ? item.Reviews.Average(r => r.Rating) : 0
+            }).ToList();
 
-                if (!string.IsNullOrEmpty(request.Address))
-                {
-                    serviceQuery = serviceQuery.Where(s => s.Address.Name == request.Address);
-                }
+            var distinctServices = serviceDTOs
+                .GroupBy(s => new { s.TypeName, s.AddressName, s.PriceRange })
+                .Select(g => g.First())
+                .ToList();
 
-                if (!string.IsNullOrEmpty(request.TypeName))
-                {
-                    serviceQuery = serviceQuery.Where(s => s.Type.Name == request.TypeName);
-                }
-
-                var services = await serviceQuery.ToListAsync();
-                var serviceDTOs = services.Select(item => new GetAllServiceDTOs
-                {
-                    UserName = item.User.UserName,
-                    AddressName = item.Address.Name,
-                    TypeName = item.Type.Name,
-                    PriceRange = item.PriceRange,
-                    Description = item.Description,
-                    Id = item.Id,
-                    userId = item.User.Id,
-                    ImageDetails = item.ImageDetails.Select(img => new GetImageDTOs
-                    {
-                        Id = img.Id,
-                        Name = img.Image
-                    }).ToList(),
-                    Reviews = item.Reviews.Select(r => new GetAllReviewDTOs
-                    {
-                        Id = r.Id,
-                        description = r.Description,
-                        date = r.CreateAt,
-                        rating = r.Rating,
-                        UserId = r.UsersID,
-                    }).ToList(),
-                    AvgRating = item.Reviews.Any() ? item.Reviews.Average(r => r.Rating) : 0
-                }).ToList();
-
-                var distinctServices = serviceDTOs
-                    .GroupBy(s => new { s.TypeName, s.AddressName, s.PriceRange })
-                    .Select(g => g.First())
-                    .ToList();
-
-                return distinctServices.Count > 0
-                    ? Ok(new { message = $"{distinctServices.Count} services found", services = distinctServices })
-                    : BadRequest(new { message = "No services found matching the specified criteria" });
-            }
-            else if (request.Type.ToLower() == "property")
+            var properties = await propertyQuery.ToListAsync();
+            var propertyDTOs = properties.Select(item => new GetAllPropertyDTOs
             {
-                var propertyQuery = dbContext.properties
-                    .Include(p => p.ImageDetails)
-                    .Include(p => p.Reviews)
-                    .Include(p => p.Address)
-                    .Include(p => p.Type)
-                    .Include(p => p.User)
-                    .AsQueryable();
+                Id = item.Id,
+                UserID = item.UsersID,
+                Description = item.Description,
+                TypeName = item.Type.Name,
+                StartAt = item.StartAt,
+                EndAt = item.EndAt,
+                Price = item.Price,
+                AddressName = item.Address.Name,
+                userName = item.User.UserName,
+                ImageDetails = item.ImageDetails.Select(img => new GetImageDTOs
+                {
+                    Id = img.Id,
+                    Name = img.Image
+                }).ToList(),
+                Reviews = item.Reviews.Select(r => new GetAllReviewDTOs
+                {
+                    Id = r.Id,
+                    UserId = r.UsersID,
+                    description = r.Description,
+                    date = r.CreateAt,
+                    rating = r.Rating,
+                }).ToList(),
+                AvgRating = item.Reviews.Any() ? item.Reviews.Average(r => r.Rating) : 0
+            }).ToList();
+            var distinctProperty = propertyDTOs
+                .GroupBy(s => new { s.TypeName, s.AddressName, s.Price })
+                .Select(g => g.First())
+                .ToList();
 
-                if (request.LessRangePrice != null && request.LargeRangePrice != null)
+            bool hasServices = distinctServices.Count > 0;
+            bool hasProperties = distinctProperty.Count > 0;
+            if (!hasServices && !hasProperties)
+            {
+                return NotFound(new
                 {
-                    propertyQuery = propertyQuery.Where(p => p.Price > request.LessRangePrice &&
-                                                          p.Price < request.LargeRangePrice);
-                }
-                else if (request.LessRangePrice != null)
-                {
-                    propertyQuery = propertyQuery.Where(p => p.Price > request.LessRangePrice);
-                }
-                else if (request.LargeRangePrice != null)
-                {
-                    propertyQuery = propertyQuery.Where(p => p.Price < request.LargeRangePrice);
-                }
-
-                if (!string.IsNullOrEmpty(request.Address))
-                {
-                    propertyQuery = propertyQuery.Where(p => p.Address.Name == request.Address);
-                }
-
-                if (!string.IsNullOrEmpty(request.TypeName))
-                {
-                    propertyQuery = propertyQuery.Where(p => p.Type.Name == request.TypeName);
-                }
-
-                var properties = await propertyQuery.ToListAsync();
-                var propertyDTOs = properties.Select(item => new GetAllPropertyDTOs
-                {
-                    Id = item.Id,
-                    UserID = item.UsersID,
-                    Description = item.Description,
-                    TypeName = item.Type.Name,
-                    StartAt = item.StartAt,
-                    EndAt = item.EndAt,
-                    Price = item.Price,
-                    AddressName = item.Address.Name,
-                    userName = item.User.UserName,
-                    ImageDetails = item.ImageDetails.Select(img => new GetImageDTOs
-                    {
-                        Id = img.Id,
-                        Name = img.Image
-                    }).ToList(),
-                    Reviews = item.Reviews.Select(r => new GetAllReviewDTOs
-                    {
-                        Id = r.Id,
-                        UserId = r.UsersID,
-                        description = r.Description,
-                        date = r.CreateAt,
-                        rating = r.Rating,
-                    }).ToList(),
-                    AvgRating = item.Reviews.Any() ? item.Reviews.Average(r => r.Rating) : 0
-                }).ToList();
-
-                return propertyDTOs.Count > 0
-                    ? Ok(new { message = $"{propertyDTOs.Count} properties found", properties = propertyDTOs })
-                    : BadRequest(new { message = "No properties found matching the specified criteria" });
+                    Success = false,
+                    Message = "No services or properties found matching the specified criteria"
+                });
             }
-
-            return BadRequest(new { message = "Invalid type specified. Must be 'service' or 'property'" });
+            return Ok(new
+            {
+                Success = true,
+                Message = "Search results retrieved successfully",
+                Data = new
+                {
+                    Services = hasServices ? new
+                    {
+                        Count = distinctServices.Count,
+                        Items = distinctServices
+                    } : null,
+                    Properties = hasProperties ? new
+                    {
+                        Count = distinctProperty.Count,
+                        Items = distinctProperty
+                    } : null
+                },
+                Summary = new
+                {
+                    TotalServices = hasServices ? distinctServices.Count : 0,
+                    TotalProperties = hasProperties ? distinctProperty.Count : 0,
+                    TotalResults = (hasServices ? distinctServices.Count : 0) +
+                                                 (hasProperties ? distinctProperty.Count : 0)
+                }
+            });
         }
 
     }

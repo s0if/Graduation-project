@@ -1934,29 +1934,19 @@
       }
     },
     "/UserOperations/HelpSearch": {
-      "post": {
+      "get": {
         "tags": [
           "UserOperations"
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/HelpSearchDTOs"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/HelpSearchDTOs"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/HelpSearchDTOs"
-              }
+        "parameters": [
+          {
+            "name": "Search",
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -2271,34 +2261,6 @@
           },
           "newStatus": {
             "type": "boolean"
-          }
-        },
-        "additionalProperties": false
-      },
-      "HelpSearchDTOs": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "nullable": true
-          },
-          "lessRangePrice": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "largeRangePrice": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "typeName": {
-            "type": "string",
-            "nullable": true
-          },
-          "address": {
-            "type": "string",
-            "nullable": true
           }
         },
         "additionalProperties": false
