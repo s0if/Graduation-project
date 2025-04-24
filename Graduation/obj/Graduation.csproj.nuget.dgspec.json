@@ -84,6 +84,10 @@
               "target": "Package",
               "version": "[8.0.13, )"
             },
+            "RestSharp": {
+              "target": "Package",
+              "version": "[112.1.0, )"
+            },
             "Scalar.AspNetCore": {
               "target": "Package",
               "version": "[2.0.0, )"

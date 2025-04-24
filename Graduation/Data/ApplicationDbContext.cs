@@ -20,6 +20,7 @@ namespace Graduation.Data
             builder.Entity<Review>().HasOne(r=>r.Services).WithMany(s=>s.Reviews).HasForeignKey(r=>r.ServiceId).OnDelete(deleteBehavior: DeleteBehavior.Restrict);
             builder.Entity<Review>().HasOne(r => r.Properties).WithMany(p=>p.Reviews).HasForeignKey(r => r.PropertyId).OnDelete(deleteBehavior: DeleteBehavior.Restrict);
             
+            builder.Entity<ApplicationUser>().HasIndex(u=>u.PhoneNumber).IsUnique();
         }
         public DbSet<ApplicationUser> users { get; set; }
         public DbSet<AdvertisementProject> advertisements { get; set; }

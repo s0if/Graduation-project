@@ -9,6 +9,7 @@ using Graduation.DTOs.Message;
 using Graduation.DTOs.Profile;
 using Graduation.DTOs.PropertyToProject;
 using Graduation.DTOs.Reviews;
+using Graduation.DTOs.Search;
 using Graduation.DTOs.ServiceToProject;
 using Graduation.Helpers;
 using Graduation.Model;
@@ -534,7 +535,7 @@ namespace Graduation.Controllers.User
 
         }
         [HttpPost("SendEmail")]
-        public async Task<IActionResult> SendEmail(SendEmailDTOs request)
+        public async Task<IActionResult> SendEmail(SendEmailDTOs request, bool? whatsApp)
         {
             if (ModelState.IsValid)
             {
@@ -567,7 +568,14 @@ namespace Graduation.Controllers.User
                                 await dbContext.images.AddAsync(imageDetails);
                                 await dbContext.SaveChangesAsync();
                                 var imageName = imageDetails.Image;
-                                Body = $@"
+                                if (whatsApp is true)
+                                {
+                                    Body = $"{request.Body}\n\n";
+                                    var returnWhatsapp = await WhatsAppService.SendMessageAsync(user.PhoneNumber, Body, imageName);
+                                    return Ok(new { returnWhatsapp });
+                                }
+                                else
+                                    Body = $@"
                                     <html>
                                     <body>
                                         <p>{request.Body}</p>
@@ -577,7 +585,15 @@ namespace Graduation.Controllers.User
                             }
                             if (Body == "")
                             {
-                                Body = $@"
+                                if (whatsApp is true)
+                                {
+                                    Body = $"{request.Body}";
+                                    var returnWhatsapp = await WhatsAppService.SendMessageAsync(user.PhoneNumber, Body);
+                                    return Ok(new { returnWhatsapp });
+
+                                }
+                                else
+                                    Body = $@"
                                     <html>
                                     <body>
                                         <p>{request.Body}</p>
@@ -585,6 +601,7 @@ namespace Graduation.Controllers.User
                                     </body>
                                     </html>";
                             }
+
                             EmailDTOs email = new EmailDTOs()
                             {
                                 Subject = request.Title,
@@ -595,67 +612,6 @@ namespace Graduation.Controllers.User
                             return Ok(new { mwssage = "Send email successful" });
                         }
                         return BadRequest(new { message = "not found user" });
-                    }
-                    else if (request.UsersId is not null)
-                    {
-                        List<ApplicationUser> users= new List<ApplicationUser>();
-                        foreach (var item in request.UsersId)
-                        {
-                            
-                            ApplicationUser user = await dbContext.users.FindAsync(item);
-                            
-                           
-                            if (user is not null)
-                            {
-                                users.Add(user);
-                                continue;
-                            }
-                            return BadRequest(new { message = $"User with ID {item} not found." });
-                        }
-                        if (users.Count > 0)
-                        {
-                            foreach (var item in users)
-                            {
-                                
-                                if (request.Image is not null)
-                                {
-
-                                    ImageDetails imageDetails = new ImageDetails()
-                                    {
-                                        Image = await FileSettings.UploadFileAsync(request.Image),
-                                    };
-                                    await dbContext.images.AddAsync(imageDetails);
-                                    await dbContext.SaveChangesAsync();
-                                    var imageName = imageDetails.Image;
-                                    Body = $@"
-                                            <html>
-                                            <body>
-                                                <p>{request.Body}</p>
-                                                <img src='{imageName}' alt='Embedded Image' style='max-width: 50%; height: auto;'/>
-                                            </body>
-                                            </html>";
-                                }
-                                if (Body == "")
-                                {
-                                    Body = $@"
-                                            <html>
-                                            <body>
-                                                <p>{request.Body}</p>
-                                   
-                                            </body>
-                                            </html>";
-                                }
-                                EmailDTOs email = new EmailDTOs()
-                                {
-                                    Subject = request.Title,
-                                    Recivers = item.Email,
-                                    Body = Body
-                                };
-                                EmailSetting.SendEmail(email);
-                                return Ok(new { mwssage = "Send email successful" });
-                            }
-                        }
-                           
                     }
                     else
                     {
@@ -672,21 +628,46 @@ namespace Graduation.Controllers.User
                                 await dbContext.images.AddAsync(imageDetails);
                                 await dbContext.SaveChangesAsync();
                                 var imageName = imageDetails.Image;
-                                Body = $@"
+                                if (whatsApp is true)
+                                {
+                                    Body = $"{request.Body}\n\n";
+                                    var returnWhatsapp = "";
+                                    foreach (var user in allUser)
+                                    {
+
+                                        returnWhatsapp = await WhatsAppService.SendMessageAsync(user.PhoneNumber, Body, imageName);
+                                    }
+                                    return Ok(new { returnWhatsapp });
+                                }
+                                else
+                                    Body = $@"
                                     <html>
                                         <body>
                                             <img src='{imageName}' alt='Embedded Image' style='max-width: 50%; height: auto; display: block; margin: auto;'/>
-                                            <p>{request.Body}</p>
+                                            {request.Body}
                                         </body>
                                     </html> ";
 
                             }
                             if (Body == "")
                             {
-                                Body = $@"
+                                if (whatsApp is true)
+                                {
+                                    Body = $"{request.Body}";
+                                    var returnWhatsapp = "";
+                                    foreach (var user in allUser)
+                                    {
+
+                                        returnWhatsapp = await WhatsAppService.SendMessageAsync(user.PhoneNumber, Body);
+                                    }
+                                    return Ok(new { returnWhatsapp });
+
+                                }
+                                else
+                                    Body = $@"
                                     <html>
                                     <body>
-                                        <p>{request.Body}</p>
+                                        {request.Body}
                                    
                                     </body>
                                     </html>";
@@ -781,5 +762,151 @@ namespace Graduation.Controllers.User
 
             return Ok(historyMessage);
         }
+
+        [HttpPost("HelpSearch")]
+        public async Task<IActionResult> HelpSearch([FromBody] HelpSearchDTOs request)
+        {
+            if (request?.Type == null)
+                return BadRequest(new { message = "Type is required (must be 'service' or 'property')" });
+
+            if (request.Type == "service")
+            {
+                var serviceQuery = dbContext.services
+                    .Include(s => s.ImageDetails)
+                    .Include(s => s.Reviews)
+                    .Include(s => s.Address)
+                    .Include(s => s.Type)
+                    .Include(s => s.User)
+                    .AsQueryable();
+
+                if (request.LessRangePrice is not null && request.LargeRangePrice is not null)
+                {
+                    serviceQuery = serviceQuery.Where(s => s.PriceRange > request.LessRangePrice &&
+                                                        s.PriceRange < request.LargeRangePrice);
+                }
+                else if (request.LessRangePrice is not null)
+                {
+                    serviceQuery = serviceQuery.Where(s => s.PriceRange > request.LessRangePrice);
+                }
+                else if (request.LargeRangePrice is not null)
+                {
+                    serviceQuery = serviceQuery.Where(s => s.PriceRange < request.LargeRangePrice);
+                }
+
+                if (!string.IsNullOrEmpty(request.Address))
+                {
+                    serviceQuery = serviceQuery.Where(s => s.Address.Name == request.Address);
+                }
+
+                if (!string.IsNullOrEmpty(request.TypeName))
+                {
+                    serviceQuery = serviceQuery.Where(s => s.Type.Name == request.TypeName);
+                }
+
+                var services = await serviceQuery.ToListAsync();
+                var serviceDTOs = services.Select(item => new GetAllServiceDTOs
+                {
+                    UserName = item.User.UserName,
+                    AddressName = item.Address.Name,
+                    TypeName = item.Type.Name,
+                    PriceRange = item.PriceRange,
+                    Description = item.Description,
+                    Id = item.Id,
+                    userId = item.User.Id,
+                    ImageDetails = item.ImageDetails.Select(img => new GetImageDTOs
+                    {
+                        Id = img.Id,
+                        Name = img.Image
+                    }).ToList(),
+                    Reviews = item.Reviews.Select(r => new GetAllReviewDTOs
+                    {
+                        Id = r.Id,
+                        description = r.Description,
+                        date = r.CreateAt,
+                        rating = r.Rating,
+                        UserId = r.UsersID,
+                    }).ToList(),
+                    AvgRating = item.Reviews.Any() ? item.Reviews.Average(r => r.Rating) : 0
+                }).ToList();
+
+                var distinctServices = serviceDTOs
+                    .GroupBy(s => new { s.TypeName, s.AddressName, s.PriceRange })
+                    .Select(g => g.First())
+                    .ToList();
+
+                return distinctServices.Count > 0
+                    ? Ok(new { message = $"{distinctServices.Count} services found", services = distinctServices })
+                    : BadRequest(new { message = "No services found matching the specified criteria" });
+            }
+            else if (request.Type.ToLower() == "property")
+            {
+                var propertyQuery = dbContext.properties
+                    .Include(p => p.ImageDetails)
+                    .Include(p => p.Reviews)
+                    .Include(p => p.Address)
+                    .Include(p => p.Type)
+                    .Include(p => p.User)
+                    .AsQueryable();
+
+                if (request.LessRangePrice != null && request.LargeRangePrice != null)
+                {
+                    propertyQuery = propertyQuery.Where(p => p.Price > request.LessRangePrice &&
+                                                          p.Price < request.LargeRangePrice);
+                }
+                else if (request.LessRangePrice != null)
+                {
+                    propertyQuery = propertyQuery.Where(p => p.Price > request.LessRangePrice);
+                }
+                else if (request.LargeRangePrice != null)
+                {
+                    propertyQuery = propertyQuery.Where(p => p.Price < request.LargeRangePrice);
+                }
+
+                if (!string.IsNullOrEmpty(request.Address))
+                {
+                    propertyQuery = propertyQuery.Where(p => p.Address.Name == request.Address);
+                }
+
+                if (!string.IsNullOrEmpty(request.TypeName))
+                {
+                    propertyQuery = propertyQuery.Where(p => p.Type.Name == request.TypeName);
+                }
+
+                var properties = await propertyQuery.ToListAsync();
+                var propertyDTOs = properties.Select(item => new GetAllPropertyDTOs
+                {
+                    Id = item.Id,
+                    UserID = item.UsersID,
+                    Description = item.Description,
+                    TypeName = item.Type.Name,
+                    StartAt = item.StartAt,
+                    EndAt = item.EndAt,
+                    Price = item.Price,
+                    AddressName = item.Address.Name,
+                    userName = item.User.UserName,
+                    ImageDetails = item.ImageDetails.Select(img => new GetImageDTOs
+                    {
+                        Id = img.Id,
+                        Name = img.Image
+                    }).ToList(),
+                    Reviews = item.Reviews.Select(r => new GetAllReviewDTOs
+                    {
+                        Id = r.Id,
+                        UserId = r.UsersID,
+                        description = r.Description,
+                        date = r.CreateAt,
+                        rating = r.Rating,
+                    }).ToList(),
+                    AvgRating = item.Reviews.Any() ? item.Reviews.Average(r => r.Rating) : 0
+                }).ToList();
+
+                return propertyDTOs.Count > 0
+                    ? Ok(new { message = $"{propertyDTOs.Count} properties found", properties = propertyDTOs })
+                    : BadRequest(new { message = "No properties found matching the specified criteria" });
+            }
+
+            return BadRequest(new { message = "Invalid type specified. Must be 'service' or 'property'" });
+        }
+
     }
 }

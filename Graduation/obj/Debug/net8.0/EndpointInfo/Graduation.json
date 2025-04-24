@@ -312,6 +312,15 @@
         "tags": [
           "Auth"
         ],
+        "parameters": [
+          {
+            "name": "WhatsApp",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -346,6 +355,20 @@
         "parameters": [
           {
             "name": "email",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "phone",
             "in": "query",
             "schema": {
               "type": "string"
@@ -392,22 +415,6 @@
       "post": {
         "tags": [
           "Auth"
-        ],
-        "parameters": [
-          {
-            "name": "email",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "token",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
         ],
         "requestBody": {
           "content": {
@@ -505,6 +512,20 @@
         "parameters": [
           {
             "name": "email",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "phone",
             "in": "query",
             "schema": {
               "type": "string"
@@ -1825,14 +1846,10 @@
             }
           },
           {
-            "name": "UsersId",
+            "name": "whatsApp",
             "in": "query",
             "schema": {
-              "type": "array",
-              "items": {
-                "type": "integer",
-                "format": "int32"
-              }
+              "type": "boolean"
             }
           }
         ],
@@ -1909,6 +1926,37 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/UserOperations/HelpSearch": {
+      "post": {
+        "tags": [
+          "UserOperations"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HelpSearchDTOs"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HelpSearchDTOs"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/HelpSearchDTOs"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK"
@@ -2105,15 +2153,22 @@
       },
       "AuthLoginDTOs": {
         "required": [
-          "email",
           "password"
         ],
         "type": "object",
         "properties": {
           "email": {
-            "minLength": 1,
             "type": "string",
-            "format": "email"
+            "format": "email",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
           },
           "password": {
             "minLength": 8,
@@ -2125,7 +2180,6 @@
       },
       "AuthRegisterDTOs": {
         "required": [
-          "email",
           "name",
           "password",
           "phone"
@@ -2138,9 +2192,9 @@
             "type": "string"
           },
           "email": {
-            "minLength": 1,
             "type": "string",
-            "format": "email"
+            "format": "email",
+            "nullable": true
           },
           "password": {
             "minLength": 8,
@@ -2165,15 +2219,22 @@
       "AuthRestPasswordDTOs": {
         "required": [
           "code",
-          "email",
           "newPassword"
         ],
         "type": "object",
         "properties": {
           "email": {
-            "minLength": 1,
             "type": "string",
-            "format": "email"
+            "format": "email",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
           },
           "newPassword": {
             "minLength": 8,
@@ -2210,6 +2271,34 @@
           },
           "newStatus": {
             "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "HelpSearchDTOs": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "lessRangePrice": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "largeRangePrice": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "typeName": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "QjJ/v5Qpm9g=",
+  "dgSpecHash": "phACw2Mk+hE=",
   "success": true,
   "projectFilePath": "C:\\Users\\Saif\\Desktop\\full stack\\back end\\API\\Graduation\\Graduation\\Graduation.csproj",
   "expectedPackageFiles": [
@@ -82,6 +82,7 @@
     "C:\\Users\\Saif\\.nuget\\packages\\microsoft.win32.systemevents\\6.0.0\\microsoft.win32.systemevents.6.0.0.nupkg.sha512",
     "C:\\Users\\Saif\\.nuget\\packages\\mono.texttemplating\\2.2.1\\mono.texttemplating.2.2.1.nupkg.sha512",
     "C:\\Users\\Saif\\.nuget\\packages\\newtonsoft.json\\11.0.2\\newtonsoft.json.11.0.2.nupkg.sha512",
+    "C:\\Users\\Saif\\.nuget\\packages\\restsharp\\112.1.0\\restsharp.112.1.0.nupkg.sha512",
     "C:\\Users\\Saif\\.nuget\\packages\\scalar.aspnetcore\\2.0.0\\scalar.aspnetcore.2.0.0.nupkg.sha512",
     "C:\\Users\\Saif\\.nuget\\packages\\serilog\\4.2.0\\serilog.4.2.0.nupkg.sha512",
     "C:\\Users\\Saif\\.nuget\\packages\\serilog.aspnetcore\\9.0.0\\serilog.aspnetcore.9.0.0.nupkg.sha512",

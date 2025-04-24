@@ -18,13 +18,13 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="RestSharp" Version="112.1.0" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.0.0" />    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Files\ImagesService\" />
-    <Folder Include="Files\ImagesProperty\" />
+    <Folder Include="Files\" />
   </ItemGroup>
 
 </Project>

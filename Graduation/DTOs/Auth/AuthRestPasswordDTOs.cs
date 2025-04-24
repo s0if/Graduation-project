@@ -4,9 +4,11 @@ namespace Graduation.DTOs.Auth
 {
     public class AuthRestPasswordDTOs
     {
-        [Required]
+
         [EmailAddress]
-        public string Email { get; set; }
+        public string? Email { get; set; }
+        public string? Name { get; set; }
+        public string? Phone { get; set; }
         [Required]
         [DataType(DataType.Password)]
         [MinLength(8)]

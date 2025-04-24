@@ -18,6 +18,8 @@ using Microsoft.AspNetCore.Authorization;
 using Graduation.DTOs.TypeToProject;
 using System.Collections.Generic;
 using Microsoft.Extensions.Azure;
+using System.Numerics;
+using Azure.Core;
 
 namespace Graduation.Controllers.Auth
 {
@@ -40,26 +42,56 @@ namespace Graduation.Controllers.Auth
             this.signInManager = signInManager;
         }
         [HttpPost("Register")]
-        public async Task<IActionResult> Register(AuthRegisterDTOs request)
+        public async Task<IActionResult> Register(AuthRegisterDTOs request, bool? WhatsApp)
         {
             if (ModelState.IsValid)
             {
-                ApplicationUser application = await userManager.FindByEmailAsync(request.Email);
-                if (application is not null)
+                if (request.Email is not null || WhatsApp is false)
                 {
-                    if (application.EmailConfirmed == false)
+
+                    ApplicationUser applicationEmail = await userManager.FindByEmailAsync(request.Email);
+                    if (applicationEmail is not null)
                     {
-                        await userManager.DeleteAsync(application);
+                        if (applicationEmail.EmailConfirmed == false)
+                        {
+                            await userManager.DeleteAsync(applicationEmail);
+                        }
                     }
                 }
 
-                ApplicationUser user = new ApplicationUser()
+
+
+                ApplicationUser applicationName = await userManager.FindByNameAsync(request.Name);
+                if (applicationName is not null)
                 {
-                    Email = request.Email,
-                    UserName = request.Name,
-                    PhoneNumber = request.Phone,
-                    AddressId = request.addressId
-                };
+
+                    if (applicationName.EmailConfirmed == false)
+                    {
+                        await userManager.DeleteAsync(applicationName);
+                    }
+                }
+
+                ApplicationUser user = new ApplicationUser();
+                if (request.Email is not null)
+                {
+
+                    user = new ApplicationUser()
+                    {
+                        Email = request.Email,
+                        UserName = request.Name,
+                        PhoneNumber = request.Phone,
+                        AddressId = request.addressId
+                    };
+                }
+                else
+                {
+                    user = new ApplicationUser()
+                    {
+                        UserName = request.Name,
+                        PhoneNumber = request.Phone,
+                        AddressId = request.addressId
+                    };
+                }
                 IdentityResult result = await userManager.CreateAsync(user, request.Password);
                 if (result.Succeeded)
                 {
@@ -74,6 +106,11 @@ namespace Graduation.Controllers.Auth
                     user.ConfirmationCodeExpiry = DateTime.Today.Add(DateTime.Now.TimeOfDay).AddMinutes(20);
                     await userManager.UpdateAsync(user);
                     IdentityResult resultRole = await userManager.AddToRoleAsync(user, request.role);
+                    if (request.Email is null || WhatsApp is true)
+                    {
+                        var returnWhatsapp = await WhatsAppService.SendMessageAsync(user.PhoneNumber, $"تأكيد البريد الإلكتروني  \r\n\r\nشكرًا لتسجيلك!  \r\n\r\n🔐 **كود التأكيد**:  \r\n{user.ConfirmationCode}  \r\n\r\n⏳ *هذا الكود صالح لمدة 20 دقيقة فقط.*  \r\n\r\n⚠️ إذا لم تطلب هذا الكود، يُرجى تجاهل هذه الرسالة.  ");
+                        return Ok(new { returnWhatsapp });
+                    }
                     string htmlBody = $@"
                         <!DOCTYPE html>
                         <html dir='rtl' lang='ar'>
@@ -140,7 +177,7 @@ namespace Graduation.Controllers.Auth
                     };
 
                     EmailSetting.SendEmail(emailDTOs);
-                    return Ok("User registered successfully. Confirmation email sent.");
+                    return Ok(new { message = $"User registered successfully. Confirmation email sent." });
 
 
                 }
@@ -151,12 +188,29 @@ namespace Graduation.Controllers.Auth
 
         }
         [HttpPost("ConfirmEmail")]
-        public async Task<IActionResult> ConfirmEmail(string email, string code)
+        public async Task<IActionResult> ConfirmEmail(string? email, string? name, string? phone, string code)
         {
             if (ModelState.IsValid)
             {
-                ApplicationUser user = await userManager.FindByEmailAsync(email);
-                if (user is not null && user.Email == email)
+                ApplicationUser user = new ApplicationUser();
+                if (!string.IsNullOrEmpty(email))
+                {
+                    user = await userManager.FindByEmailAsync(email);
+
+                }
+                else if (!string.IsNullOrEmpty(name))
+                {
+                    user = await userManager.FindByNameAsync(name);
+                }
+                else if (!string.IsNullOrEmpty(phone))
+                {
+                    user = await userManager.Users.Where(u => u.PhoneNumber == phone).FirstOrDefaultAsync();
+                }
+                else
+                {
+                    return BadRequest(new { message = "enter username or email or phone" });
+                }
+                if (user is not null && (user.Email == email || user.UserName == name || user.PhoneNumber == phone))
                 {
                     if (user.ConfirmationCode == code)
                     {
@@ -205,11 +259,28 @@ namespace Graduation.Controllers.Auth
             return NotFound(ModelState);
         }
         [HttpPost("Login")]
-        public async Task<IActionResult> Login(AuthLoginDTOs request, string? email, string? token)
+        public async Task<IActionResult> Login(AuthLoginDTOs request)
         {
             if (ModelState.IsValid)
             {
-                ApplicationUser user = await userManager.FindByEmailAsync(request.Email);
+                ApplicationUser user = new ApplicationUser();
+                if (!string.IsNullOrEmpty(request.Email))
+                {
+                    user = await userManager.FindByEmailAsync(request.Email);
+
+                }
+                else if (!string.IsNullOrEmpty(request.Name))
+                {
+                    user = await userManager.FindByNameAsync(request.Name);
+                }
+                else if (!string.IsNullOrEmpty(request.Phone))
+                {
+                    user = await userManager.Users.Where(u => u.PhoneNumber == request.Phone).FirstOrDefaultAsync();
+                }
+                else
+                {
+                    return BadRequest(new { message = "enter username or email or phone" });
+                }
                 if (user is not null)
                 {
                     var result = await signInManager.PasswordSignInAsync(user, request.Password, true, true);
@@ -390,11 +461,28 @@ namespace Graduation.Controllers.Auth
             return NotFound(ModelState);
         }
         [HttpPost("GenerateRestPassword")]
-        public async Task<IActionResult> GenerateRestPassword(string email)
+        public async Task<IActionResult> GenerateRestPassword(string? email, string? name, string? phone)
         {
             if (ModelState.IsValid)
             {
-                var user = await userManager.FindByEmailAsync(email);
+                ApplicationUser user = new ApplicationUser();
+                if (!string.IsNullOrEmpty(email))
+                {
+                    user = await userManager.FindByEmailAsync(email);
+
+                }
+                else if (!string.IsNullOrEmpty(name))
+                {
+                    user = await userManager.FindByNameAsync(name);
+                }
+                else if (!string.IsNullOrEmpty(phone))
+                {
+                    user = await userManager.Users.Where(u => u.PhoneNumber == phone).FirstOrDefaultAsync();
+                }
+                else
+                {
+                    return BadRequest(new { message = "enter username or email or phone" });
+                }
                 if (user is not null)
                 {
                     string code = new Random().Next(100000, 999999).ToString();
@@ -402,6 +490,11 @@ namespace Graduation.Controllers.Auth
                     user.ConfirmationCode = code;
                     user.ConfirmationCodeExpiry = DateTime.Today.Add(DateTime.Now.TimeOfDay).AddMinutes(20);
                     await userManager.UpdateAsync(user);
+                    if (string.IsNullOrEmpty(user.Email) || phone is not null)
+                    {
+                        var returnWhatsapp = await WhatsAppService.SendMessageAsync(user.PhoneNumber, $"تأكيد البريد الإلكتروني  \r\n\r\nشكرًا لتسجيلك!  \r\n\r\n🔐 **كود التأكيد**:  \r\n{user.ConfirmationCode}  \r\n\r\n⏳ *هذا الكود صالح لمدة 20 دقيقة فقط.*  \r\n\r\n⚠️ إذا لم تطلب هذا الكود، يُرجى تجاهل هذه الرسالة.  ");
+                        return Ok(new { returnWhatsapp });
+                    }
                     string htmlBody = $@"
                             <!DOCTYPE html>
                             <html dir='rtl' lang='ar'>
@@ -483,7 +576,24 @@ namespace Graduation.Controllers.Auth
         {
             if (ModelState.IsValid)
             {
-                var user = await userManager.FindByEmailAsync(request.Email);
+                ApplicationUser user = new ApplicationUser();
+                if (!string.IsNullOrEmpty(request.Email))
+                {
+                    user = await userManager.FindByEmailAsync(request.Email);
+
+                }
+                else if (!string.IsNullOrEmpty(request.Name))
+                {
+                    user = await userManager.FindByNameAsync(request.Name);
+                }
+                else if (!string.IsNullOrEmpty(request.Phone))
+                {
+                    user = await userManager.Users.Where(u => u.PhoneNumber == request.Phone).FirstOrDefaultAsync();
+                }
+                else
+                {
+                    return BadRequest(new { message = "enter username or email or phone" });
+                }
                 if (user is not null)
                 {
                     if (request.code == user.ConfirmationCode)

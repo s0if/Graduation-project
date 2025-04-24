@@ -297,16 +297,19 @@ namespace Graduation.Controllers.PropertyToProject
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                var property=await dbContext.properties.FindAsync(request.PropertyId);
-                var reviewResult=await dbContext.reviews.Where(r=>r.UsersID == userId&&r.PropertyId==request.PropertyId).ToListAsync();
+                var role = await userManager.GetRolesAsync(requestUser);
+                var property = await dbContext.properties.FindAsync(request.PropertyId);
+                var reviewResult = await dbContext.reviews.Where(r => r.UsersID == userId && r.PropertyId == request.PropertyId).ToListAsync();
                 if (reviewResult.Any())
                 {
                     return BadRequest(new { Message = "You didn't send a review." });
                 }
-                if(property is null)
+                if (property is null)
                 {
-                    return NotFound(new {message="not found property"});
+                    return NotFound(new { message = "not found property" });
                 }
+                if (role.Contains("admin"))
+                    return Unauthorized(new { message = "can't admin add this review" });
                 Review review = new Review
                 {
                     Description = request.Description,
@@ -493,8 +496,5 @@ namespace Graduation.Controllers.PropertyToProject
 
             return Ok(new { message = true, AllProperty = getProperty });
         }
-
-
-
     }
 }

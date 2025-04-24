@@ -34,7 +34,7 @@ namespace Graduation
                 option.Password.RequireUppercase = true;
                 option.Password.RequireDigit = true;
                 option.Password.RequireNonAlphanumeric = true;
-                option.User.RequireUniqueEmail = true;
+                option.User.RequireUniqueEmail = false;
                 option.SignIn.RequireConfirmedEmail = true;
 
             }).AddEntityFrameworkStores<ApplicationDbContext>()
@@ -90,7 +90,6 @@ namespace Graduation
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-           
             builder.Services.AddSignalR();
             var app = builder.Build();
 

@@ -295,6 +295,19 @@ namespace Graduation.Controllers.ServiceToProject
                     return Unauthorized(new { message = "Token Is Missing" });
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
+                var role = await userManager.GetRolesAsync(requestUser);
+                var services = await dbContext.services.FindAsync(request.ServiceId);
+                var reviewResult = await dbContext.reviews.Where(r => r.UsersID == userId && r.ServiceId == request.ServiceId).ToListAsync();
+                if (reviewResult.Any())
+                {
+                    return BadRequest(new { Message = "You didn't send a review." });
+                }
+                if (services is null)
+                {
+                    return NotFound(new { message = "not found the service" });
+                }
+                if (role.Contains("admin"))
+                    return Unauthorized(new { message = "can't admin add this review" });
                 Review review = new Review
                 {
                     Description = request.Description,

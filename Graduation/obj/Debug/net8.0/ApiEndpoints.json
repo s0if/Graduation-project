@@ -239,6 +239,16 @@
         "IsRequired": false
       },
       {
+        "Name": "name",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "phone",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
         "Name": "code",
         "Type": "System.String",
         "IsRequired": false
@@ -258,6 +268,16 @@
         "Name": "email",
         "Type": "System.String",
         "IsRequired": false
+      },
+      {
+        "Name": "name",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "phone",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -274,16 +294,6 @@
         "Name": "request",
         "Type": "Graduation.DTOs.Auth.AuthLoginDTOs",
         "IsRequired": true
-      },
-      {
-        "Name": "email",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "token",
-        "Type": "System.String",
-        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -300,6 +310,11 @@
         "Name": "request",
         "Type": "Graduation.DTOs.Auth.AuthRegisterDTOs",
         "IsRequired": true
+      },
+      {
+        "Name": "WhatsApp",
+        "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -1054,6 +1069,22 @@
   },
   {
     "ContainingType": "Graduation.Controllers.User.UserOperationsController",
+    "Method": "HelpSearch",
+    "RelativePath": "UserOperations/HelpSearch",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Graduation.DTOs.Search.HelpSearchDTOs",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.User.UserOperationsController",
     "Method": "GetChatHistory",
     "RelativePath": "UserOperations/HistoryMessage",
     "HttpMethod": "GET",
@@ -1123,8 +1154,8 @@
         "IsRequired": false
       },
       {
-        "Name": "UsersId",
-        "Type": "System.Collections.Generic.List\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "Name": "whatsApp",
+        "Type": "System.Nullable\u00601[[System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
       }
     ],

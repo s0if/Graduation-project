@@ -18,7 +18,8 @@
           "Microsoft.EntityFrameworkCore.Tools": "8.0.13",
           "Scalar.AspNetCore": "2.0.0",
           "Serilog.AspNetCore": "9.0.0",
-          "Swashbuckle.AspNetCore": "6.6.2"
+          "Swashbuckle.AspNetCore": "6.6.2",
+          "System.Net.Http.Json": "8.0.1"
         },
         "runtime": {
           "Graduation.dll": {}
@@ -1330,6 +1331,7 @@
           }
         }
       },
+      "System.Net.Http.Json/8.0.1": {},
       "System.Net.WebSockets.WebSocketProtocol/5.1.0": {
         "runtime": {
           "lib/net6.0/System.Net.WebSockets.WebSocketProtocol.dll": {
@@ -2238,6 +2240,13 @@
       "sha512": "sha512-ntFHArH3I4Lpjf5m4DCXQHJuGwWPNVJPaAvM95Jy/u+2Yzt2ryiyIN04LAogkjP9DeRcEOiviAjQotfmPq/FrQ==",
       "path": "system.memory.data/6.0.0",
       "hashPath": "system.memory.data.6.0.0.nupkg.sha512"
+    },
+    "System.Net.Http.Json/8.0.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-F423ZLoJFYg1s6iA+Y7BLflVKjEK5XEA2+Z9CHbxJEUtS3+R5pgnFN499QzriRjYpOu6kS2Crd2YBkOFDHrblg==",
+      "path": "system.net.http.json/8.0.1",
+      "hashPath": "system.net.http.json.8.0.1.nupkg.sha512"
     },
     "System.Net.WebSockets.WebSocketProtocol/5.1.0": {
       "type": "package",
