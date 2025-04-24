@@ -15,6 +15,8 @@ namespace Graduation.DTOs.ServiceToProject
         public string Description { get; set; }
         public double PriceRange { get; set; }
         public double AvgRating { get; set; }
+        public double? lat { get; set; }
+        public double? lng { get; set; }
         public string TypeName { get; set; }
 
         public string AddressName { get; set; }

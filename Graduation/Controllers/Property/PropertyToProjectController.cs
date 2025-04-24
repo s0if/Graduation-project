@@ -56,6 +56,8 @@ namespace Graduation.Controllers.PropertyToProject
                         UsersID = requestUser.Id,
                         AddressId = request.AddressId,
                         Price = request.Price,
+                        lat=request.lat,
+                        lng=request.lng,
                     };
                     await dbContext.properties.AddAsync(project);
                     await dbContext.SaveChangesAsync();
@@ -66,6 +68,8 @@ namespace Graduation.Controllers.PropertyToProject
                         StartAt = project.StartAt,
                         EndAt = project.EndAt,
                         TypeId = project.TypeId,
+                        lat = request.lat,
+                        lng = request.lng,
                         userId = project.UsersID,
                         addressId = project.AddressId,
                         Price = project.Price,
@@ -419,6 +423,8 @@ namespace Graduation.Controllers.PropertyToProject
                     Price = s.Price,
                     AddressName = s.Address.Name,
                     userName = s.User.UserName,
+                    lat=s.lat,
+                    lng=s.lng,
                     ImageDetails = s.ImageDetails.Select(img => new GetImageDTOs
                     {
                         Id = img.Id,
@@ -468,6 +474,8 @@ namespace Graduation.Controllers.PropertyToProject
                 TypeName = Property.Type?.Name ?? "Unknown",
                 StartAt = Property.StartAt,
                 EndAt = Property.EndAt,
+                lat= Property.lat,
+                lng= Property.lng,  
                 AddressName = Property.Address?.Name ?? "Unknown",
                 userName = Property.User.UserName,
                 ImageDetails = Property.ImageDetails?

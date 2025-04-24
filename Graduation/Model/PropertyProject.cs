@@ -9,6 +9,8 @@ namespace Graduation.Model
         public DateTime StartAt { get; set; }
         public DateTime EndAt { get; set; }
         public double Price { get; set; }
+        public double? lat { get; set; }
+        public double? lng { get; set; }
 
         [ForeignKey(nameof(User))]
         public int UsersID { get; set; }

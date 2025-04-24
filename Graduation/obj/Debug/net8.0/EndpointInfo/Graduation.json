@@ -2001,6 +2001,16 @@
           "addressId": {
             "type": "integer",
             "format": "int32"
+          },
+          "lat": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "lng": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -2077,6 +2087,16 @@
           "addressId": {
             "type": "integer",
             "format": "int32"
+          },
+          "lat": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "lng": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
           }
         },
         "additionalProperties": false

@@ -40,12 +40,13 @@ namespace Graduation.Service
             //optinles
             audience: "GRADUATHION",
             issuer: "GRADUATHION PROJECT",
+            
             //requierd
             claims: Authclaim,
             signingCredentials: new SigningCredentials(keyAuth,
            SecurityAlgorithms.HmacSha256Signature),
             //can change dateTime
-            expires: DateTime.UtcNow.AddHours(6)
+            expires: DateTime.UtcNow.AddHours(1)
             );
             return new JwtSecurityTokenHandler().WriteToken(token);
         }

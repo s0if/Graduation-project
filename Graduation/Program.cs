@@ -64,6 +64,8 @@ namespace Graduation
                  {
                      ValidateIssuer = true,
                      ValidateAudience = true,
+                     ClockSkew = TimeSpan.Zero ,
+                     
                      //from model AuthServices
                      ValidIssuer = "GRADUATHION PROJECT",
                      ValidAudience = "GRADUATHION",
@@ -113,6 +115,7 @@ namespace Graduation
             app.UseHttpsRedirection();
 
             app.UseCors("allowAll");
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
