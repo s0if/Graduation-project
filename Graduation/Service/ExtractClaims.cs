@@ -21,6 +21,11 @@ namespace Graduation.Service
             JwtSecurityTokenHandler TokenHandler = new JwtSecurityTokenHandler();
             JwtSecurityToken jwtToken = TokenHandler.ReadJwtToken(Token);
 
+            if (jwtToken.ValidTo < DateTime.UtcNow)
+          
+                return null;
+           
+
             Claim userIdClaim = jwtToken.Claims.FirstOrDefault(type => type.Type == ClaimTypes.NameIdentifier);
             string? tokenIdClim = jwtToken.Claims.FirstOrDefault(c => c.Type == "TokenId")?.Value;
             if (userIdClaim is null|| tokenIdClim is null)
