@@ -463,7 +463,7 @@ namespace Graduation.Controllers.Auth
             return NotFound(ModelState);
         }
         [HttpPost("GenerateRestPassword")]
-        public async Task<IActionResult> GenerateRestPassword(string? email, string? name, string? phone)
+        public async Task<IActionResult> GenerateRestPassword(string? email, string? name, string? phone,bool? whatsApp)
         {
             if (ModelState.IsValid)
             {
@@ -492,7 +492,7 @@ namespace Graduation.Controllers.Auth
                     user.ConfirmationCode = code;
                     user.ConfirmationCodeExpiry = DateTime.Today.Add(DateTime.Now.TimeOfDay).AddMinutes(20);
                     await userManager.UpdateAsync(user);
-                    if (string.IsNullOrEmpty(user.Email) || phone is not null)
+                    if (string.IsNullOrEmpty(user.Email) || phone is not null||whatsApp is true)
                     {
                         var returnWhatsapp = await WhatsAppService.SendMessageAsync(user.PhoneNumber, $"تأكيد البريد الإلكتروني  \r\n\r\nشكرًا لتسجيلك!  \r\n\r\n🔐 **كود التأكيد**:  \r\n{user.ConfirmationCode}  \r\n\r\n⏳ *هذا الكود صالح لمدة 20 دقيقة فقط.*  \r\n\r\n⚠️ إذا لم تطلب هذا الكود، يُرجى تجاهل هذه الرسالة.  ");
                         return Ok(new { returnWhatsapp });

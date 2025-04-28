@@ -530,6 +530,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "whatsApp",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
