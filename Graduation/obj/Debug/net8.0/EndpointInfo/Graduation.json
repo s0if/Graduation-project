@@ -1925,13 +1925,25 @@
         ],
         "parameters": [
           {
-            "name": "Id",
+            "name": "userId",
             "in": "query",
             "schema": {
               "type": "integer",
               "format": "int32"
             }
           }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/UserOperations/ListMessage": {
+      "get": {
+        "tags": [
+          "UserOperations"
         ],
         "responses": {
           "200": {

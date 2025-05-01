@@ -141,7 +141,6 @@ namespace Graduation.Controllers.User
 
             ApplicationUser requestUser = await userManager.Users.
                 FirstOrDefaultAsync(u => u.Id == Id);
-            var role = await userManager.GetRolesAsync(requestUser);
             if (requestUser is null)
             {
                 return BadRequest(new { message = "provider not found" });
@@ -731,8 +730,51 @@ namespace Graduation.Controllers.User
             return Ok(new { Message = "Message sent successfully." });
         }
         [HttpGet("HistoryMessage")]
-        public async Task<IActionResult> GetChatHistory(int Id)
+        public async Task<IActionResult> GetChatHistory(int userId)
         {
+          
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "").Trim();
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(new { message = "Token Is Missing" });
+
+        
+            int? currentUserId = await extractClaims.ExtractUserId(token);
+            if (currentUserId == null || currentUserId <= 0)
+                return Unauthorized(new { message = "Invalid Token" });
+
+           
+            ApplicationUser currentUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == currentUserId);
+            ApplicationUser otherUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (currentUser is null || otherUser is null)
+                return NotFound(new { message = "User not found" });
+
+          
+            var messages = await dbContext.Messages
+                .Where(m => (m.SenderId == currentUser.Id && m.ReceiverId == userId) ||
+                           (m.SenderId == userId && m.ReceiverId == currentUser.Id))
+                .OrderBy(m => m.Timestamp) 
+                .Select(m => new HistoryMessageDTOs
+                {
+                    Message = m.Message,
+                    Timestamp = m.Timestamp,
+
+                })
+                .ToListAsync();
+
+            if (!messages.Any())
+                return NotFound(new { message = "No messages found between these users" });
+
+            return Ok(messages);
+        }
+        [HttpGet("ListMessage")]
+        public async Task<IActionResult> ListMessage()
+        {
+           
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -744,26 +786,43 @@ namespace Graduation.Controllers.User
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
 
-
-            ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-            ApplicationUser requestUserSent = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-            if (requestUser is null || requestUserSent is null)
+           
+            ApplicationUser currentUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (currentUser is null)
                 return NotFound(new { message = "User not found" });
 
-            IEnumerable<ChatMessage> messages = await dbContext.Messages
-                .Where(m => (m.SenderId == requestUser.Id && m.ReceiverId == Id) ||
-                           (m.SenderId == Id && m.ReceiverId == requestUser.Id))
-                .OrderBy(m => m.Timestamp)
+           
+            var lastMessages = await dbContext.Messages
+                .Where(m => m.SenderId == currentUser.Id || m.ReceiverId == currentUser.Id)
+                .GroupBy(m => m.SenderId == currentUser.Id ? m.ReceiverId : m.SenderId) // التجميع حسب المستخدم الآخر
+                .Select(g => new
+                {
+                    OtherUserId = g.Key,
+                    LastMessage = g.OrderByDescending(m => m.Timestamp).FirstOrDefault()
+                })
                 .ToListAsync();
 
-
-            IEnumerable<HistoryMessageDTOs> historyMessage = messages.Select(m => new HistoryMessageDTOs
+          
+            var result = new List<object>();
+            foreach (var item in lastMessages)
             {
-                Message = m.Message,
-                Timestamp = m.Timestamp,
-            });
+                var otherUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == item.OtherUserId);
+                if (otherUser != null)
+                {
+                    result.Add(new
+                    {
+                        UserId = otherUser.Id,
+                        UserName = otherUser.UserName, 
+                        LastMessage = item.LastMessage.Message,
+                        LastMessageTime = item.LastMessage.Timestamp,
+                        IsSender = item.LastMessage.SenderId == currentUser.Id
+                    });
+                }
+            }
 
-            return Ok(historyMessage);
+            var orderedResult = result.OrderByDescending(r => ((dynamic)r).LastMessageTime).ToList();
+
+            return Ok(orderedResult);
         }
 
         [HttpGet("HelpSearch")]

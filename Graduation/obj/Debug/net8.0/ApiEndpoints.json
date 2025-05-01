@@ -1097,11 +1097,21 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "Id",
+        "Name": "userId",
         "Type": "System.Int32",
         "IsRequired": false
       }
     ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.User.UserOperationsController",
+    "Method": "ListMessage",
+    "RelativePath": "UserOperations/ListMessage",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
     "ReturnTypes": []
   },
   {
