@@ -732,32 +732,32 @@ namespace Graduation.Controllers.User
         [HttpGet("HistoryMessage")]
         public async Task<IActionResult> GetChatHistory(int userId)
         {
-          
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            
+
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "").Trim();
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
 
-        
+
             int? currentUserId = await extractClaims.ExtractUserId(token);
             if (currentUserId == null || currentUserId <= 0)
                 return Unauthorized(new { message = "Invalid Token" });
 
-           
+
             ApplicationUser currentUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == currentUserId);
             ApplicationUser otherUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
             if (currentUser is null || otherUser is null)
                 return NotFound(new { message = "User not found" });
 
-          
+
             var messages = await dbContext.Messages
                 .Where(m => (m.SenderId == currentUser.Id && m.ReceiverId == userId) ||
                            (m.SenderId == userId && m.ReceiverId == currentUser.Id))
-                .OrderBy(m => m.Timestamp) 
+                .OrderBy(m => m.Timestamp)
                 .Select(m => new HistoryMessageDTOs
                 {
                     Message = m.Message,
@@ -774,7 +774,7 @@ namespace Graduation.Controllers.User
         [HttpGet("ListMessage")]
         public async Task<IActionResult> ListMessage()
         {
-           
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -786,12 +786,12 @@ namespace Graduation.Controllers.User
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
 
-           
+
             ApplicationUser currentUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if (currentUser is null)
                 return NotFound(new { message = "User not found" });
 
-           
+
             var lastMessages = await dbContext.Messages
                 .Where(m => m.SenderId == currentUser.Id || m.ReceiverId == currentUser.Id)
                 .GroupBy(m => m.SenderId == currentUser.Id ? m.ReceiverId : m.SenderId) // التجميع حسب المستخدم الآخر
@@ -802,7 +802,7 @@ namespace Graduation.Controllers.User
                 })
                 .ToListAsync();
 
-          
+
             var result = new List<object>();
             foreach (var item in lastMessages)
             {
@@ -812,7 +812,7 @@ namespace Graduation.Controllers.User
                     result.Add(new
                     {
                         UserId = otherUser.Id,
-                        UserName = otherUser.UserName, 
+                        UserName = otherUser.UserName,
                         LastMessage = item.LastMessage.Message,
                         LastMessageTime = item.LastMessage.Timestamp,
                         IsSender = item.LastMessage.SenderId == currentUser.Id
@@ -829,16 +829,28 @@ namespace Graduation.Controllers.User
         public async Task<IActionResult> HelpSearch(string Search)
         {
 
+            if (string.IsNullOrWhiteSpace(Search))
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "Search term cannot be empty"
+                });
+            }
 
+            var firstWord = Search.Split(' ')[0].ToLower();
 
             var serviceQuery = dbContext.services
-       .Include(s => s.ImageDetails)
-       .Include(s => s.Reviews)
-       .Include(s => s.Address)
-       .Include(s => s.Type)
-       .Include(s => s.User)
-       .Where(s => s.User.UserName == Search || s.Address.Name == Search || s.Type.Name == Search)
-       .AsQueryable();
+                .Include(s => s.ImageDetails)
+                .Include(s => s.Reviews)
+                .Include(s => s.Address)
+                .Include(s => s.Type)
+                .Include(s => s.User)
+                .Where(s =>
+                    s.User.UserName.ToLower().StartsWith(firstWord) ||
+                    s.Address.Name.ToLower().StartsWith(firstWord) ||
+                    s.Type.Name.ToLower().StartsWith(firstWord))
+                .AsQueryable();
 
             var propertyQuery = dbContext.properties
                 .Include(p => p.ImageDetails)
@@ -846,12 +858,11 @@ namespace Graduation.Controllers.User
                 .Include(p => p.Address)
                 .Include(p => p.Type)
                 .Include(p => p.User)
-                .Where(p => p.User.UserName == Search || p.Address.Name == Search || p.Type.Name == Search)
+                .Where(p =>
+                    p.User.UserName.ToLower().StartsWith(firstWord) ||
+                    p.Address.Name.ToLower().StartsWith(firstWord) ||
+                    p.Type.Name.ToLower().StartsWith(firstWord))
                 .AsQueryable();
-
-
-
-
             var services = await serviceQuery.ToListAsync();
             var serviceDTOs = services.Select(item => new GetAllServiceDTOs
             {

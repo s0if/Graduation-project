@@ -2210,8 +2210,7 @@
       "AuthRegisterDTOs": {
         "required": [
           "name",
-          "password",
-          "phone"
+          "password"
         ],
         "type": "object",
         "properties": {
@@ -2231,8 +2230,8 @@
             "format": "password"
           },
           "phone": {
-            "minLength": 1,
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "addressId": {
             "type": "integer",

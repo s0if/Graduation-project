@@ -14,9 +14,8 @@ namespace Graduation.DTOs.Auth
         [DataType(DataType.Password)]
         [MinLength(8)]
         public string Password { get; set; }
-        [Required]
 
-        public string Phone { get; set; }
+        public string? Phone { get; set; }
         public int addressId { get; set; }
         public string role { get; set; } = "consumer";
     }

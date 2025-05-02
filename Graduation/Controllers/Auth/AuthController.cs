@@ -48,6 +48,19 @@ namespace Graduation.Controllers.Auth
         {
             if (ModelState.IsValid)
             {
+
+                if (request.role == "provider"&& string.IsNullOrEmpty(request.Phone))
+                {
+                    return BadRequest(new
+                    {
+                        message = "Providers must provide a phone number."
+                    });
+                }
+                if (request.role == "admin")
+                {
+                    return BadRequest(new { message = "you cannot create an account Admin" });
+
+                }
                 if (request.Email is not null || WhatsApp is false)
                 {
 
@@ -97,18 +110,13 @@ namespace Graduation.Controllers.Auth
                 IdentityResult result = await userManager.CreateAsync(user, request.Password);
                 if (result.Succeeded)
                 {
-                    if (request.role == "admin")
-                    {
-                        await userManager.DeleteAsync(user);
-                        return BadRequest(new { message = "you cannot create an account Admin" });
-
-                    }
+                   
                     string code = new Random().Next(100000, 999999).ToString();
                     user.ConfirmationCode = code;
                     user.ConfirmationCodeExpiry = DateTime.Today.Add(DateTime.Now.TimeOfDay).AddMinutes(20);
                     await userManager.UpdateAsync(user);
                     IdentityResult resultRole = await userManager.AddToRoleAsync(user, request.role);
-                    if (request.Email is null || WhatsApp is true)
+                    if (request.Email is null ||( WhatsApp is true&& !string.IsNullOrEmpty(request.Phone)))
                     {
                         var returnWhatsapp = await WhatsAppService.SendMessageAsync(user.PhoneNumber, $"تأكيد البريد الإلكتروني  \r\n\r\nشكرًا لتسجيلك!  \r\n\r\n🔐 **كود التأكيد**:  \r\n{user.ConfirmationCode}  \r\n\r\n⏳ *هذا الكود صالح لمدة 20 دقيقة فقط.*  \r\n\r\n⚠️ إذا لم تطلب هذا الكود، يُرجى تجاهل هذه الرسالة.  ");
                         return Ok(new { returnWhatsapp });
