@@ -173,7 +173,7 @@ namespace Graduation.Controllers.Save
                             Id = p.Id,
                             Description = p.Description,
                             StartAt = p.StartAt,
-                            EndAt = p.EndAt,
+                            updateAt = p.updateAt,
                             UserID = p.UsersID,
                             userName = p.User.UserName,
                             TypeName = p.Type.Name,
@@ -253,8 +253,7 @@ namespace Graduation.Controllers.Save
                                         Id = p.Id,
                                         Description = p.Description,
                                         StartAt = p.StartAt,
-                                        EndAt = p.EndAt,
-                                        //UserID = p.UsersID,
+                                        updateAt = p.updateAt,
                                         userName = p.User.UserName,
                                         ImageDetails = p.ImageDetails.Select(img => new GetImageDTOs
                                         {
@@ -276,7 +275,6 @@ namespace Graduation.Controllers.Save
                                                 .Select(s => new GetAllServiceDTOs
                                                 {
                                                     Id = s.Id,
-                                                    //userId = s.UsersID,
                                                     UserName = s.User.UserName,
                                                     Description = s.Description,
                                                     PriceRange = s.PriceRange,
@@ -331,8 +329,7 @@ namespace Graduation.Controllers.Save
                                         Id = p.Id,
                                         Description = p.Description,
                                         StartAt = p.StartAt,
-                                        EndAt = p.EndAt,
-                                        //UserID = p.UsersID,
+                                        updateAt = p.updateAt,
                                         userName = p.User.UserName,
                                         ImageDetails = p.ImageDetails.Select(img => new GetImageDTOs
                                         {
@@ -354,7 +351,6 @@ namespace Graduation.Controllers.Save
                                                 .Select(s => new GetAllServiceDTOs
                                                 {
                                                     Id = s.Id,
-                                                    //userId = s.UsersID,
                                                     UserName = s.User.UserName,
                                                     Description = s.Description,
                                                     PriceRange = s.PriceRange,

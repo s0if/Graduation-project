@@ -9,5 +9,6 @@
         public string Address { get; set; }
         public string Role { get; set; }
         public bool ConfirmEmail { get; set; }
+        public DateTime CreateAt { get; set; }
     }
 }

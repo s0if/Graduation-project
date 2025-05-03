@@ -50,14 +50,13 @@ namespace Graduation.Controllers.PropertyToProject
                     PropertyProject project = new PropertyProject
                     {
                         Description = request.Description,
-                        StartAt = request.StartAt,
-                        EndAt = request.EndAt,
                         TypeId = request.TypeId,
                         UsersID = requestUser.Id,
                         AddressId = request.AddressId,
                         Price = request.Price,
                         lat=request.lat,
                         lng=request.lng,
+                        StartAt=DateTime.Now,
                     };
                     await dbContext.properties.AddAsync(project);
                     await dbContext.SaveChangesAsync();
@@ -65,14 +64,13 @@ namespace Graduation.Controllers.PropertyToProject
                     {
                         Id = project.Id,
                         Description = project.Description,
-                        StartAt = project.StartAt,
-                        EndAt = project.EndAt,
                         TypeId = project.TypeId,
                         lat = request.lat,
                         lng = request.lng,
                         userId = project.UsersID,
                         addressId = project.AddressId,
                         Price = project.Price,
+                        StartAt=project.StartAt,
                     };
                     return Ok(new { status = 200, returnProperty });
                 }
@@ -100,8 +98,7 @@ namespace Graduation.Controllers.PropertyToProject
                     if (result.UsersID == requestUser.Id || role.Contains("admin"))
                     {
                         result.Description = request.Description;
-                        result.StartAt = request.StartAt;
-                        result.EndAt = request.EndAt;
+                        result.updateAt = DateTime.Now;
                         result.Price = request.Price;
                         dbContext.UpdateRange(result);
                         await dbContext.SaveChangesAsync();
@@ -110,8 +107,7 @@ namespace Graduation.Controllers.PropertyToProject
                         {
                             Id = result.Id,
                             Description = result.Description,
-                            StartAt = result.StartAt,
-                            EndAt = result.EndAt,
+                            updateAt = DateTime.Now,
                             Price = result.Price,
                             TypeId = result.TypeId,
                             userId = result.UsersID,
@@ -419,7 +415,7 @@ namespace Graduation.Controllers.PropertyToProject
                     Description = s.Description,
                     TypeName = s.Type.Name,
                     StartAt = s.StartAt,
-                    EndAt = s.EndAt,
+                    updateAt = s.updateAt,
                     Price = s.Price,
                     AddressName = s.Address.Name,
                     userName = s.User.UserName,
@@ -473,7 +469,7 @@ namespace Graduation.Controllers.PropertyToProject
                 Price = Property.Price,
                 TypeName = Property.Type?.Name ?? "Unknown",
                 StartAt = Property.StartAt,
-                EndAt = Property.EndAt,
+                updateAt = Property.updateAt,
                 lat= Property.lat,
                 lng= Property.lng,  
                 AddressName = Property.Address?.Name ?? "Unknown",

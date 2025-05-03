@@ -52,9 +52,7 @@ namespace Graduation.Controllers.ServiceToProject
                         PriceRange = request.PriceRange,
                         UsersID = requestUser.Id,
                         TypeId = request.TypeId,
-                        AddressId = request.AddressId,
-                        lat=request.lat,
-                        lng=request.lng,
+                        AddressId = request.AddressId
                     };
                     await dbContext.services.AddAsync(serviceProject);
                     await dbContext.SaveChangesAsync();
@@ -64,8 +62,6 @@ namespace Graduation.Controllers.ServiceToProject
                         Id = serviceProject.Id,
                         Description = serviceProject.Description,
                         PriceRange = serviceProject.PriceRange,
-                        lat = request.lat,
-                        lng = request.lng,
                         UsersID = serviceProject.UsersID,
                         TypeId = serviceProject.TypeId,
                         AddressId = serviceProject.AddressId,
@@ -417,8 +413,6 @@ namespace Graduation.Controllers.ServiceToProject
                     UserName = s.User.UserName,
                     Description = s.Description,
                     PriceRange = s.PriceRange,
-                    lat=s.lat,
-                    lng=s.lng,
                     TypeName = s.Type.Name,
                     AddressName = s.Address.Name,
                     ImageDetails = s.ImageDetails.Select(img => new GetImageDTOs
@@ -461,8 +455,6 @@ namespace Graduation.Controllers.ServiceToProject
                 UserName = service.User.UserName,
                 Description = service.Description,
                 PriceRange = service.PriceRange,
-                lat=service.lat,
-                lng=service.lng,
                 TypeName = service.Type?.Name ?? "Unknown",
                 AddressName = service.Address?.Name ?? "Unknown",
                 ImageDetails = service.ImageDetails?

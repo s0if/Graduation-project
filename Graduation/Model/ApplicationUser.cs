@@ -6,6 +6,7 @@ namespace Graduation.Model
 {
     public class ApplicationUser :IdentityUser<int>
     {
+        public DateTime CreateAt { get; set; } 
         public string? ConfirmationCode { get; set; }
         public DateTime? ConfirmationCodeExpiry { get; set; } 
         public string? CurrentTokenId { get; set; }

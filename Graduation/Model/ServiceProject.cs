@@ -7,8 +7,6 @@ namespace Graduation.Model
         public int Id { get; set; }
         public string Description { get; set; }
         public double PriceRange { get; set; }
-        public double? lat { get; set; }
-        public double? lng { get; set; }
 
         [ForeignKey(nameof(User))]
         public int UsersID { get; set; }

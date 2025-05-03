@@ -95,7 +95,8 @@ namespace Graduation.Controllers.Auth
                         Email = request.Email,
                         UserName = request.Name,
                         PhoneNumber = request.Phone,
-                        AddressId = request.addressId
+                        AddressId = request.addressId    ,
+                        CreateAt = DateTime.Now,
                     };
                 }
                 else
@@ -104,7 +105,8 @@ namespace Graduation.Controllers.Auth
                     {
                         UserName = request.Name,
                         PhoneNumber = request.Phone,
-                        AddressId = request.addressId
+                        AddressId = request.addressId   ,
+                        CreateAt= DateTime.Now,
                     };
                 }
                 IdentityResult result = await userManager.CreateAsync(user, request.Password);

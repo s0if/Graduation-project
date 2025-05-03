@@ -69,6 +69,7 @@ namespace Graduation.Controllers.User
                         Address = user.Address?.Name,
                         Role = string.Join(",", await userManager.GetRolesAsync(user)),
                         ConfirmEmail = user.EmailConfirmed,
+                        CreateAt=user.CreateAt
                     });
                 }
                 return Ok(AllUser);
@@ -105,7 +106,8 @@ namespace Graduation.Controllers.User
                             Email = user.Email,
                             Phone = user.PhoneNumber,
                             Address = user.Address?.Name,
-                            Role = string.Join(",", await userManager.GetRolesAsync(user))
+                            Role = string.Join(",", await userManager.GetRolesAsync(user)) ,
+                            CreateAt = user.CreateAt
                         });
                     }
                 }
@@ -130,7 +132,8 @@ namespace Graduation.Controllers.User
                 Email = requestUser.Email,
                 Phone = requestUser.PhoneNumber,
                 Address = requestUser.Address?.Name,
-                Role = string.Join(",", await userManager.GetRolesAsync(requestUser))
+                Role = string.Join(",", await userManager.GetRolesAsync(requestUser))  ,
+                CreateAt =  requestUser .CreateAt
             };
             return Ok(result);
         }
@@ -171,7 +174,7 @@ namespace Graduation.Controllers.User
                     AddressName = RP.Address.Name,
                     Description = RP.Description,
                     StartAt = RP.StartAt,
-                    EndAt = RP.EndAt,
+                    updateAt = RP.updateAt,
                     Price = RP.Price,
                     TypeName = RP.Type.Name,
                     userName = requestUser.UserName,
@@ -248,7 +251,8 @@ namespace Graduation.Controllers.User
                 Email = requestUser.Email,
                 Phone = requestUser.PhoneNumber,
                 Address = requestUser.Address?.Name,
-                Role = string.Join(",", await userManager.GetRolesAsync(requestUser))
+                Role = string.Join(",", await userManager.GetRolesAsync(requestUser))   ,
+                CreateAt = requestUser.CreateAt,
             };
             return Ok(result);
         }
@@ -902,7 +906,7 @@ namespace Graduation.Controllers.User
                 Description = item.Description,
                 TypeName = item.Type.Name,
                 StartAt = item.StartAt,
-                EndAt = item.EndAt,
+                updateAt = item.updateAt,
                 Price = item.Price,
                 AddressName = item.Address.Name,
                 userName = item.User.UserName,
