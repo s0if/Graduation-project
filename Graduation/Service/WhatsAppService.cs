@@ -12,16 +12,16 @@ namespace Graduation.Service
             var url = "";
             if (image is not null)
             
-                 url = "https://api.ultramsg.com/instance115167/messages/image";
+                 url = "https://api.ultramsg.com/instance118183/messages/image";
             else    
            
-             url = "https://api.ultramsg.com/instance115167/messages/chat";
+             url = "https://api.ultramsg.com/instance118183/messages/chat";
 
             var client = new RestClient(url);
 
             var request = new RestRequest(url, Method.Post);
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
-            request.AddParameter("token", "pfdsjfg0db8gtj3i");
+            request.AddParameter("token", "ilerny73eemdua2c");
             request.AddParameter("to", recipient);
             if (image is  null)
                 request.AddParameter("body", message);

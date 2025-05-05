@@ -10,11 +10,11 @@ namespace Graduation.Service
         {
             SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
             client.EnableSsl = true;
-            client.Credentials = new NetworkCredential("saifalkomi@gmail.com", "xfsw xyqq qxrw fped");
+            client.Credentials = new NetworkCredential("aqarandservices@gmail.com", "ivqn jzmf roln cbdh");
             //client.Send("saifalkomi@gmail.com", Email.Recivers, Email.Subject, Email.Body);
             // Create the email message
             MailMessage mailMessage = new MailMessage();
-            mailMessage.From = new MailAddress("saifalkomi@gmail.com");
+            mailMessage.From = new MailAddress("aqarandservices@gmail.com");
             mailMessage.To.Add(Email.Recivers);
             mailMessage.Subject = Email.Subject;
             mailMessage.Body = Email.Body;

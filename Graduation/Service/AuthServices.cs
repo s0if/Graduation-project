@@ -24,11 +24,12 @@ namespace Graduation.Service
             var Authclaim = new List<Claim>()
              {
                  new Claim(ClaimTypes.GivenName,user.UserName) ,
-                 new Claim(ClaimTypes.Email,user.Email) ,
+                 
                  new Claim(ClaimTypes.NameIdentifier,user.Id.ToString())
              };
             var userRole = await userManager.GetRolesAsync(user);
-
+            if (!string.IsNullOrEmpty(user.Email))
+                Authclaim.Add(new Claim(ClaimTypes.Email, user.Email));
             foreach (var role in userRole)
                 Authclaim.Add(new Claim(ClaimTypes.Role, role));
             var keyAuth = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configurations));
