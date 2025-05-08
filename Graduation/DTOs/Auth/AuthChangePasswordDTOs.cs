@@ -4,9 +4,7 @@ namespace Graduation.DTOs.Auth
 {
     public class AuthChangePasswordDTOs
     {
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; }
+        
         [Required]
         [DataType(DataType.Password)]
         [MinLength(8)]

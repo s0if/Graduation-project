@@ -340,7 +340,7 @@ namespace Graduation.Controllers.Auth
 
             if (ModelState.IsValid)
             {
-                ApplicationUser user = await userManager.FindByEmailAsync(request.Email);
+                ApplicationUser user = await userManager.FindByIdAsync(userId.ToString());
                 if (user is not null)
                 {
                     if (userId == user.Id)

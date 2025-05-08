@@ -2124,17 +2124,11 @@
       },
       "AuthChangePasswordDTOs": {
         "required": [
-          "email",
           "newPassword",
           "oldPassword"
         ],
         "type": "object",
         "properties": {
-          "email": {
-            "minLength": 1,
-            "type": "string",
-            "format": "email"
-          },
           "oldPassword": {
             "minLength": 8,
             "type": "string",
