@@ -389,7 +389,7 @@
         }
       }
     },
-    "/Auth/StatusEmail": {
+    "/Auth/ConfirmStatus": {
       "put": {
         "tags": [
           "Auth"

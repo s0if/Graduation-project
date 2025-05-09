@@ -249,8 +249,8 @@ namespace Graduation.Controllers.Auth
             return NotFound(ModelState);
         }
 
-        [HttpPut("StatusEmail")]
-        public async Task<IActionResult> StatusEmail(int Id)
+        [HttpPut("ConfirmStatus")]
+        public async Task<IActionResult> ConfirmStatus(int Id)
         {
             if (ModelState.IsValid)
             {
@@ -267,10 +267,30 @@ namespace Graduation.Controllers.Auth
                 if (role.Contains("admin"))
                 {
                     ApplicationUser user = await userManager.Users.FirstOrDefaultAsync(u => u.Id == Id);
-                    user.EmailConfirmed = !user.EmailConfirmed;
-                    await userManager.UpdateAsync(user);
+                    if (!string.IsNullOrEmpty(user.PhoneNumber))
+                    {
+                        user.PhoneNumberConfirmed = !user.PhoneNumberConfirmed;
+                    }
+                    else
+                    {
+                        user.EmailConfirmed = !user.EmailConfirmed;
+                    }
 
-                    return Ok(new { message = "success confirm" });
+                    var result = await userManager.UpdateAsync(user);
+                    if (!result.Succeeded)
+                    {
+                        return BadRequest(new { message = "Failed to update user status", errors = result.Errors });
+                    }
+
+                    bool isPhoneConfirmation = !string.IsNullOrEmpty(user.PhoneNumber);
+                    bool isConfirmed = isPhoneConfirmation ? user.PhoneNumberConfirmed : user.EmailConfirmed;
+
+                    return Ok(new
+                    {
+                        message = isConfirmed ? "Successfully confirmed" : "Successfully unconfirmed",
+                        field = isPhoneConfirmation ? "phone" : "email",
+                        currentStatus = isConfirmed
+                    });
                 }
             }
             return NotFound(ModelState);
