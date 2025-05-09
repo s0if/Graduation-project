@@ -34,8 +34,9 @@ namespace Graduation
                 option.Password.RequireUppercase = true;
                 option.Password.RequireDigit = true;
                 option.Password.RequireNonAlphanumeric = true;
-                option.User.RequireUniqueEmail = false;
-                option.SignIn.RequireConfirmedEmail = true;
+                option.User.RequireUniqueEmail = true;
+                option.SignIn.RequireConfirmedEmail = false;
+                option.SignIn.RequireConfirmedPhoneNumber = false;
 
             }).AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();

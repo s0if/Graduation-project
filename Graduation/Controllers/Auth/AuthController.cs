@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Azure;
 using System.Numerics;
 using Azure.Core;
+using System.Runtime.CompilerServices;
 
 namespace Graduation.Controllers.Auth
 {
@@ -199,8 +200,8 @@ namespace Graduation.Controllers.Auth
             return NotFound(ModelState);
 
         }
-        [HttpPost("ConfirmEmail")]
-        public async Task<IActionResult> ConfirmEmail(string? email, string? name, string? phone, string code)
+        [HttpPost("Confirm")]
+        public async Task<IActionResult> Confirm(string? email, string? name, string? phone, string code)
         {
             if (ModelState.IsValid)
             {
@@ -228,10 +229,14 @@ namespace Graduation.Controllers.Auth
                     {
                         if (user.ConfirmationCodeExpiry >= DateTime.Today.Add(DateTime.Now.TimeOfDay))
                         {
+                            
+                                 if(!String.IsNullOrEmpty(email))
 
-                            user.EmailConfirmed = true;
+                                    user.EmailConfirmed = true;
+                                  else
+                                      user.PhoneNumberConfirmed = true;
                             await userManager.UpdateAsync(user);
-                            return Ok(new { message = "success confirm" });
+                            return !String.IsNullOrEmpty(email)? Ok(new { message = "success confirm email" }): Ok(new { message = "success confirm phone" });
                         }
 
                         return BadRequest(new { message = "the code is finished" });
@@ -295,6 +300,14 @@ namespace Graduation.Controllers.Auth
                 }
                 if (user is not null)
                 {
+                    if (!user.EmailConfirmed && !user.PhoneNumberConfirmed)
+                    {
+                        return BadRequest(new
+                        {
+                            message = "Verification required",
+                            detail = "Please confirm your email and phone number",
+                        });
+                    } 
                     var result = await signInManager.PasswordSignInAsync(user, request.Password, true, true);
                     if (result.Succeeded)
                     {

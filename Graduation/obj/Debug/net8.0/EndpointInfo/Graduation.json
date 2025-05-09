@@ -347,7 +347,7 @@
         }
       }
     },
-    "/Auth/ConfirmEmail": {
+    "/Auth/Confirm": {
       "post": {
         "tags": [
           "Auth"

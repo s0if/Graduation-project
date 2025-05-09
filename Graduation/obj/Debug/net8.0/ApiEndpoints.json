@@ -227,8 +227,8 @@
   },
   {
     "ContainingType": "Graduation.Controllers.Auth.AuthController",
-    "Method": "ConfirmEmail",
-    "RelativePath": "Auth/ConfirmEmail",
+    "Method": "Confirm",
+    "RelativePath": "Auth/Confirm",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
