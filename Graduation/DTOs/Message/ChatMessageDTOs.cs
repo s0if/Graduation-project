@@ -1,4 +1,4 @@
-﻿namespace Graduation.DTOs.Message
+﻿    namespace Graduation.DTOs.Message
 {
     public class ChatMessageDTOs
     {

@@ -85,7 +85,10 @@ namespace Graduation
             {
                 options.AddPolicy("allowAll", build => 
                 {
-                    build.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod();
+                    build.WithOrigins("http://localhost:5173", "http://localhost:5100", "https://aqar-mj6h.onrender.com")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
                 });
             });
 

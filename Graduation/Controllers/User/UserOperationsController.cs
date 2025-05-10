@@ -722,15 +722,21 @@ namespace Graduation.Controllers.User
             {
                 SenderId = requestUserSent.Id,
                 ReceiverId = request.ReceiverId,
-                Message = request.Message
+                Message = request.Message  ,
+                Timestamp = DateTime.UtcNow
             };
             dbContext.Messages.Add(message);
             await dbContext.SaveChangesAsync();
 
 
             var hubContext = HttpContext.RequestServices.GetRequiredService<IHubContext<ChatHub>>();
-            await hubContext.Clients.User(request.ReceiverId.ToString()).SendAsync("ReceiveMessage", requestUserSent.Id, request.Message);
-
+            await hubContext.Clients.User(request.ReceiverId.ToString())
+                        .SendAsync("ReceiveMessage", new
+                        {
+                            SenderId = userId.Value,
+                            Message = request.Message,
+                            Timestamp = message.Timestamp
+                        });
             return Ok(new { Message = "Message sent successfully." });
         }
         [HttpGet("HistoryMessage")]
@@ -766,6 +772,8 @@ namespace Graduation.Controllers.User
                 {
                     Message = m.Message,
                     Timestamp = m.Timestamp,
+                    SenderName = currentUser.UserName  ,
+                    ReceiverName = otherUser.UserName
 
                 })
                 .ToListAsync();
@@ -798,7 +806,7 @@ namespace Graduation.Controllers.User
 
             var lastMessages = await dbContext.Messages
                 .Where(m => m.SenderId == currentUser.Id || m.ReceiverId == currentUser.Id)
-                .GroupBy(m => m.SenderId == currentUser.Id ? m.ReceiverId : m.SenderId) // التجميع حسب المستخدم الآخر
+                .GroupBy(m => m.SenderId == currentUser.Id ? m.ReceiverId : m.SenderId) 
                 .Select(g => new
                 {
                     OtherUserId = g.Key,
