@@ -389,6 +389,27 @@
         }
       }
     },
+    "/Auth/RestCode": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/Auth/ConfirmStatus": {
       "put": {
         "tags": [

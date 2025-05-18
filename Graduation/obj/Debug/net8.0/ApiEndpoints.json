@@ -357,6 +357,22 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "Graduation.Controllers.Auth.AuthController",
+    "Method": "RestCode",
+    "RelativePath": "Auth/RestCode",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "name",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "Graduation.Controllers.ComplaintFolder.ComplaintsController",
     "Method": "AddComplaint",
     "RelativePath": "Complaints/AddComplaint",

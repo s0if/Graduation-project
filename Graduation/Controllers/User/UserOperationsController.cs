@@ -33,12 +33,14 @@ namespace Graduation.Controllers.User
         private readonly UserManager<ApplicationUser> userManager;
         private readonly ApplicationDbContext dbContext;
         private readonly ExtractClaims extractClaims;
+        private readonly ILogger<UserOperationsController> logger;
 
-        public UserOperationsController(UserManager<ApplicationUser> userManager, ApplicationDbContext dbContext, ExtractClaims extractClaims)
+        public UserOperationsController(UserManager<ApplicationUser> userManager, ApplicationDbContext dbContext, ExtractClaims extractClaims, ILogger<UserOperationsController> logger)
         {
             this.userManager = userManager;
             this.dbContext = dbContext;
             this.extractClaims = extractClaims;
+            this.logger = logger;
         }
 
         [HttpGet("AllUser")]
@@ -508,10 +510,30 @@ namespace Graduation.Controllers.User
             ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if (requestUser is not null)
             {
-                requestUser.PhoneNumber = phone;
-                await userManager.UpdateAsync(requestUser);
+                var newPhone=await userManager.Users.Where(u=>u.PhoneNumber==phone).FirstOrDefaultAsync();
+                if (newPhone is  null)
+                {
+                    requestUser.PhoneNumber = phone;
+                    if (requestUser.EmailConfirmed)
+                        requestUser.EmailConfirmed = false;
+                    if (requestUser.PhoneNumberConfirmed)
+                        requestUser.PhoneNumberConfirmed=false;
+                    string code = new Random().Next(100000, 999999).ToString();
+                    requestUser.ConfirmationCode = code;
+                    requestUser.ConfirmationCodeExpiry = DateTime.Today.Add(DateTime.Now.TimeOfDay).AddMinutes(20);
+                    await userManager.UpdateAsync(requestUser);
+                    var returnWhatsapp = await WhatsAppService.SendMessageAsync(requestUser.PhoneNumber,
+                           $"📞 *تأكيد رقم الهاتف*\r\n\r\n" +
+                           $"مرحبًا {requestUser.UserName}، وشكرًا لتسجيلك معنا! 🎉\r\n\r\n" +
+                           $"🔐 *رمز التأكيد الخاص بك:* {requestUser.ConfirmationCode}\r\n\r\n" +
+                           $"⏳ *الرمز صالح لمدة 20 دقيقة فقط.*\r\n\r\n" +
+                           $"⚠️ إذا لم تطلب هذا الرمز، يمكنك تجاهل هذه الرسالة."
+                        );
+                    return Ok(new { status = 200, message = "update successful" });
 
-                return Ok(new { status = 200, message = "update successful" });
+                }
+                return BadRequest(new { status = 400, message = "Phone number already exists" });
+
             }
 
                ;
@@ -703,110 +725,134 @@ namespace Graduation.Controllers.User
         [HttpPost("SendMessage")]
         public async Task<IActionResult> SendMessage(ChatMessageDTOs request)
         {
-            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "").Trim();
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
 
             int? userId = await extractClaims.ExtractUserId(token);
-            if (string.IsNullOrEmpty(userId.ToString()))
-                return Unauthorized(new { message = "Token Is Missing" });
+            if (!userId.HasValue || userId <= 0)
+                return Unauthorized(new { message = "Invalid Token" });
 
-
-            ApplicationUser requestUserSent = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-            ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == request.ReceiverId);
-            if (requestUser is null || requestUserSent is null)
+            ApplicationUser sender = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            ApplicationUser receiver = await userManager.Users.FirstOrDefaultAsync(u => u.Id == request.ReceiverId);
+            if (sender is null || receiver is null)
                 return NotFound(new { message = "User not found" });
 
+            DateTime utcNow = DateTime.UtcNow;
+            TimeZoneInfo palestineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Israel Standard Time");
+            DateTime palestineTime = TimeZoneInfo.ConvertTimeFromUtc(utcNow, palestineTimeZone);
 
             ChatMessage message = new ChatMessage
             {
-                SenderId = requestUserSent.Id,
-                ReceiverId = request.ReceiverId,
-                Message = request.Message  ,
-                Timestamp = DateTime.UtcNow
+                SenderId = sender.Id,
+                ReceiverId = receiver.Id,
+                Message = request.Message,
+                Timestamp = palestineTime
             };
+
             dbContext.Messages.Add(message);
             await dbContext.SaveChangesAsync();
 
-
             var hubContext = HttpContext.RequestServices.GetRequiredService<IHubContext<ChatHub>>();
-            await hubContext.Clients.User(request.ReceiverId.ToString())
-                        .SendAsync("ReceiveMessage", new
-                        {
-                            SenderId = userId.Value,
-                            Message = request.Message,
-                            Timestamp = message.Timestamp
-                        });
-            return Ok(new { Message = "Message sent successfully." });
+            string roomName = sender.Id < receiver.Id ? $"Chat_{sender.Id}{receiver.Id}" : $"Chat{receiver.Id}_{sender.Id}";
+
+            await hubContext.Clients.Group(roomName).SendAsync("ReceiveMessage", new
+            {
+                SenderId = sender.Id,
+                Message = request.Message,
+                Timestamp = palestineTime,
+                MessageId = message.Id
+            });
+
+            await hubContext.Clients.User(sender.Id.ToString()).SendAsync("MessageSent", message.Id);
+            await hubContext.Clients.User(receiver.Id.ToString()).SendAsync("UpdateChatList");
+
+            return Ok(new
+            {
+                Message = "Message sent successfully.",
+                Timestamp = palestineTime,
+                MessageId = message.Id
+            });
         }
+
         [HttpGet("HistoryMessage")]
         public async Task<IActionResult> GetChatHistory(int userId)
         {
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
 
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "").Trim();
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
 
-
             int? currentUserId = await extractClaims.ExtractUserId(token);
-            if (currentUserId == null || currentUserId <= 0)
+            if (!currentUserId.HasValue || currentUserId <= 0)
                 return Unauthorized(new { message = "Invalid Token" });
 
+            ApplicationUser sender = await userManager.Users.FirstOrDefaultAsync(u => u.Id == currentUserId);
+            ApplicationUser receiver = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
-            ApplicationUser currentUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == currentUserId);
-            ApplicationUser otherUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-
-            if (currentUser is null || otherUser is null)
+            if (sender is null || receiver is null)
                 return NotFound(new { message = "User not found" });
 
+            TimeZoneInfo palestineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Israel Standard Time");
 
             var messages = await dbContext.Messages
-                .Where(m => (m.SenderId == currentUser.Id && m.ReceiverId == userId) ||
-                           (m.SenderId == userId && m.ReceiverId == currentUser.Id))
+                .Where(m => (m.SenderId == sender.Id && m.ReceiverId == receiver.Id) ||
+                           (m.SenderId == receiver.Id && m.ReceiverId == sender.Id))
                 .OrderBy(m => m.Timestamp)
-                .Select(m => new HistoryMessageDTOs
+                .Select(m => new
                 {
-                    Message = m.Message,
-                    Timestamp = m.Timestamp,
-                    SenderName = currentUser.UserName  ,
-                    ReceiverName = otherUser.UserName
-
+                    m.Message,
+                    m.Timestamp,
+                    SenderId = m.SenderId,
+                    ReceiverId = m.ReceiverId
                 })
                 .ToListAsync();
 
-            if (!messages.Any())
-                return NotFound(new { message = "No messages found between these users" });
+            var result = messages.Select(m => new HistoryMessageDTOs
+            {
+                Message = m.Message,
+                Timestamp = TimeZoneInfo.ConvertTimeFromUtc(m.Timestamp, palestineTimeZone),
+                SenderName = userManager.Users.Where(u => u.Id == m.SenderId).Select(u => u.UserName).FirstOrDefault(),
+                ReceiverName = userManager.Users.Where(u => u.Id == m.ReceiverId).Select(u => u.UserName).FirstOrDefault()
+            }).ToList();
 
-            return Ok(messages);
+            var hubContext = HttpContext.RequestServices.GetRequiredService<IHubContext<ChatHub>>();
+            string roomName = currentUserId < userId ? $"Chat_{currentUserId}{userId}" : $"Chat{userId}_{currentUserId}";
+
+            await hubContext.Clients.Group(roomName).SendAsync("ChatHistoryUpdated", new
+            {
+                Messages = result
+            });
+
+            return Ok(new
+            {
+                Messages = result,
+                RoomName = roomName
+            });
         }
         [HttpGet("ListMessage")]
         public async Task<IActionResult> ListMessage()
         {
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "").Trim();
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
 
             int? userId = await extractClaims.ExtractUserId(token);
-            if (string.IsNullOrEmpty(userId.ToString()))
-                return Unauthorized(new { message = "Token Is Missing" });
-
+            if (!userId.HasValue || userId <= 0)
+                return Unauthorized(new { message = "Invalid Token" });
 
             ApplicationUser currentUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if (currentUser is null)
                 return NotFound(new { message = "User not found" });
 
-
             var lastMessages = await dbContext.Messages
                 .Where(m => m.SenderId == currentUser.Id || m.ReceiverId == currentUser.Id)
-                .GroupBy(m => m.SenderId == currentUser.Id ? m.ReceiverId : m.SenderId) 
+                .GroupBy(m => m.SenderId == currentUser.Id ? m.ReceiverId : m.SenderId)
                 .Select(g => new
                 {
                     OtherUserId = g.Key,
@@ -814,14 +860,13 @@ namespace Graduation.Controllers.User
                 })
                 .ToListAsync();
 
-
-            var result = new List<object>();
+            var result = new List<MessageSummaryDTO>();
             foreach (var item in lastMessages)
             {
                 var otherUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == item.OtherUserId);
                 if (otherUser != null)
                 {
-                    result.Add(new
+                    result.Add(new MessageSummaryDTO
                     {
                         UserId = otherUser.Id,
                         UserName = otherUser.UserName,
@@ -832,7 +877,9 @@ namespace Graduation.Controllers.User
                 }
             }
 
-            var orderedResult = result.OrderByDescending(r => ((dynamic)r).LastMessageTime).ToList();
+            var orderedResult = result.OrderByDescending(r => r.LastMessageTime).ToList();
+            var hubContext = HttpContext.RequestServices.GetRequiredService<IHubContext<ChatHub>>();
+            await hubContext.Clients.User(userId.ToString()).SendAsync("UpdateChatList");
 
             return Ok(orderedResult);
         }

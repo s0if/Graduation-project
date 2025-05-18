@@ -165,6 +165,14 @@ namespace Graduation.Controllers.ServiceToProject
                             }
                         }
 
+                        var advertisment = await dbContext.advertisements.FindAsync(result.AdvertisementID);
+                        if (advertisment is not null)
+                        {
+                            result.AdvertisementID = null;
+                            dbContext.Update(result);
+                            await dbContext.SaveChangesAsync();
+                            dbContext.Remove(advertisment);
+                        }
                         dbContext.services.RemoveRange(result);
                         await dbContext.SaveChangesAsync();
 
@@ -298,7 +306,10 @@ namespace Graduation.Controllers.ServiceToProject
                 ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
                 var role = await userManager.GetRolesAsync(requestUser);
-                var services = await dbContext.services.FindAsync(request.ServiceId);
+                var services = await dbContext.services.Where(s=>s.Id==request.ServiceId)
+                    .Include(p => p.Type)
+                    .Include(p => p.User)
+                    .FirstOrDefaultAsync(); 
                 var reviewResult = await dbContext.reviews.Where(r => r.UsersID == userId && r.ServiceId == request.ServiceId).ToListAsync();
                 if (reviewResult.Any())
                 {
@@ -320,6 +331,14 @@ namespace Graduation.Controllers.ServiceToProject
                 };
                 await dbContext.reviews.AddAsync(review);
                 await dbContext.SaveChangesAsync();
+                string whatsappMessage = $"📌 إشعار بتعليق جديد على الخدمة\n\n" +
+                               $"تمت إضافة تعليق جديد على خدمتك:\n" +
+                               $"📌 الخدمة: {services.Type?.Name}\n" +
+                               $"📝 التعليق: {review.Description}\n\n" +
+                               $"🕒 التاريخ: {DateTime.Now.ToString("yyyy-MM-dd HH:mm")}\n\n" +
+                               $"شكراً لاستخدامك منصتنا!";
+
+                await WhatsAppService.SendMessageAsync(services.User.PhoneNumber, whatsappMessage);
                 return Ok(new { message = true });
             }
             return NotFound();

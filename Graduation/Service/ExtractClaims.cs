@@ -22,7 +22,7 @@ namespace Graduation.Service
             JwtSecurityToken jwtToken = TokenHandler.ReadJwtToken(Token);
 
             if (jwtToken.ValidTo < DateTime.UtcNow)
-          
+
                 return null;
            
 

@@ -174,7 +174,6 @@ C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Debug\ne
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Debug\net8.0\Mapster.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Debug\net8.0\Mapster.Core.dll
-C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Debug\net8.0\Azure.Storage.Blobs.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Debug\net8.0\Azure.Storage.Common.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Debug\net8.0\System.IO.Hashing.dll
@@ -184,3 +183,4 @@ C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Debug\ne
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Debug\net8.0\Scalar.AspNetCore.dll
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Debug\net8.0\libman.json
 C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\bin\Debug\net8.0\RestSharp.dll
+C:\Users\Saif\Desktop\full stack\back end\API\Graduation\Graduation\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

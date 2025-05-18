@@ -50,13 +50,7 @@ namespace Graduation.Controllers.Auth
             if (ModelState.IsValid)
             {
 
-                if (request.role == "provider"&& string.IsNullOrEmpty(request.Phone))
-                {
-                    return BadRequest(new
-                    {
-                        message = "Providers must provide a phone number."
-                    });
-                }
+              
                 if (request.role == "admin")
                 {
                     return BadRequest(new { message = "you cannot create an account Admin" });
@@ -66,24 +60,45 @@ namespace Graduation.Controllers.Auth
                 {
 
                     ApplicationUser applicationEmail = await userManager.FindByEmailAsync(request.Email);
+
                     if (applicationEmail is not null)
                     {
-                        if (applicationEmail.EmailConfirmed == false)
+                        if (applicationEmail.EmailConfirmed == false&& applicationEmail.PhoneNumberConfirmed == false)
                         {
                             await userManager.DeleteAsync(applicationEmail);
                         }
+                        else
+                        {
+                            return BadRequest(new { message = "Email already registered" });
+                        }
                     }
+                   
                 }
 
-
+                ApplicationUser applicationPhone = await userManager.Users.Where(user => user.PhoneNumber == request.Phone).FirstOrDefaultAsync();
+                if (applicationPhone is not null)
+                {
+                    if (applicationPhone.EmailConfirmed == false && applicationPhone.PhoneNumberConfirmed == false)
+                    {
+                        await userManager.DeleteAsync(applicationPhone);
+                    }
+                    else
+                    {
+                        return BadRequest(new { message = "Phone number already registered" });
+                    }
+                }
 
                 ApplicationUser applicationName = await userManager.FindByNameAsync(request.Name);
                 if (applicationName is not null)
                 {
 
-                    if (applicationName.EmailConfirmed == false)
+                    if (applicationName.EmailConfirmed == false&&applicationName.PhoneNumberConfirmed==false)
                     {
                         await userManager.DeleteAsync(applicationName);
+                    }
+                    else
+                    {
+                        return BadRequest(new { message = "Username already registered" });
                     }
                 }
 
@@ -121,7 +136,13 @@ namespace Graduation.Controllers.Auth
                     IdentityResult resultRole = await userManager.AddToRoleAsync(user, request.role);
                     if (request.Email is null ||( WhatsApp is true&& !string.IsNullOrEmpty(request.Phone)))
                     {
-                        var returnWhatsapp = await WhatsAppService.SendMessageAsync(user.PhoneNumber, $"تأكيد البريد الإلكتروني  \r\n\r\nشكرًا لتسجيلك!  \r\n\r\n🔐 **كود التأكيد**:  \r\n{user.ConfirmationCode}  \r\n\r\n⏳ *هذا الكود صالح لمدة 20 دقيقة فقط.*  \r\n\r\n⚠️ إذا لم تطلب هذا الكود، يُرجى تجاهل هذه الرسالة.  ");
+                        var returnWhatsapp = await WhatsAppService.SendMessageAsync(user.PhoneNumber,
+                           $"📞 *تأكيد رقم الهاتف*\r\n\r\n" +
+                           $"مرحبًا {user.UserName}، وشكرًا لتسجيلك معنا! 🎉\r\n\r\n" +
+                           $"🔐 *رمز التأكيد الخاص بك:* {user.ConfirmationCode}\r\n\r\n" +
+                           $"⏳ *الرمز صالح لمدة 20 دقيقة فقط.*\r\n\r\n" +
+                           $"⚠️ إذا لم تطلب هذا الرمز، يمكنك تجاهل هذه الرسالة."
+                        );
                         return Ok(new { returnWhatsapp });
                     }
                     string htmlBody = $@"
@@ -248,7 +269,109 @@ namespace Graduation.Controllers.Auth
             }
             return NotFound(ModelState);
         }
+        [HttpPost("RestCode")]
+        public async Task<IActionResult> RestCode(string name)
+        {
+            if (!string.IsNullOrEmpty(name))
+            {
+                ApplicationUser user = new ApplicationUser();
+                
+                 if (!string.IsNullOrEmpty(name))
+                {
+                    user = await userManager.FindByNameAsync(name);
+                }
+                else
+                    return BadRequest(new { message = "enter username " });
+                 if(user is not null)
+                {
+                    string code = new Random().Next(100000, 999999).ToString();
+                    user.ConfirmationCode = code;
+                    user.ConfirmationCodeExpiry = DateTime.Today.Add(DateTime.Now.TimeOfDay).AddMinutes(20);
+                    await userManager.UpdateAsync(user);
+                    if (!string.IsNullOrEmpty(user.PhoneNumber))
+                    {
+                        var returnWhatsapp = await WhatsAppService.SendMessageAsync(user.PhoneNumber,
+                            $"📞 *تأكيد رقم الهاتف*\r\n\r\n" +
+                            $"مرحبًا {user.UserName}، شكرًا لتسجيلك معنا! 🎉\r\n\r\n" +
+                            $"🔐 *رمز التأكيد الخاص بك:* {user.ConfirmationCode}\r\n\r\n" +
+                            $"⏳ *الرمز صالح لمدة 20 دقيقة فقط.*\r\n\r\n" +
+                            $"⚠️ إذا لم تطلب هذا الرمز، يمكنك تجاهل هذه الرسالة."
+                        );
+                        return Ok(new { returnWhatsapp });
+                    }
+                    string htmlBody = $@"
+                        <!DOCTYPE html>
+                        <html dir='rtl' lang='ar'>
+                        <head>
+                            <meta charset='UTF-8'>
+                            <style>
+                                body {{
+                                    font-family: Arial, sans-serif;
+                                    background-color: #f4f4f4;
+                                    margin: 0;
+                                    padding: 0;
+                                    text-align: right;
+                                }}
+                                .container {{
+                                    max-width: 600px;
+                                    margin: 20px auto;
+                                    padding: 20px;
+                                    background-color: #ffffff;
+                                    border-radius: 8px;
+                                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                                    text-align: right;
+                                }}
+                                .header {{
+                                    font-size: 24px;
+                                    color: #333333;
+                                    margin-bottom: 20px;
+                                    text-align: right;
+                                }}
+                                .code {{
+                                    font-size: 28px;
+                                    font-weight: bold;
+                                    color: #007BFF;
+                                    margin: 20px 0;
+                                    padding: 10px;
+                                    background-color: #f8f9fa;
+                                    border-radius: 4px;
+                                    text-align: center;
+                                }}
+                                .footer {{
+                                    margin-top: 20px;
+                                    font-size: 14px;
+                                    color: #666666;
+                                    text-align: right;
+                                }}
+                            </style>
+                        </head>
+                        <body>
+                            <div class='container'>
+                                <div class='header'>تأكيد البريد الإلكتروني</div>
+                                <p>شكرًا لتسجيلك. يرجى استخدام الكود التالي لتأكيد عنوان بريدك الإلكتروني:</p>
+                                <div class='code'>{code}</div>
+                                <p>هذا الكود سينتهي خلال 20 دقيقة.</p>
+                                <div class='footer'>
+                                    إذا لم تطلب هذا الكود، يرجى تجاهل هذه الرسالة.
+                                </div>
+                            </div>
+                        </body>
+                        </html>";
+                    EmailDTOs emailDTOs = new EmailDTOs()
+                    {
+                        Subject = "Confirm Email",
+                        Recivers = user.Email,
+                        Body = htmlBody
+                    };
 
+                    EmailSetting.SendEmail(emailDTOs);
+                    return Ok(new { message = $"rest code successful" });
+                }
+                   return BadRequest(new {message ="user not found"});
+                
+            }
+            return NotFound(new {message="enter name"});
+        }
         [HttpPut("ConfirmStatus")]
         public async Task<IActionResult> ConfirmStatus(int Id)
         {
@@ -267,6 +390,11 @@ namespace Graduation.Controllers.Auth
                 if (role.Contains("admin"))
                 {
                     ApplicationUser user = await userManager.Users.FirstOrDefaultAsync(u => u.Id == Id);
+                    if (user is null)
+                        return BadRequest(new
+                        {
+                            message = "user not found"
+                        });
                     if (!string.IsNullOrEmpty(user.PhoneNumber))
                     {
                         user.PhoneNumberConfirmed = !user.PhoneNumberConfirmed;
@@ -537,7 +665,13 @@ namespace Graduation.Controllers.Auth
                     await userManager.UpdateAsync(user);
                     if (string.IsNullOrEmpty(user.Email) || phone is not null||whatsApp is true)
                     {
-                        var returnWhatsapp = await WhatsAppService.SendMessageAsync(user.PhoneNumber, $"تأكيد البريد الإلكتروني  \r\n\r\nشكرًا لتسجيلك!  \r\n\r\n🔐 **كود التأكيد**:  \r\n{user.ConfirmationCode}  \r\n\r\n⏳ *هذا الكود صالح لمدة 20 دقيقة فقط.*  \r\n\r\n⚠️ إذا لم تطلب هذا الكود، يُرجى تجاهل هذه الرسالة.  ");
+                        var returnWhatsapp = await WhatsAppService.SendMessageAsync(user.PhoneNumber,
+                            $"🔐 *إعادة تعيين كلمة المرور*\r\n\r\n" +
+                            $"مرحبًا { user.UserName}، لقد طلبت رمزًا لإعادة تعيين كلمة المرور الخاصة بك.\r\n\r\n" +
+                            $"📌 *رمز التأكيد الخاص بك:* {user.ConfirmationCode}\r\n\r\n" +
+                            $"⏳ *الرمز صالح لمدة 20 دقيقة فقط.*\r\n\r\n" +
+                            $"⚠️ إذا لم تطلب هذا الرمز، يرجى تجاهل هذه الرسالة."
+                        );
                         return Ok(new { returnWhatsapp });
                     }
                     string htmlBody = $@"

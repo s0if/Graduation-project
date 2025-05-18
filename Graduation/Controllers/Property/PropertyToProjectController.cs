@@ -35,229 +35,299 @@ namespace Graduation.Controllers.PropertyToProject
         [HttpPost("AddProperty")]
         public async Task<IActionResult> AddProperty(AddPropertyDTOs request)
         {
-            if (ModelState.IsValid)
-            {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
-                if (string.IsNullOrEmpty(token))
-                    return Unauthorized(new { message = "Token Is Missing" });
+            
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                string token = Request.Headers["Authorization"].ToString();
+                if (!token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                    return Unauthorized(new { message = "Invalid Authorization header" });
+
+                token = token.Substring("Bearer ".Length).Trim();
+
                 int? userId = await extractClaims.ExtractUserId(token);
-                if (string.IsNullOrEmpty(userId.ToString()))
-                    return Unauthorized(new { message = "Token Is Missing" });
-                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider") || role.Contains("admin"))
+                if (!userId.HasValue)
+                    return Unauthorized(new { message = "Invalid token " });
+
+                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId.Value);
+                if (requestUser == null)
+                    return Unauthorized(new { message = "User not found" });
+
+                var roles = await userManager.GetRolesAsync(requestUser);
+                if (!roles.Contains("provider") && !roles.Contains("admin"))
+                    return Unauthorized(new { message = "Only admin or provider can add this property" });
+
+                var project = new PropertyProject
                 {
-                    PropertyProject project = new PropertyProject
-                    {
-                        Description = request.Description,
-                        TypeId = request.TypeId,
-                        UsersID = requestUser.Id,
-                        AddressId = request.AddressId,
-                        Price = request.Price,
-                        lat=request.lat,
-                        lng=request.lng,
-                        StartAt=DateTime.Now,
-                    };
-                    await dbContext.properties.AddAsync(project);
-                    await dbContext.SaveChangesAsync();
-                    ReturnPropertyDTOs returnProperty = new ReturnPropertyDTOs
-                    {
-                        Id = project.Id,
-                        Description = project.Description,
-                        TypeId = project.TypeId,
-                        lat = request.lat,
-                        lng = request.lng,
-                        userId = project.UsersID,
-                        addressId = project.AddressId,
-                        Price = project.Price,
-                        StartAt=project.StartAt,
-                    };
-                    return Ok(new { status = 200, returnProperty });
-                }
-                return Unauthorized(new { message = "Only admin or a provider can add this property" });
-            }
-            return NotFound();
+                    Description = request.Description,
+                    TypeId = request.TypeId,
+                    UsersID = requestUser.Id,
+                    AddressId = request.AddressId,
+                    Price = request.Price,
+                    lat = request.lat,
+                    lng = request.lng,
+                    StartAt = DateTime.Now,
+                };
+                await dbContext.properties.AddAsync(project);
+                await dbContext.SaveChangesAsync();
+            ReturnPropertyDTOs returnProperty = new ReturnPropertyDTOs
+                {
+                    Id = project.Id,
+                    Description = project.Description,
+                    TypeId = project.TypeId,
+                    lat = request.lat,
+                    lng = request.lng,
+                    userId = project.UsersID,
+                    addressId = project.AddressId,
+                    Price = project.Price,
+                    StartAt=project.StartAt,
+                };
+
+                return Ok(new { status = "success", data = returnProperty });
+           
         }
         [HttpPut("UpdateProperty")]
         public async Task<IActionResult> UpdateProperty(UpdatePropertyDTOs request, int propertyId)
         {
-            if (ModelState.IsValid)
-            {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
-                if (string.IsNullOrEmpty(token))
-                    return Unauthorized(new { message = "Token Is Missing" });
+            
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                if (!Request.Headers.TryGetValue("Authorization", out var authHeader))
+                    return Unauthorized(new { message = "Authorization header missing" });
+
+                string token = authHeader.ToString();
+                if (!token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                    return Unauthorized(new { message = "Invalid Authorization header format" });
+
+                token = token.Substring("Bearer ".Length).Trim();
+
                 int? userId = await extractClaims.ExtractUserId(token);
-                if (string.IsNullOrEmpty(userId.ToString()))
-                    return Unauthorized(new { message = "Token Is Missing" });
-                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                var role = await userManager.GetRolesAsync(requestUser);
-                PropertyProject result = await dbContext.properties.FindAsync(propertyId);
-                if (result is not null)
-                {
+                if (!userId.HasValue)
+                    return Unauthorized(new { message = "Invalid token or user not found" });
 
-                    if (result.UsersID == requestUser.Id || role.Contains("admin"))
-                    {
-                        result.Description = request.Description;
-                        result.updateAt = DateTime.Now;
-                        result.Price = request.Price;
-                        dbContext.UpdateRange(result);
-                        await dbContext.SaveChangesAsync();
+                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId.Value);
+                if (requestUser == null)
+                    return Unauthorized(new { message = "User not found" });
 
-                        ReturnPropertyDTOs returnProperty = new ReturnPropertyDTOs
-                        {
-                            Id = result.Id,
-                            Description = result.Description,
-                            updateAt = DateTime.Now,
-                            Price = result.Price,
-                            TypeId = result.TypeId,
-                            userId = result.UsersID,
-                            addressId = result.AddressId,
-                        };
-                        return Ok(new { status = 200, returnProperty });
+                var roles = await userManager.GetRolesAsync(requestUser);
 
-                    }
+                var property = await dbContext.properties.FindAsync(propertyId);
+                if (property == null)
+                    return NotFound(new { message = "Property not found" });
+
+                // السماح بالتحديث فقط للمالك أو الأدمن
+                if (property.UsersID != requestUser.Id && !roles.Contains("admin"))
                     return Unauthorized(new { message = "Only admin or the provider can update this property" });
-                }
-                return BadRequest(new { message = "not found property" });
 
-            }
-            return NotFound();
+                // تحديث الحقول المطلوبة
+                property.Description = request.Description;
+                property.Price = request.Price;
+                property.updateAt = DateTime.UtcNow;
 
+                dbContext.properties.Update(property);
+                await dbContext.SaveChangesAsync();
+
+                var returnProperty = new ReturnPropertyDTOs
+                {
+                    Id = property.Id,
+                    Description = property.Description,
+                    updateAt = property.updateAt,
+                    Price = property.Price,
+                    TypeId = property.TypeId,
+                    userId = property.UsersID,
+                    addressId = property.AddressId,
+                };
+
+                return Ok(new { status = "success", data = returnProperty });
+            
+            
         }
+
         [HttpDelete("DeleteProperty")]
         public async Task<IActionResult> DeleteProperty(int propertyId)
         {
-            if (ModelState.IsValid)
-            {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
-                if (string.IsNullOrEmpty(token))
-                    return Unauthorized(new { message = "Token Is Missing" });
+           
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                if (!Request.Headers.TryGetValue("Authorization", out var authHeader))
+                    return Unauthorized(new { message = "Authorization header missing" });
+
+                string token = authHeader.ToString();
+                if (!token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                    return Unauthorized(new { message = "Invalid Authorization header format" });
+
+                token = token.Substring("Bearer ".Length).Trim();
+
                 int? userId = await extractClaims.ExtractUserId(token);
-                if (string.IsNullOrEmpty(userId.ToString()))
-                    return Unauthorized(new { message = "Token Is Missing" });
-                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                var role = await userManager.GetRolesAsync(requestUser);
-                PropertyProject result = await dbContext.properties
-                .Include(p => p.ImageDetails)
-                .Include(p => p.Reviews)
-                .Include(p => p.Saves)
-                .FirstOrDefaultAsync(p => p.Id == propertyId);
-                if (result is not null)
-                {
-                    if (result.UsersID == requestUser.Id || role.Contains("admin"))
-                    {
-                        if (result.ImageDetails.Any())
-                            foreach (var image in result.ImageDetails)
-                            {
-                                await FileSettings.DeleteFileAsync(image.Image);
-                                dbContext.images.Remove(image);
-                            }
-                        if (result.Reviews.Any())
-                            foreach (var review in result.Reviews)
-                            {
-                                dbContext.reviews.Remove(review);
-                            }
-                        if (result.Saves.Any())
-                        {
-                            foreach (var item in result.Saves)
-                            {
+                if (!userId.HasValue)
+                    return Unauthorized(new { message = "Invalid token or user not found" });
 
-                                dbContext.saveProjects.RemoveRange(item);
-                            }
-                        }
+                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId.Value);
+                if (requestUser == null)
+                    return Unauthorized(new { message = "User not found" });
 
-                        dbContext.RemoveRange(result);
-                        await dbContext.SaveChangesAsync();
+                var roles = await userManager.GetRolesAsync(requestUser);
 
+                var property = await dbContext.properties
+                    .Include(p => p.ImageDetails)
+                    .Include(p => p.Reviews)
+                    .Include(p => p.Saves)
+                    .FirstOrDefaultAsync(p => p.Id == propertyId);
 
-                        return Ok(new { status = 200 });
+                if (property == null)
+                    return NotFound(new { message = "Property not found" });
 
-                    }
+                // السماح بالحذف فقط للمالك أو الأدمن
+                if (property.UsersID != requestUser.Id && !roles.Contains("admin"))
                     return Unauthorized(new { message = "Only admin or the provider can delete this property" });
+
+                // حذف الصور المرتبطة
+                if (property.ImageDetails.Any())
+                {
+                    foreach (var image in property.ImageDetails)
+                    {
+                        await FileSettings.DeleteFileAsync(image.Image);
+                        dbContext.images.Remove(image);
+                    }
                 }
-                return BadRequest(new { message = "not found property" });
 
+                // حذف التقييمات المرتبطة
+                if (property.Reviews.Any())
+                {
+                    foreach (var review in property.Reviews)
+                    {
+                        dbContext.reviews.Remove(review);
+                    }
+                }
 
-            }
-            return NotFound();
+                // حذف السيفات المرتبطة
+                if (property.Saves.Any())
+                {
+                    dbContext.saveProjects.RemoveRange(property.Saves);
+                }
 
+                // التعامل مع الإعلان المرتبط
+                if (property.AdvertisementID != null)
+                {
+                    var advertisement = await dbContext.advertisements.FindAsync(property.AdvertisementID);
+                    if (advertisement != null)
+                    {
+                        property.AdvertisementID = null;
+                        dbContext.Update(property);
+                        await dbContext.SaveChangesAsync();
+                        dbContext.Remove(advertisement);
+                    }
+                }
+
+                // حذف العقار نفسه
+                dbContext.Remove(property);
+                await dbContext.SaveChangesAsync();
+
+                return Ok(new { status = "success", message = "Property deleted successfully" });
+            
         }
+
         [HttpPost("AddImageProperty")]
         public async Task<IActionResult> AddImageProperty(AddImagesDTOs request, int propertyId)
         {
-            if (ModelState.IsValid)
-            {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
-                if (string.IsNullOrEmpty(token))
-                    return Unauthorized(new { message = "Token Is Missing" });
+           
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                if (!Request.Headers.TryGetValue("Authorization", out var authHeader))
+                    return Unauthorized(new { message = "Authorization header missing" });
+
+                string token = authHeader.ToString();
+                if (!token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                    return Unauthorized(new { message = "Invalid Authorization header format" });
+
+                token = token.Substring("Bearer ".Length).Trim();
+
                 int? userId = await extractClaims.ExtractUserId(token);
-                if (string.IsNullOrEmpty(userId.ToString()))
-                    return Unauthorized(new { message = "Token Is Missing" });
-                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                var role = await userManager.GetRolesAsync(requestUser);
-                if (role.Contains("provider") || role.Contains("admin"))
+                if (!userId.HasValue)
+                    return Unauthorized(new { message = "Invalid token or user not found" });
+
+                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId.Value);
+                if (requestUser == null)
+                    return Unauthorized(new { message = "User not found" });
+
+                var roles = await userManager.GetRolesAsync(requestUser);
+                if (!roles.Contains("provider") && !roles.Contains("admin"))
+                    return Unauthorized(new { message = "Only admin or the provider can add image property" });
+
+                // يمكن إضافة تحقق من وجود الـ propertyId إذا أردت
+
+                ImageDetails details = new ImageDetails
                 {
-                    ImageDetails details = new ImageDetails
-                    {
-                        PropertyId = propertyId,
-                        Image = await FileSettings.UploadFileAsync(request.Image),
-                    };
-                    await dbContext.images.AddAsync(details);
-                    await dbContext.SaveChangesAsync();
-                    return Ok("done");
-                }
-                return Unauthorized(new { message = "Only admin or the provider can add image property" });
-            }
-            return NotFound();
+                    PropertyId = propertyId,
+                    Image = await FileSettings.UploadFileAsync(request.Image),
+                };
+                await dbContext.images.AddAsync(details);
+                await dbContext.SaveChangesAsync();
+
+                return Ok(new { status = "success", message = "Image added successfully" });
+            
         }
 
         [HttpPut("UpdateImageProperty")]
         public async Task<IActionResult> UpdateImageProperty(AddImagesDTOs request, int imageId)
         {
-            if (ModelState.IsValid)
-            {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
-                if (string.IsNullOrEmpty(token))
-                    return Unauthorized(new { message = "Token Is Missing" });
+          
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                if (!Request.Headers.TryGetValue("Authorization", out var authHeader))
+                    return Unauthorized(new { message = "Authorization header missing" });
+
+                string token = authHeader.ToString();
+                if (!token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                    return Unauthorized(new { message = "Invalid Authorization header format" });
+
+                token = token.Substring("Bearer ".Length).Trim();
+
                 int? userId = await extractClaims.ExtractUserId(token);
-                if (string.IsNullOrEmpty(userId.ToString()))
-                    return Unauthorized(new { message = "Token Is Missing" });
-                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                var role = await userManager.GetRolesAsync(requestUser);
+                if (!userId.HasValue)
+                    return Unauthorized(new { message = "Invalid token or user not found" });
 
-                ImageDetails resultImage = await dbContext.images.FindAsync(imageId);
-                if (resultImage is not null)
-                {
-                    PropertyProject resultProperty = await dbContext.properties.FindAsync(resultImage.PropertyId);
-                    if (resultProperty is not null)
-                    {
-                        if (resultProperty.UsersID == requestUser.Id || role.Contains("admin"))
-                        {
-                            await FileSettings.DeleteFileAsync(resultImage.Image);
-                            resultImage.Image = await FileSettings.UploadFileAsync(request.Image);
-                            dbContext.UpdateRange(resultImage);
-                            await dbContext.SaveChangesAsync();
-                            return Ok(new { status = 200 });
+                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId.Value);
+                if (requestUser == null)
+                    return Unauthorized(new { message = "User not found" });
 
-                        }
-                        return Unauthorized(new { message = "Only admin or the provider can update image property" });
-                    }
-                    return BadRequest(new { message = "not found property" });
+                var roles = await userManager.GetRolesAsync(requestUser);
 
-                }
-                return BadRequest(new { message = "not found image" });
-            }
-            return NotFound();
+                var resultImage = await dbContext.images.FindAsync(imageId);
+                if (resultImage == null)
+                    return NotFound(new { message = "Image not found" });
+
+                var resultProperty = await dbContext.properties.FindAsync(resultImage.PropertyId);
+                if (resultProperty == null)
+                    return NotFound(new { message = "Property not found" });
+
+                if (resultProperty.UsersID != requestUser.Id && !roles.Contains("admin"))
+                    return Unauthorized(new { message = "Only admin or the provider can update image property" });
+
+                await FileSettings.DeleteFileAsync(resultImage.Image);
+                resultImage.Image = await FileSettings.UploadFileAsync(request.Image);
+                dbContext.Update(resultImage);
+                await dbContext.SaveChangesAsync();
+
+                return Ok(new { status = "success", message = "Image updated successfully" });
+            
         }
+
 
         [HttpDelete("DeleteImageProperty")]
         public async Task<IActionResult> DeleteImageProperty(int imageId)
         {
             if (ModelState.IsValid)
             {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
-                if (string.IsNullOrEmpty(token))
-                    return Unauthorized(new { message = "Token Is Missing" });
+                string token = Request.Headers["Authorization"].ToString();
+                if (!token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                    return Unauthorized(new { message = "Invalid Authorization header" });
+
+                token = token.Substring("Bearer ".Length).Trim();
                 int? userId = await extractClaims.ExtractUserId(token);
                 if (string.IsNullOrEmpty(userId.ToString()))
                     return Unauthorized(new { message = "Token Is Missing" });
@@ -290,103 +360,152 @@ namespace Graduation.Controllers.PropertyToProject
         [HttpPost("AddReviewProperty")]
         public async Task<IActionResult> AddReviewProperty(AddReviewPropertyDTOs request)
         {
-            if (ModelState.IsValid)
-            {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
-                if (string.IsNullOrEmpty(token))
-                    return Unauthorized(new { message = "Token Is Missing" });
+           
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                if (!Request.Headers.TryGetValue("Authorization", out var authHeader))
+                    return Unauthorized(new { message = "Authorization header missing" });
+
+                string token = authHeader.ToString();
+                if (!token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                    return Unauthorized(new { message = "Invalid Authorization header format" });
+
+                token = token.Substring("Bearer ".Length).Trim();
+
                 int? userId = await extractClaims.ExtractUserId(token);
-                if (string.IsNullOrEmpty(userId.ToString()))
-                    return Unauthorized(new { message = "Token Is Missing" });
-                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                var role = await userManager.GetRolesAsync(requestUser);
-                var property = await dbContext.properties.FindAsync(request.PropertyId);
-                var reviewResult = await dbContext.reviews.Where(r => r.UsersID == userId && r.PropertyId == request.PropertyId).ToListAsync();
-                if (reviewResult.Any())
-                {
-                    return BadRequest(new { Message = "You didn't send a review." });
-                }
-                if (property is null)
-                {
-                    return NotFound(new { message = "not found property" });
-                }
-                if (role.Contains("admin"))
-                    return Unauthorized(new { message = "can't admin add this review" });
-                Review review = new Review
+                if (!userId.HasValue)
+                    return Unauthorized(new { message = "Invalid token or user not found" });
+
+                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId.Value);
+                if (requestUser == null)
+                    return Unauthorized(new { message = "User not found" });
+
+                var roles = await userManager.GetRolesAsync(requestUser);
+                if (roles.Contains("admin"))
+                    return Unauthorized(new { message = "Admins cannot add reviews" });
+
+                var property = await dbContext.properties
+                    .Include(p => p.Type)
+                    .Include(p => p.User)
+                    .FirstOrDefaultAsync(p => p.Id == request.PropertyId);
+
+                if (property == null)
+                    return NotFound(new { message = "Property not found" });
+
+                var existingReviews = await dbContext.reviews
+                    .Where(r => r.UsersID == userId && r.PropertyId == request.PropertyId)
+                    .ToListAsync();
+
+                if (existingReviews.Any())
+                    return BadRequest(new { message = "You have already submitted a review for this property." });
+
+                var review = new Review
                 {
                     Description = request.Description,
                     Rating = request.Rating,
-                    CreateAt = DateTime.Now,
+                    CreateAt = DateTime.UtcNow,
                     UsersID = requestUser.Id,
                     PropertyId = request.PropertyId
                 };
+
                 await dbContext.reviews.AddAsync(review);
                 await dbContext.SaveChangesAsync();
+
+                string whatsappMessage = $"📌 إشعار بتعليق جديد\n\n" +
+                                         $"تمت إضافة تعليق جديد على عقارك:\n" +
+                                         $"🏠 العقار: {property.Type.Name}\n" +
+                                         $"📝 التعليق: {review.Description}\n\n" +
+                                         $"🕒 التاريخ: {DateTime.UtcNow:yyyy-MM-dd HH:mm}\n\n" +
+                                         $"شكراً لاستخدامك منصتنا!";
+
+                await WhatsAppService.SendMessageAsync(property.User.PhoneNumber, whatsappMessage);
+
                 return Ok(new { message = true });
-            }
-            return NotFound();
+            
         }
+
         [HttpPut("UpdateReviewProperty")]
         public async Task<IActionResult> UpdateReviewProperty(UpdateReviewDTOs request, int reviewId)
         {
-            if (ModelState.IsValid)
-            {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
-                if (string.IsNullOrEmpty(token))
-                    return Unauthorized(new { message = "Token Is Missing" });
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                if (!Request.Headers.TryGetValue("Authorization", out var authHeader))
+                    return Unauthorized(new { message = "Authorization header missing" });
+
+                string token = authHeader.ToString();
+                if (!token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                    return Unauthorized(new { message = "Invalid Authorization header format" });
+
+                token = token.Substring("Bearer ".Length).Trim();
+
                 int? userId = await extractClaims.ExtractUserId(token);
-                if (string.IsNullOrEmpty(userId.ToString()))
-                    return Unauthorized(new { message = "Token Is Missing" });
-                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                var role = await userManager.GetRolesAsync(requestUser);
+                if (!userId.HasValue)
+                    return Unauthorized(new { message = "Invalid token or user not found" });
 
+                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId.Value);
+                if (requestUser == null)
+                    return Unauthorized(new { message = "User not found" });
 
-                Review result = await dbContext.reviews.FindAsync(reviewId);
-                if (result is not null)
-                {
-                    if (result.UsersID == requestUser.Id || role.Contains("admin"))
-                    {
-                        result.Description = request.Description;
-                        result.Rating = request.Rating;
-                        dbContext.UpdateRange(result);
-                        await dbContext.SaveChangesAsync();
-                        return Ok(new { message = "update successful" });
-                    }
-                    return Unauthorized();
-                }
-                return BadRequest(new { message = "not found review" });
-            }
-            return NotFound();
+                var roles = await userManager.GetRolesAsync(requestUser);
+
+                var review = await dbContext.reviews.FindAsync(reviewId);
+                if (review == null)
+                    return NotFound(new { message = "Review not found" });
+
+                if (review.UsersID != requestUser.Id && !roles.Contains("admin"))
+                    return Unauthorized(new { message = "Only the review owner or admin can update this review" });
+
+                review.Description = request.Description;
+                review.Rating = request.Rating;
+
+                dbContext.Update(review);
+                await dbContext.SaveChangesAsync();
+
+                return Ok(new { message = "Update successful" });
+            
         }
+
         [HttpDelete("DeleteReviewProperty")]
         public async Task<IActionResult> DeleteReviewProperty(int reviewId)
         {
-            if (ModelState.IsValid)
-            {
-                string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
-                if (string.IsNullOrEmpty(token))
-                    return Unauthorized(new { message = "Token Is Missing" });
-                int? userId = await extractClaims.ExtractUserId(token);
-                if (string.IsNullOrEmpty(userId.ToString()))
-                    return Unauthorized(new { message = "Token Is Missing" });
-                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId);
-                var role = await userManager.GetRolesAsync(requestUser);
-                Review result = await dbContext.reviews.FindAsync(reviewId);
-                if (result is not null)
-                {
-                    if (result.UsersID == requestUser.Id || role.Contains("admin"))
-                    {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-                        dbContext.RemoveRange(result);
-                        await dbContext.SaveChangesAsync();
-                        return Ok(new { message = "remove successful" });
-                    }
-                    return Unauthorized();
-                }
-                return BadRequest(new { message = "not found review" });
-            }
-            return NotFound();
+                if (!Request.Headers.TryGetValue("Authorization", out var authHeader))
+                    return Unauthorized(new { message = "Authorization header missing" });
+
+                string token = authHeader.ToString();
+                if (!token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                    return Unauthorized(new { message = "Invalid Authorization header format" });
+
+                token = token.Substring("Bearer ".Length).Trim();
+
+                int? userId = await extractClaims.ExtractUserId(token);
+                if (!userId.HasValue)
+                    return Unauthorized(new { message = "Invalid token or user not found" });
+
+                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId.Value);
+                if (requestUser == null)
+                    return Unauthorized(new { message = "User not found" });
+
+                var roles = await userManager.GetRolesAsync(requestUser);
+
+                var review = await dbContext.reviews.FindAsync(reviewId);
+                if (review == null)
+                    return NotFound(new { message = "Review not found" });
+
+                if (review.UsersID != requestUser.Id && !roles.Contains("admin"))
+                    return Unauthorized(new { message = "Only the review owner or admin can delete this review" });
+
+                dbContext.Remove(review);
+                await dbContext.SaveChangesAsync();
+
+                return Ok(new { message = "Remove successful" });
+            
         }
+
         [HttpGet("AllProperty")]
         public async Task<IActionResult> AllProperty(string? type, string? address)
         {

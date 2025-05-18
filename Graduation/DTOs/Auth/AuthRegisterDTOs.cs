@@ -15,7 +15,7 @@ namespace Graduation.DTOs.Auth
         [MinLength(8)]
         public string Password { get; set; }
 
-        public string? Phone { get; set; }
+        public string Phone { get; set; }
         public int addressId { get; set; }
         public string role { get; set; } = "consumer";
     }

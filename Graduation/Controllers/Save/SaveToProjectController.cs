@@ -156,7 +156,28 @@ namespace Graduation.Controllers.Save
             int? userId = await extractClaims.ExtractUserId(token);
             if (string.IsNullOrEmpty(userId.ToString()))
                 return Unauthorized(new { message = "Token Is Missing" });
-            var result = await dbContext.saveProjects.Where(s => s.UserId == userId).ToListAsync();
+            var result = await dbContext.saveProjects.Where(s => s.UserId == userId)
+                .Include(s => s.Properties)
+                .ThenInclude(p => p.User)
+            .Include(s => s.Properties)
+                .ThenInclude(p => p.Type)
+            .Include(s => s.Properties)
+                .ThenInclude(p => p.Address)
+            .Include(s => s.Properties)
+                .ThenInclude(p => p.ImageDetails)
+            .Include(s => s.Properties)
+                .ThenInclude(p => p.Reviews)
+            .Include(s => s.Services)
+                .ThenInclude(s => s.User)
+            .Include(s => s.Services)
+                .ThenInclude(s => s.Type)
+            .Include(s => s.Services)
+                .ThenInclude(s => s.Address)
+            .Include(s => s.Services)
+                .ThenInclude(s => s.ImageDetails)
+            .Include(s => s.Services)
+                .ThenInclude(s => s.Reviews)
+                .ToListAsync();
             List<GetSavesDTOs> ListSave = new List<GetSavesDTOs>();
             foreach (var project in result)
             {
