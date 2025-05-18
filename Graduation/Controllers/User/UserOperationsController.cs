@@ -794,9 +794,6 @@ namespace Graduation.Controllers.User
 
             if (sender is null || receiver is null)
                 return NotFound(new { message = "User not found" });
-
-            TimeZoneInfo palestineTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Israel Standard Time");
-
             var messages = await dbContext.Messages
                 .Where(m => (m.SenderId == sender.Id && m.ReceiverId == receiver.Id) ||
                            (m.SenderId == receiver.Id && m.ReceiverId == sender.Id))
@@ -813,7 +810,7 @@ namespace Graduation.Controllers.User
             var result = messages.Select(m => new HistoryMessageDTOs
             {
                 Message = m.Message,
-                Timestamp = TimeZoneInfo.ConvertTimeFromUtc(m.Timestamp, palestineTimeZone),
+                Timestamp = m.Timestamp,
                 SenderName = userManager.Users.Where(u => u.Id == m.SenderId).Select(u => u.UserName).FirstOrDefault(),
                 ReceiverName = userManager.Users.Where(u => u.Id == m.ReceiverId).Select(u => u.UserName).FirstOrDefault()
             }).ToList();
