@@ -1132,6 +1132,16 @@
   },
   {
     "ContainingType": "Graduation.Controllers.User.UserOperationsController",
+    "Method": "notification",
+    "RelativePath": "UserOperations/notification",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Graduation.Controllers.User.UserOperationsController",
     "Method": "profile",
     "RelativePath": "UserOperations/profile",
     "HttpMethod": "GET",

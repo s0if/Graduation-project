@@ -10,6 +10,7 @@ namespace Graduation.Model
         public string? ConfirmationCode { get; set; }
         public DateTime? ConfirmationCodeExpiry { get; set; } 
         public string? CurrentTokenId { get; set; }
+        public bool notification { get; set; } = true;
         [ForeignKey(nameof(Address))]
         public int? AddressId { get; set; }
         public AddressToProject? Address { get; set; }

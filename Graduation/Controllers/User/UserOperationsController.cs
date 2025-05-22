@@ -24,6 +24,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace Graduation.Controllers.User
 {
     [Route("[controller]")]
@@ -71,7 +72,8 @@ namespace Graduation.Controllers.User
                         Address = user.Address?.Name,
                         Role = string.Join(",", await userManager.GetRolesAsync(user)),
                         ConfirmEmail = user.EmailConfirmed,
-                        CreateAt=user.CreateAt
+                        CreateAt=user.CreateAt,
+                        Notification=user.notification,
                     });
                 }
                 return Ok(AllUser);
@@ -109,7 +111,8 @@ namespace Graduation.Controllers.User
                             Phone = user.PhoneNumber,
                             Address = user.Address?.Name,
                             Role = string.Join(",", await userManager.GetRolesAsync(user)) ,
-                            CreateAt = user.CreateAt
+                            CreateAt = user.CreateAt  ,
+                            Notification=user.notification
                         });
                     }
                 }
@@ -135,7 +138,8 @@ namespace Graduation.Controllers.User
                 Phone = requestUser.PhoneNumber,
                 Address = requestUser.Address?.Name,
                 Role = string.Join(",", await userManager.GetRolesAsync(requestUser))  ,
-                CreateAt =  requestUser .CreateAt
+                CreateAt =  requestUser .CreateAt  ,
+                Notification=requestUser.notification
             };
             return Ok(result);
         }
@@ -255,6 +259,7 @@ namespace Graduation.Controllers.User
                 Address = requestUser.Address?.Name,
                 Role = string.Join(",", await userManager.GetRolesAsync(requestUser))   ,
                 CreateAt = requestUser.CreateAt,
+                Notification=requestUser.notification
             };
             return Ok(result);
         }
@@ -767,6 +772,78 @@ namespace Graduation.Controllers.User
             await hubContext.Clients.User(sender.Id.ToString()).SendAsync("MessageSent", message.Id);
             await hubContext.Clients.User(receiver.Id.ToString()).SendAsync("UpdateChatList");
 
+            var lastMessage = await dbContext.Messages
+                .Where(m => (m.SenderId == sender.Id && m.ReceiverId == receiver.Id) ||
+                            (m.SenderId == receiver.Id && m.ReceiverId == sender.Id))
+                .OrderByDescending(m => m.Timestamp)  
+                .Select(m => new
+                {
+                    m.Timestamp,
+                })
+                .FirstOrDefaultAsync();
+
+            if (lastMessage is not null&& lastMessage.Timestamp.AddMinutes(1)>palestineTime)
+            {
+                if (receiver.EmailConfirmed is false && receiver.PhoneNumberConfirmed is false)
+                    return BadRequest(new
+                    {
+                        message = "not validation"
+                    });
+                if (receiver.notification is true)
+                {
+
+                    if(receiver.Email is null)
+                    {
+                        await WhatsAppService.SendMessageAsync(receiver.PhoneNumber, $"""
+                                📩 *رسالة جديدة على عقارتي*
+        
+                                مرحباً {receiver.UserName}،
+                                لديك رسالة جديدة من *{sender.UserName}*:
+        
+                                ⏰ الوقت: {DateTime.Now.ToString("yyyy-MM-dd HH:mm")}
+        
+                                يمكنك الرد عبر التطبيق:
+                                https://aqaraty.netlify.app/
+        
+                                لإيقاف الإشعارات:
+                                انتقل إلى: الإعدادات → إشعارات الرسائل
+        
+                                مع تحيات فريق عقارتي
+                                """);
+                    }
+                    else
+                    {
+
+                        EmailDTOs email = new EmailDTOs()
+                        {
+                            Subject = $"رسالة جديدة من {sender.UserName} تنتظرك!",
+                            Recivers = receiver.Email,
+                            Body = $@"
+                                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e1e1e1; padding: 20px;'>
+                                    <h2 style='color: #2c3e50;'>مرحباً {receiver.UserName},</h2>
+                                    <p style='font-size: 16px;'>
+                                        لديك رسالة جديدة من <strong>{sender.UserName}</strong> تنتظر قراءتك!
+                                    </p>
+                                    <p style='font-size: 14px; color: #7f8c8d;'>
+                                        ⏰ آخر نشاط: {DateTime.Now.ToString("yyyy-MM-dd HH:mm")}
+                                    </p>
+                                    <a href='https://aqaraty.netlify.app/' 
+                                       style='background-color: #3498db; color: white; padding: 10px 20px; 
+                                              text-decoration: none; border-radius: 5px; display: inline-block;'>
+                                         زيارة الموقع
+                                    </a>
+                                    <p style='font-size: 12px; color: #95a5a6; margin-top: 20px;'>
+                                        يمكنك إيقاف هذه الإشعارات من إعدادات حسابك.
+                                    </p>
+                                </div>"
+                         };
+
+                        EmailSetting.SendEmail(email);
+                    }
+                }
+               
+            }
+
             return Ok(new
             {
                 Message = "Message sent successfully.",
@@ -879,6 +956,29 @@ namespace Graduation.Controllers.User
             await hubContext.Clients.User(userId.ToString()).SendAsync("UpdateChatList");
 
             return Ok(orderedResult);
+        }
+        [HttpPost("notification")]
+        public async Task<IActionResult> notification()
+        {
+            string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "").Trim();
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(new { message = "Token Is Missing" });
+
+            int? userId = await extractClaims.ExtractUserId(token);
+            if (!userId.HasValue || userId <= 0)
+                return Unauthorized(new { message = "Invalid Token" });
+            var user = await userManager.Users.FirstOrDefaultAsync(user => user.Id == userId);
+            if (user is null)
+                return NotFound(new { Success = false, Message = "User not found" });
+            user.notification=!user.notification;
+            await dbContext.SaveChangesAsync();
+            return Ok(new
+            {
+                Success = true,
+                Message = "Notification status updated successfully",
+                NotificationEnabled = user.notification
+            });
+
         }
 
         [HttpGet("HelpSearch")]

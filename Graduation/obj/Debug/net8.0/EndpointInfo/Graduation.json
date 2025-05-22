@@ -1973,6 +1973,18 @@
         }
       }
     },
+    "/UserOperations/notification": {
+      "post": {
+        "tags": [
+          "UserOperations"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/UserOperations/HelpSearch": {
       "get": {
         "tags": [

@@ -456,7 +456,7 @@ namespace Graduation.Controllers.Auth
                             detail = "Please confirm your email and phone number",
                         });
                     } 
-                    var result = await signInManager.PasswordSignInAsync(user, request.Password, true, true);
+                    var result = await signInManager.PasswordSignInAsync(user, request.Password, false, true);
                     if (result.Succeeded)
                     {
                         var role = await userManager.GetRolesAsync(user);
