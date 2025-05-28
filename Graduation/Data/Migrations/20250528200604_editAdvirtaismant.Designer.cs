@@ -4,6 +4,7 @@ using Graduation.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Graduation.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250528200604_editAdvirtaismant")]
+    partial class editAdvirtaismant
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -263,6 +266,9 @@ namespace Graduation.Data.Migrations
                     b.Property<int>("AddressId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("AdvertisementID")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -291,6 +297,8 @@ namespace Graduation.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AddressId");
+
+                    b.HasIndex("AdvertisementID");
 
                     b.HasIndex("TypeId");
 
@@ -379,6 +387,9 @@ namespace Graduation.Data.Migrations
                     b.Property<int>("AddressId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("AdvertisementID")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -395,6 +406,8 @@ namespace Graduation.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AddressId");
+
+                    b.HasIndex("AdvertisementID");
 
                     b.HasIndex("TypeId");
 
@@ -648,6 +661,10 @@ namespace Graduation.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Graduation.Model.AdvertisementProject", "Advertisements")
+                        .WithMany()
+                        .HasForeignKey("AdvertisementID");
+
                     b.HasOne("Graduation.Model.TypeProperty", "Type")
                         .WithMany("Properties")
                         .HasForeignKey("TypeId")
@@ -661,6 +678,8 @@ namespace Graduation.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Address");
+
+                    b.Navigation("Advertisements");
 
                     b.Navigation("Type");
 
@@ -723,6 +742,10 @@ namespace Graduation.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Graduation.Model.AdvertisementProject", "Advertisements")
+                        .WithMany()
+                        .HasForeignKey("AdvertisementID");
+
                     b.HasOne("Graduation.Model.TypeService", "Type")
                         .WithMany("Services")
                         .HasForeignKey("TypeId")
@@ -736,6 +759,8 @@ namespace Graduation.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Address");
+
+                    b.Navigation("Advertisements");
 
                     b.Navigation("Type");
 

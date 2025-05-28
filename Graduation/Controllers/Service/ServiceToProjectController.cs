@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -161,18 +162,17 @@ namespace Graduation.Controllers.ServiceToProject
                             foreach (var item in result.Saves)
                             {
 
-                                dbContext.saveProjects.RemoveRange(item);
+                                dbContext.saveProjects.Remove(item);
                             }
                         }
 
-                        var advertisment = await dbContext.advertisements.FindAsync(result.AdvertisementID);
-                        if (advertisment is not null)
+                        // حذف الإعلانات المرتبطة
+                        var adv = await dbContext.advertisements.Where(a => a.serviceId == serviceId).FirstOrDefaultAsync();
+                        if (adv is not null)
                         {
-                            result.AdvertisementID = null;
-                            dbContext.Update(result);
-                            await dbContext.SaveChangesAsync();
-                            dbContext.Remove(advertisment);
+                            dbContext.advertisements.RemoveRange(adv);
                         }
+
                         dbContext.services.RemoveRange(result);
                         await dbContext.SaveChangesAsync();
 

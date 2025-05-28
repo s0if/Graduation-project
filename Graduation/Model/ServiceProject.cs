@@ -13,9 +13,6 @@ namespace Graduation.Model
         public ApplicationUser User { get; set; }
 
 
-        [ForeignKey(nameof(Advertisements))]
-        public int? AdvertisementID { get; set; }
-        public AdvertisementProject? Advertisements { get; set; }
 
 
         [ForeignKey(nameof(Type))]

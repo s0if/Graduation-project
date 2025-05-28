@@ -9,7 +9,7 @@ namespace Graduation.DTOs.Advertisement
         public int Id { get; set; }
         public DateTime StartAt { get; set; }
         public DateTime EndAt { get; set; }
-        public List<GetAllPropertyDTOs> Properties { get; set; } 
-        public List<GetAllServiceDTOs> Services { get; set; }
+        public GetAllPropertyDTOs? Property { get; set; }
+        public GetAllServiceDTOs? Service { get; set; }
     }
 }

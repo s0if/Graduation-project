@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using System;
+using System.Linq;
 
 namespace Graduation.Controllers.PropertyToProject
 {
@@ -33,58 +34,76 @@ namespace Graduation.Controllers.PropertyToProject
         }
 
         [HttpPost("AddProperty")]
-        public async Task<IActionResult> AddProperty(AddPropertyDTOs request)
+        public async Task<IActionResult> AddProperty([FromBody] AddPropertyDTOs request)
         {
             
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
 
-                string token = Request.Headers["Authorization"].ToString();
-                if (!token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-                    return Unauthorized(new { message = "Invalid Authorization header" });
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-                token = token.Substring("Bearer ".Length).Trim();
+            // التحقق من وجود توكن
+            if (!Request.Headers.TryGetValue("Authorization", out var authHeader))
+                return Unauthorized(new { message = "Token Is Missing" });
 
-                int? userId = await extractClaims.ExtractUserId(token);
-                if (!userId.HasValue)
-                    return Unauthorized(new { message = "Invalid token " });
+            string token = authHeader.ToString().Replace("Bearer", "").Trim();
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(new { message = "Invalid Token" });
 
-                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId.Value);
-                if (requestUser == null)
-                    return Unauthorized(new { message = "User not found" });
+            // استخراج هوية المستخدم
+            int? userId = await extractClaims.ExtractUserId(token);
+            if (!userId.HasValue)
+                return Unauthorized(new { message = "Invalid token" });
 
-                var roles = await userManager.GetRolesAsync(requestUser);
-                if (!roles.Contains("provider") && !roles.Contains("admin"))
-                    return Unauthorized(new { message = "Only admin or provider can add this property" });
+            // جلب بيانات المستخدم
+            var requestUser = await userManager.FindByIdAsync(userId.Value.ToString());
+            if (requestUser == null)
+                return Unauthorized(new { message = "User not found" });
 
-                var project = new PropertyProject
-                {
-                    Description = request.Description,
-                    TypeId = request.TypeId,
-                    UsersID = requestUser.Id,
-                    AddressId = request.AddressId,
-                    Price = request.Price,
-                    lat = request.lat,
-                    lng = request.lng,
-                    StartAt = DateTime.Now,
-                };
-                await dbContext.properties.AddAsync(project);
-                await dbContext.SaveChangesAsync();
-            ReturnPropertyDTOs returnProperty = new ReturnPropertyDTOs
-                {
-                    Id = project.Id,
-                    Description = project.Description,
-                    TypeId = project.TypeId,
-                    lat = request.lat,
-                    lng = request.lng,
-                    userId = project.UsersID,
-                    addressId = project.AddressId,
-                    Price = project.Price,
-                    StartAt=project.StartAt,
-                };
+            // التحقق من الصلاحيات
+            var isProviderOrAdmin = await userManager.IsInRoleAsync(requestUser, "provider") ||
+                                  await userManager.IsInRoleAsync(requestUser, "admin");
+            if (!isProviderOrAdmin)
+                return Unauthorized(new { message = "Only admin or provider can add this property" });
 
-                return Ok(new { status = "success", data = returnProperty });
-           
+            // إنشاء العقار الجديد
+            var project = new PropertyProject
+            {
+                Description = request.Description,
+                TypeId = request.TypeId,
+                UsersID = requestUser.Id,
+                AddressId = request.AddressId,
+                Price = request.Price,
+                lat = request.lat,
+                lng = request.lng,
+                StartAt = DateTime.Now,
+                updateAt = DateTime.Now // إضافة تاريخ التحديث
+            };
+
+            // حفظ العقار في قاعدة البيانات
+            await dbContext.properties.AddAsync(project);
+            await dbContext.SaveChangesAsync();
+
+            // إعداد البيانات للإرجاع
+            var returnProperty = new ReturnPropertyDTOs
+            {
+                Id = project.Id,
+                Description = project.Description,
+                TypeId = project.TypeId,
+                lat = project.lat,
+                lng = project.lng,
+                userId = project.UsersID,
+                addressId = project.AddressId,
+                Price = project.Price,
+                StartAt = project.StartAt,
+                updateAt = project.updateAt // إضافة تاريخ التحديث للإرجاع
+            };
+
+            return Ok(new
+            {
+                status = "success",
+                data = returnProperty,
+                message = "Property added successfully"
+            });
         }
         [HttpPut("UpdateProperty")]
         public async Task<IActionResult> UpdateProperty(UpdatePropertyDTOs request, int propertyId)
@@ -151,24 +170,23 @@ namespace Graduation.Controllers.PropertyToProject
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
+                // التحقق من التوكن
                 if (!Request.Headers.TryGetValue("Authorization", out var authHeader))
                     return Unauthorized(new { message = "Authorization header missing" });
 
-                string token = authHeader.ToString();
-                if (!token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-                    return Unauthorized(new { message = "Invalid Authorization header format" });
-
-                token = token.Substring("Bearer ".Length).Trim();
+                string token = authHeader.ToString().Replace("Bearer", "").Trim();
+                if (string.IsNullOrEmpty(token))
+                    return Unauthorized(new { message = "Invalid Token" });
 
                 int? userId = await extractClaims.ExtractUserId(token);
                 if (!userId.HasValue)
                     return Unauthorized(new { message = "Invalid token or user not found" });
 
-                ApplicationUser requestUser = await userManager.Users.FirstOrDefaultAsync(u => u.Id == userId.Value);
+                var requestUser = await userManager.FindByIdAsync(userId.Value.ToString());
                 if (requestUser == null)
                     return Unauthorized(new { message = "User not found" });
 
-                var roles = await userManager.GetRolesAsync(requestUser);
+                var isAdmin = await userManager.IsInRoleAsync(requestUser, "admin");
 
                 var property = await dbContext.properties
                     .Include(p => p.ImageDetails)
@@ -179,11 +197,10 @@ namespace Graduation.Controllers.PropertyToProject
                 if (property == null)
                     return NotFound(new { message = "Property not found" });
 
-                // السماح بالحذف فقط للمالك أو الأدمن
-                if (property.UsersID != requestUser.Id && !roles.Contains("admin"))
+                if (property.UsersID != requestUser.Id && !isAdmin)
                     return Unauthorized(new { message = "Only admin or the provider can delete this property" });
 
-                // حذف الصور المرتبطة
+                // حذف البيانات المرتبطة
                 if (property.ImageDetails.Any())
                 {
                     foreach (var image in property.ImageDetails)
@@ -193,39 +210,28 @@ namespace Graduation.Controllers.PropertyToProject
                     }
                 }
 
-                // حذف التقييمات المرتبطة
                 if (property.Reviews.Any())
-                {
-                    foreach (var review in property.Reviews)
-                    {
-                        dbContext.reviews.Remove(review);
-                    }
-                }
+                    dbContext.reviews.RemoveRange(property.Reviews);
 
-                // حذف السيفات المرتبطة
                 if (property.Saves.Any())
-                {
                     dbContext.saveProjects.RemoveRange(property.Saves);
-                }
 
-                // التعامل مع الإعلان المرتبط
-                if (property.AdvertisementID != null)
-                {
-                    var advertisement = await dbContext.advertisements.FindAsync(property.AdvertisementID);
-                    if (advertisement != null)
-                    {
-                        property.AdvertisementID = null;
-                        dbContext.Update(property);
-                        await dbContext.SaveChangesAsync();
-                        dbContext.Remove(advertisement);
-                    }
-                }
+                var adv = await dbContext.advertisements
+                    .Where(a => a.propertyId == propertyId)
+                    .ToListAsync(); // تغيير من FirstOrDefault إلى ToList
 
-                // حذف العقار نفسه
-                dbContext.Remove(property);
+                if (adv.Any())
+                    dbContext.advertisements.RemoveRange(adv);
+
+                dbContext.properties.Remove(property);
                 await dbContext.SaveChangesAsync();
 
-                return Ok(new { status = "success", message = "Property deleted successfully" });
+                return Ok(new
+                {
+                    status = "success",
+                    message = "Property deleted successfully",
+                    deletedAdvertisements = adv.Count
+                });
             
         }
 

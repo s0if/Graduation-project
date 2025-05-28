@@ -302,13 +302,19 @@ namespace Graduation.Controllers.User
                 int advertisementsService = 0;
                 int advertisementsProperty = 0;
                 IEnumerable<AdvertisementProject> advertisements = await dbContext.advertisements
-                    .Include(adv => adv.Services)
-                    .Include(adv => adv.Properties)
+                    .Include(adv => adv.service)
+                    .Include(adv => adv.property)
                     .ToListAsync();
                 foreach (var item in advertisements)
                 {
-                    advertisementsService += item.Services.Count();
-                    advertisementsProperty += item.Properties.Count();
+                    if (item.service != null)
+                    {
+                        advertisementsService += 1;
+                    }
+                    if (item.property != null)
+                    {
+                        advertisementsProperty += 1;
+                    }
                 }
 
                 int service = await dbContext.services.CountAsync();

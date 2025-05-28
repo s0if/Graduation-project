@@ -132,19 +132,19 @@ namespace Graduation
 
             // Configure the HTTP request pipeline.
 
-            //if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
-            //{
-            //    app.UseSwagger();
-            //    app.UseSwaggerUI();
-            //}
-            if (app.Environment.IsDevelopment())
+            if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
             {
-                app.UseSwagger(option =>
-                {
-                    option.RouteTemplate = "openapi/{documentName}.json";
-                });
-                app.MapScalarApiReference();
+                app.UseSwagger();
+                app.UseSwaggerUI();
             }
+            //if (app.Environment.IsDevelopment())
+            //{
+            //    app.UseSwagger(option =>
+            //    {
+            //        option.RouteTemplate = "openapi/{documentName}.json";
+            //    });
+            //    app.MapScalarApiReference();
+            //}
 
             app.UseCors("allowAll");
             app.UseHttpsRedirection();
