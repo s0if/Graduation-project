@@ -293,124 +293,125 @@ namespace Graduation.Controllers.Advertisement
         [HttpGet("AllAdvertisement")]
         public async Task<IActionResult> AllAdvertisement(string? type, string? address)
         {
+            
+                // 1. حذف الإعلانات المنتهية
+                var expiredAds = await dbContext.advertisements
+                    .Where(adv => adv.EndAt <= DateTime.Now)
+                    .ToListAsync();
 
-            var expiredAds = await dbContext.advertisements
-                .Where(adv => adv.EndAt <= DateTime.Now)
-                .Include(a => a.service)
-                .Include(a => a.property)
-                .ToListAsync();
-
-            if (expiredAds.Any())
-            {
-
-                foreach (var ad in expiredAds)
+                if (expiredAds.Any())
                 {
-                   
-
-                    dbContext.advertisements.Remove(ad);
+                    dbContext.advertisements.RemoveRange(expiredAds);
+                    await dbContext.SaveChangesAsync();
                 }
 
-                await dbContext.SaveChangesAsync();
-            }
-
-
-            var query = dbContext.advertisements
-            .Where(adv => adv.StartAt <= DateTime.Now && adv.EndAt > DateTime.Now)
-            .Include(a => a.property)
-                    .ThenInclude(p => p.Type)
-                .Include(a => a.property)
-                    .ThenInclude(p => p.ImageDetails)
-                .Include(a => a.property)
-                    .ThenInclude(p => p.Reviews)
-                .Include(a => a.property)
-                    .ThenInclude(p => p.Address)
-                .Include(a => a.property)
-                    .ThenInclude(p => p.User)
-                .Include(a => a.service)
-                    .ThenInclude(s => s.Type)
-                .Include(a => a.service)
-                    .ThenInclude(s => s.ImageDetails)
-                .Include(a => a.service)
-                    .ThenInclude(s => s.Reviews)
-                .Include(a => a.service)
-                    .ThenInclude(s => s.Address)
-                .Include(a => a.service)
-                    .ThenInclude(s => s.User)
-                .OrderByDescending(adv => adv.Id)
-            .AsQueryable();
-
-
+                
+                var query = dbContext.advertisements
+                    .Where(adv => adv.StartAt.Date <= DateTime.Now.Date && adv.EndAt.Date > DateTime.Now.Date)
+                    .Include(a => a.property)
+                        .ThenInclude(p => p.Type)
+                    .Include(a => a.property)
+                        .ThenInclude(p => p.ImageDetails)
+                    .Include(a => a.property)
+                        .ThenInclude(p => p.Reviews)
+                    .Include(a => a.property)
+                        .ThenInclude(p => p.Address)
+                    .Include(a => a.property)
+                        .ThenInclude(p => p.User)
+                    .Include(a => a.service)
+                        .ThenInclude(s => s.Type)
+                    .Include(a => a.service)
+                        .ThenInclude(s => s.ImageDetails)
+                    .Include(a => a.service)
+                        .ThenInclude(s => s.Reviews)
+                    .Include(a => a.service)
+                        .ThenInclude(s => s.Address)
+                    .Include(a => a.service)
+                        .ThenInclude(s => s.User)
+                    .AsNoTracking()
+                    .AsQueryable();
             if (!string.IsNullOrEmpty(type))
             {
                 query = query.Where(adv =>
-                    (adv.property != null && adv.property.Type.Name == type) ||
-                    (adv.service != null && adv.service.Type.Name == type));
+               (adv.property != null && adv.property.Type != null && adv.property.Type.Name.Contains(type)) ||
+               (adv.service != null && adv.service.Type != null && adv.service.Type.Name.Contains(type))
+                );
             }
-
             if (!string.IsNullOrEmpty(address))
             {
                 query = query.Where(adv =>
-                   (adv.property != null && adv.property.Address.Name == address) ||
-                   (adv.service != null && adv.service.Address.Name == address));
+                    (adv.property != null && adv.property.Address != null && adv.property.Address.Name.Contains(address)) ||
+                    (adv.service != null && adv.service.Address != null && adv.service.Address.Name.Contains(address))
+                );
             }
 
-            var result = await query.Select(adv => new GetAllAdvertisementDTOs
-            {
-                Id = adv.Id,
-                StartAt = adv.StartAt,
-                EndAt = adv.EndAt,
-                Property= adv.property != null ? new GetAllPropertyDTOs
-                {
-                    Id = adv.property.Id,
-                    Description = adv.property.Description,
-                    StartAt = adv.property.StartAt,
-                    updateAt = adv.property.updateAt,
-                    UserID = adv.property.UsersID,
-                    lat = adv.property.lat,
-                    lng = adv.property.lng,
-                    TypeName = adv.property.Type != null ? adv.property.Type.Name : null,
-                    userName = adv.property.User != null ? adv.property.User.UserName : null,
-                    AddressName = adv.property.Address != null ? adv.property.Address.Name : null,
-                    ImageDetails = adv.property.ImageDetails.Select(img => new GetImageDTOs
-                    {
-                        Id = img.Id,
-                        Name = img.Image
-                    }).ToList(),
-                    Reviews = adv.property.Reviews.Select(r => new GetAllReviewDTOs
-                    {
-                        Id = r.Id,
-                        UserId = r.UsersID,
-                        date = r.CreateAt,
-                        description = r.Description,
-                        rating = r.Rating,
-                    }).ToList(),
-                } : null,
-               Service = adv.service != null ? new GetAllServiceDTOs
-                {
-                    Id = adv.service.Id,
-                    Description = adv.service.Description,
-                    PriceRange = adv.service.PriceRange,
-                    TypeName = adv.service.Type != null ? adv.service.Type.Name : null,
-                    userId = adv.service.UsersID,
-                    UserName = adv.service.User != null ? adv.service.User.UserName : null,
-                    AddressName = adv.service.Address != null ? adv.service.Address.Name : null,
-                    ImageDetails = adv.service.ImageDetails.Select(img => new GetImageDTOs
-                    {
-                        Id = img.Id,
-                        Name = img.Image
-                    }).ToList(),
-                    Reviews = adv.service.Reviews.Select(r => new GetAllReviewDTOs
-                    {
-                        Id = r.Id,
-                        UserId = r.UsersID,
-                        date = r.CreateAt,
-                        description = r.Description,
-                        rating = r.Rating,
-                    }).ToList(),
-                } : null
-            }).ToListAsync();
+            // 3. التنفيذ مع معالجة الأخطاء لكل إعلان
+            var result = new List<GetAllAdvertisementDTOs>();
+                var allAds = await query.ToListAsync();
 
-            return Ok(result);
+                foreach (var adv in allAds)
+                {
+                   
+                        var dto = new GetAllAdvertisementDTOs
+                        {
+                            Id = adv.Id,
+                            StartAt = adv.StartAt,
+                            EndAt = adv.EndAt,
+                            Properties = adv.property != null ? new GetAllPropertyDTOs
+                            {
+                                
+                                Id = adv.property.Id,
+                                Description = adv.property.Description,
+                                TypeName = adv.property.Type?.Name,
+                                userName = adv.property.User?.UserName,
+                                AddressName = adv.property.Address?.Name,
+                                UserID= adv.property.UsersID,
+                                lat=adv.property.lat,
+                                lng=adv.property.lng,
+                                ImageDetails = adv.property.ImageDetails?.Select(img => new GetImageDTOs
+                                {
+                                    Id = img.Id,
+                                    Name = img.Image
+                                }).ToList() ?? new List<GetImageDTOs>(),
+                                Reviews = adv.property.Reviews?.Select(r => new GetAllReviewDTOs
+                                {
+                                    Id = r.Id,
+                                    UserId = r.UsersID,
+                                    date = r.CreateAt,
+                                    description = r.Description,
+                                    rating = r.Rating,
+                                }).ToList() ?? new List<GetAllReviewDTOs>()
+                            } : null,
+                            Services = adv.service != null ? new GetAllServiceDTOs
+                            {
+                                // إضافة فحص NULL لكل خاصية
+                                Id = adv.service.Id,
+                                Description = adv.service.Description,
+                                TypeName = adv.service.Type?.Name,
+                                UserName = adv.service.User?.UserName,
+                                userId = adv.service.UsersID,
+                                AddressName = adv.service.Address?.Name,
+                                ImageDetails = adv.service.ImageDetails?.Select(img => new GetImageDTOs
+                                {
+                                    Id = img.Id,
+                                    Name = img.Image
+                                }).ToList() ?? new List<GetImageDTOs>(),
+                                Reviews = adv.service.Reviews?.Select(r => new GetAllReviewDTOs
+                                {
+                                    Id = r.Id,
+                                    UserId = r.UsersID,
+                                    date = r.CreateAt,
+                                    description = r.Description,
+                                    rating = r.Rating,
+                                }).ToList() ?? new List<GetAllReviewDTOs>()
+                            } : null
+                        };
+                        result.Add(dto);
+                    
+                }
+
+                return Ok(result);
+           
         }
         [HttpGet("Suggest")]
         public async Task<IActionResult> Suggest()
@@ -482,7 +483,7 @@ namespace Graduation.Controllers.Advertisement
                     Id = adv.Id,
                     StartAt = adv.StartAt,
                     EndAt = adv.EndAt,
-                    Property = adv.property != null && adv.property.Address.Name == userCity ?
+                    Properties = adv.property != null && adv.property.Address.Name == userCity ?
                         new GetAllPropertyDTOs
                         {
                             Id = adv.property.Id,
@@ -511,7 +512,7 @@ namespace Graduation.Controllers.Advertisement
                                 rating = r.Rating,
                             }).ToList(),
                         } : null,
-                    Service = adv.service != null && adv.service.Address.Name == userCity ?
+                    Services = adv.service != null && adv.service.Address.Name == userCity ?
                         new GetAllServiceDTOs
                         {
                             Id = adv.service.Id,
@@ -542,8 +543,8 @@ namespace Graduation.Controllers.Advertisement
             var sortedAdvertisements = result
                 .OrderByDescending(adv =>
                     Math.Max(
-                        adv.Property?.AvgRating ?? 0,
-                        adv.Service?.AvgRating ?? 0
+                        adv.Properties?.AvgRating ?? 0,
+                        adv.Services?.AvgRating ?? 0
                     ))
                 .ToList();
 
@@ -621,7 +622,7 @@ namespace Graduation.Controllers.Advertisement
                     Id = adv.Id,
                     StartAt = adv.StartAt,
                     EndAt = adv.EndAt,
-                    Property = adv.property != null && adv.property.Address.Name == userCity ?
+                    Properties = adv.property != null && adv.property.Address.Name == userCity ?
                         new GetAllPropertyDTOs
                         {
                             Id = adv.property.Id,
@@ -650,7 +651,7 @@ namespace Graduation.Controllers.Advertisement
                                 rating = r.Rating,
                             }).ToList(),
                         } : null,
-                    Service = adv.service != null && adv.service.Address.Name == userCity ?
+                    Services = adv.service != null && adv.service.Address.Name == userCity ?
                         new GetAllServiceDTOs
                         {
                             Id = adv.service.Id,
@@ -677,16 +678,9 @@ namespace Graduation.Controllers.Advertisement
                         } : null
                 }).ToListAsync();
 
-            // Sort by highest rating
-            var sortedAdvertisements = result
-                .OrderByDescending(adv =>
-                    Math.Max(
-                        adv.Property?.AvgRating ?? 0,
-                        adv.Service?.AvgRating ?? 0
-                    ))
-                .ToList();
+            
 
-            return Ok(sortedAdvertisements);
+            return Ok(result);
         }
 
     }

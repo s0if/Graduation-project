@@ -72,6 +72,7 @@ namespace Graduation.Controllers.User
                         Address = user.Address?.Name,
                         Role = string.Join(",", await userManager.GetRolesAsync(user)),
                         ConfirmEmail = user.EmailConfirmed,
+                        ConfirmPhone=user.PhoneNumberConfirmed,
                         CreateAt=user.CreateAt,
                         Notification=user.notification,
                     });
@@ -139,7 +140,9 @@ namespace Graduation.Controllers.User
                 Address = requestUser.Address?.Name,
                 Role = string.Join(",", await userManager.GetRolesAsync(requestUser))  ,
                 CreateAt =  requestUser .CreateAt  ,
-                Notification=requestUser.notification
+                Notification=requestUser.notification  ,
+                ConfirmPhone = requestUser.PhoneNumberConfirmed,
+                ConfirmEmail= requestUser.EmailConfirmed,
             };
             return Ok(result);
         }
@@ -673,7 +676,8 @@ namespace Graduation.Controllers.User
                                     var returnWhatsapp = "";
                                     foreach (var user in allUser)
                                     {
-
+                                        if (user.PhoneNumber.Length < 11)
+                                            continue;
                                         returnWhatsapp = await WhatsAppService.SendMessageAsync(user.PhoneNumber, Body, imageName);
                                     }
                                     return Ok(new { returnWhatsapp });
@@ -696,6 +700,8 @@ namespace Graduation.Controllers.User
                                     var returnWhatsapp = "";
                                     foreach (var user in allUser)
                                     {
+                                        if (user.PhoneNumber.Length<11)
+                                            continue;
 
                                         returnWhatsapp = await WhatsAppService.SendMessageAsync(user.PhoneNumber, Body);
                                     }
@@ -713,6 +719,9 @@ namespace Graduation.Controllers.User
                             }
                             foreach (var user in allUser)
                             {
+                                if (user.Email is null)
+                                    continue;
+                                
                                 EmailDTOs email = new EmailDTOs()
                                 {
                                     Subject = request.Title,
@@ -788,7 +797,7 @@ namespace Graduation.Controllers.User
                 })
                 .FirstOrDefaultAsync();
 
-            if (lastMessage is not null&& lastMessage.Timestamp.AddMinutes(1)>palestineTime)
+            if (lastMessage is not null&& lastMessage.Timestamp.AddMinutes(59)>palestineTime)
             {
                 if (receiver.EmailConfirmed is false && receiver.PhoneNumberConfirmed is false)
                     return BadRequest(new

@@ -21,6 +21,8 @@ namespace Graduation.Data
             builder.Entity<Review>().HasOne(r => r.Properties).WithMany(p=>p.Reviews).HasForeignKey(r => r.PropertyId).OnDelete(deleteBehavior: DeleteBehavior.Restrict);
             
             builder.Entity<ApplicationUser>().HasIndex(u=>u.PhoneNumber).IsUnique();
+            builder.Entity<AdvertisementProject>().HasOne(a => a.property).WithOne().HasForeignKey<AdvertisementProject>(a => a.propertyId);
+            builder.Entity<AdvertisementProject>().HasOne(a => a.service).WithOne().HasForeignKey<AdvertisementProject>(a => a.serviceId);
         }
         public DbSet<ApplicationUser> users { get; set; }
         public DbSet<AdvertisementProject> advertisements { get; set; }

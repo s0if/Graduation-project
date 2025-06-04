@@ -10,6 +10,7 @@
         public string Role { get; set; }
         public bool Notification { get; set; }
         public bool ConfirmEmail { get; set; }
+        public bool ConfirmPhone { get; set; }
         public DateTime CreateAt { get; set; }
     }
 }

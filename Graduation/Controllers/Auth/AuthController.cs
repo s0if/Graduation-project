@@ -113,6 +113,7 @@ namespace Graduation.Controllers.Auth
                         PhoneNumber = request.Phone,
                         AddressId = request.addressId    ,
                         CreateAt = DateTime.Now,
+                        notification = true
                     };
                 }
                 else
@@ -123,6 +124,7 @@ namespace Graduation.Controllers.Auth
                         PhoneNumber = request.Phone,
                         AddressId = request.addressId   ,
                         CreateAt= DateTime.Now,
+                        notification=true
                     };
                 }
                 IdentityResult result = await userManager.CreateAsync(user, request.Password);
@@ -251,13 +253,13 @@ namespace Graduation.Controllers.Auth
                         if (user.ConfirmationCodeExpiry >= DateTime.Today.Add(DateTime.Now.TimeOfDay))
                         {
                             
-                                 if(!String.IsNullOrEmpty(email))
+                                 if(user.Email is not null)
 
                                     user.EmailConfirmed = true;
                                   else
                                       user.PhoneNumberConfirmed = true;
                             await userManager.UpdateAsync(user);
-                            return !String.IsNullOrEmpty(email)? Ok(new { message = "success confirm email" }): Ok(new { message = "success confirm phone" });
+                            return !String.IsNullOrEmpty(user.Email)? Ok(new { message = "success confirm email" }): Ok(new { message = "success confirm phone" });
                         }
 
                         return BadRequest(new { message = "the code is finished" });
@@ -395,7 +397,7 @@ namespace Graduation.Controllers.Auth
                         {
                             message = "user not found"
                         });
-                    if (!string.IsNullOrEmpty(user.PhoneNumber))
+                    if (user.Email is null)
                     {
                         user.PhoneNumberConfirmed = !user.PhoneNumberConfirmed;
                     }
@@ -410,7 +412,7 @@ namespace Graduation.Controllers.Auth
                         return BadRequest(new { message = "Failed to update user status", errors = result.Errors });
                     }
 
-                    bool isPhoneConfirmation = !string.IsNullOrEmpty(user.PhoneNumber);
+                    bool isPhoneConfirmation = user.Email is null;
                     bool isConfirmed = isPhoneConfirmation ? user.PhoneNumberConfirmed : user.EmailConfirmed;
 
                     return Ok(new
@@ -450,11 +452,96 @@ namespace Graduation.Controllers.Auth
                 {
                     if (!user.EmailConfirmed && !user.PhoneNumberConfirmed)
                     {
+                        string code = new Random().Next(100000, 999999).ToString();
+                        user.ConfirmationCode = code;
+                        user.ConfirmationCodeExpiry = DateTime.Today.Add(DateTime.Now.TimeOfDay).AddMinutes(20);
+                        await userManager.UpdateAsync(user);
+                        if (user.Email is null)
+                        {
+                            var returnWhatsapp = await WhatsAppService.SendMessageAsync(user.PhoneNumber,
+                                $"📞 *تأكيد رقم الهاتف*\r\n\r\n" +
+                                $"مرحبًا {user.UserName}، شكرًا لتسجيلك معنا! 🎉\r\n\r\n" +
+                                $"🔐 *رمز التأكيد الخاص بك:* {user.ConfirmationCode}\r\n\r\n" +
+                                $"⏳ *الرمز صالح لمدة 20 دقيقة فقط.*\r\n\r\n" +
+                                $"⚠️ إذا لم تطلب هذا الرمز، يمكنك تجاهل هذه الرسالة."
+                            );
+                        }
+                        else
+                        {
+
+                            string htmlBody = $@"
+                            <!DOCTYPE html>
+                            <html dir='rtl' lang='ar'>
+                            <head>
+                                <meta charset='UTF-8'>
+                                <style>
+                                    body {{
+                                        font-family: Arial, sans-serif;
+                                        background-color: #f4f4f4;
+                                        margin: 0;
+                                        padding: 0;
+                                        text-align: right;
+                                    }}
+                                    .container {{
+                                        max-width: 600px;
+                                        margin: 20px auto;
+                                        padding: 20px;
+                                        background-color: #ffffff;
+                                        border-radius: 8px;
+                                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                                        text-align: right;
+                                    }}
+                                    .header {{
+                                        font-size: 24px;
+                                        color: #333333;
+                                        margin-bottom: 20px;
+                                        text-align: right;
+                                    }}
+                                    .code {{
+                                        font-size: 28px;
+                                        font-weight: bold;
+                                        color: #007BFF;
+                                        margin: 20px 0;
+                                        padding: 10px;
+                                        background-color: #f8f9fa;
+                                        border-radius: 4px;
+                                        text-align: center;
+                                    }}
+                                    .footer {{
+                                        margin-top: 20px;
+                                        font-size: 14px;
+                                        color: #666666;
+                                        text-align: right;
+                                    }}
+                                </style>
+                            </head>
+                            <body>
+                                <div class='container'>
+                                    <div class='header'>تأكيد البريد الإلكتروني</div>
+                                    <p>شكرًا لتسجيلك. يرجى استخدام الكود التالي لتأكيد عنوان بريدك الإلكتروني:</p>
+                                    <div class='code'>{code}</div>
+                                    <p>هذا الكود سينتهي خلال 20 دقيقة.</p>
+                                    <div class='footer'>
+                                        إذا لم تطلب هذا الكود، يرجى تجاهل هذه الرسالة.
+                                    </div>
+                                </div>
+                            </body>
+                            </html>";
+                            EmailDTOs emailDTOs = new EmailDTOs()
+                            {
+                                Subject = "Confirm Email",
+                                Recivers = user.Email,
+                                Body = htmlBody
+                            };
+                            EmailSetting.SendEmail(emailDTOs);
+                        }
+
                         return BadRequest(new
                         {
                             message = "Verification required",
                             detail = "Please confirm your email and phone number",
                         });
+
                     } 
                     var result = await signInManager.PasswordSignInAsync(user, request.Password, false, true);
                     if (result.Succeeded)
