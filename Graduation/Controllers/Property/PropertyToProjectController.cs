@@ -200,7 +200,7 @@ namespace Graduation.Controllers.PropertyToProject
                 if (property.UsersID != requestUser.Id && !isAdmin)
                     return Unauthorized(new { message = "Only admin or the provider can delete this property" });
 
-                // حذف البيانات المرتبطة
+                
                 if (property.ImageDetails.Any())
                 {
                     foreach (var image in property.ImageDetails)
@@ -218,7 +218,7 @@ namespace Graduation.Controllers.PropertyToProject
 
                 var adv = await dbContext.advertisements
                     .Where(a => a.propertyId == propertyId)
-                    .ToListAsync(); // تغيير من FirstOrDefault إلى ToList
+                    .ToListAsync(); 
 
                 if (adv.Any())
                     dbContext.advertisements.RemoveRange(adv);

@@ -11,10 +11,6 @@ namespace Graduation.Model
         [ForeignKey(nameof(User))]
         public int UsersID { get; set; }
         public ApplicationUser User { get; set; }
-
-
-
-
         [ForeignKey(nameof(Type))]
         public int TypeId { get; set; }
         public TypeService Type { get; set; }

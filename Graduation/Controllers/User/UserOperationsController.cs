@@ -414,18 +414,26 @@ namespace Graduation.Controllers.User
                     .Include(p => p.Type)
                     .Include(p => p.ImageDetails)
                     .Include(p => p.Reviews)
+                    .Include (p => p.Saves)
                     .Where(p => p.UsersID == Id).ToListAsync();
                 var resultService = await dbContext.services
                     .Include(s => s.Address)
                     .Include(s => s.Type)
                     .Include(s => s.ImageDetails)
                     .Include(s => s.Reviews)
+                    .Include(s=>s.Saves)
                     .Where(s => s.UsersID == Id).ToListAsync();
-                if (resultProperty.Count > 1 && resultService.Count > 1)
+                if (resultProperty.Count >= 1 && resultService.Count >= 1)
                 {
                     foreach (var result in resultProperty)
                     {
 
+                        var adv = await dbContext.advertisements
+                            .Where(a => a.propertyId == result.Id)
+                            .FirstOrDefaultAsync();
+
+                        if (adv is not null)
+                            dbContext.advertisements.Remove(adv);
                         if (result.ImageDetails.Any())
                             foreach (var image in result.ImageDetails)
                             {
@@ -437,13 +445,23 @@ namespace Graduation.Controllers.User
                             {
                                 dbContext.reviews.Remove(review);
                             }
+                             var saves=await dbContext.saveProjects.Where(s=>s.PropertyId==result.Id).ToListAsync();
+                        if (saves.Any())
+                             dbContext.saveProjects.RemoveRange(saves);
 
-                        dbContext.RemoveRange(result);
+                        
+                        dbContext.Remove(result);
                         await dbContext.SaveChangesAsync();
                     }
                     foreach (var result in resultService)
                     {
 
+                        var adv = await dbContext.advertisements.Where(a => a.serviceId == result.Id).FirstOrDefaultAsync();
+                        if (adv is not null)
+                        {
+                            dbContext.advertisements.Remove(adv);
+                        }
+
                         if (result.ImageDetails.Any())
                             foreach (var image in result.ImageDetails)
                             {
@@ -455,8 +473,11 @@ namespace Graduation.Controllers.User
                             {
                                 dbContext.reviews.Remove(review);
                             }
+                        var saves = await dbContext.saveProjects.Where(s => s.ServiceId==result.Id).ToListAsync();
+                        if (saves.Any())
+                            dbContext.saveProjects.RemoveRange(saves);
 
-                        dbContext.RemoveRange(result);
+                        dbContext.Remove(result);
                         await dbContext.SaveChangesAsync();
                     }
 
@@ -676,7 +697,7 @@ namespace Graduation.Controllers.User
                                     var returnWhatsapp = "";
                                     foreach (var user in allUser)
                                     {
-                                        if (user.PhoneNumber.Length < 11)
+                                        if (user.PhoneNumber.Length <=10)
                                             continue;
                                         returnWhatsapp = await WhatsAppService.SendMessageAsync(user.PhoneNumber, Body, imageName);
                                     }
@@ -700,7 +721,7 @@ namespace Graduation.Controllers.User
                                     var returnWhatsapp = "";
                                     foreach (var user in allUser)
                                     {
-                                        if (user.PhoneNumber.Length<11)
+                                        if (user.PhoneNumber.Length<=10)
                                             continue;
 
                                         returnWhatsapp = await WhatsAppService.SendMessageAsync(user.PhoneNumber, Body);

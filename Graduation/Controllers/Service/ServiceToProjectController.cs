@@ -166,7 +166,7 @@ namespace Graduation.Controllers.ServiceToProject
                             }
                         }
 
-                        // حذف الإعلانات المرتبطة
+                        
                         var adv = await dbContext.advertisements.Where(a => a.serviceId == serviceId).FirstOrDefaultAsync();
                         if (adv is not null)
                         {
