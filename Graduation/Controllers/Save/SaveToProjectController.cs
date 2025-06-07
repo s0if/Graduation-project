@@ -81,8 +81,6 @@ namespace Graduation.Controllers.Save
                 dbContext.saveProjects.Add(save);
                 await dbContext.SaveChangesAsync();
                 return Ok(new { status = 200, message = "save successfully" });
-
-
             }
             return NotFound();
 
@@ -103,14 +101,11 @@ namespace Graduation.Controllers.Save
                 var result = await dbContext.saveProjects.Where(s => s.UserId == userId && s.Services.Id == Id).ToListAsync();
                 if (result.Any())
                 {
-
                     dbContext.saveProjects.RemoveRange(result);
                     await dbContext.SaveChangesAsync();
                     return Ok(new { status = 200, message = "delete successfully" });
                 }
                 return BadRequest(new { status = 400, message = "not found property" });
-
-
             }
             return NotFound();
 
@@ -137,11 +132,6 @@ namespace Graduation.Controllers.Save
                     return Ok(new { status = 200, message = "delete successfully" });
                 }
                 return BadRequest(new { status = 400, message = "not found property" });
-
-
-
-
-
             }
             return NotFound();
 
@@ -394,7 +384,6 @@ namespace Graduation.Controllers.Save
                 };
                 ListSave.Add(savesDTOs);
             }
-
             status = ListSave.Any(s => s.allProperty.Any(p => p.Id == Id));
             return Ok(status);
         }

@@ -25,7 +25,6 @@ namespace Graduation.Controllers.PropertyToProject
         private readonly ApplicationDbContext dbContext;
         private readonly UserManager<ApplicationUser> userManager;
         private readonly ExtractClaims extractClaims;
-
         public PropertyToProjectController(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, ExtractClaims extractClaims)
         {
             this.dbContext = dbContext;
@@ -36,36 +35,24 @@ namespace Graduation.Controllers.PropertyToProject
         [HttpPost("AddProperty")]
         public async Task<IActionResult> AddProperty([FromBody] AddPropertyDTOs request)
         {
-            
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            // التحقق من وجود توكن
             if (!Request.Headers.TryGetValue("Authorization", out var authHeader))
                 return Unauthorized(new { message = "Token Is Missing" });
 
             string token = authHeader.ToString().Replace("Bearer", "").Trim();
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Invalid Token" });
-
-            // استخراج هوية المستخدم
             int? userId = await extractClaims.ExtractUserId(token);
             if (!userId.HasValue)
                 return Unauthorized(new { message = "Invalid token" });
-
-            // جلب بيانات المستخدم
             var requestUser = await userManager.FindByIdAsync(userId.Value.ToString());
             if (requestUser == null)
                 return Unauthorized(new { message = "User not found" });
-
-            // التحقق من الصلاحيات
             var isProviderOrAdmin = await userManager.IsInRoleAsync(requestUser, "provider") ||
-                                  await userManager.IsInRoleAsync(requestUser, "admin");
+                                    await userManager.IsInRoleAsync(requestUser, "admin");
             if (!isProviderOrAdmin)
                 return Unauthorized(new { message = "Only admin or provider can add this property" });
-
-            // إنشاء العقار الجديد
             var project = new PropertyProject
             {
                 Description = request.Description,
@@ -76,14 +63,10 @@ namespace Graduation.Controllers.PropertyToProject
                 lat = request.lat,
                 lng = request.lng,
                 StartAt = DateTime.Now,
-                updateAt = DateTime.Now // إضافة تاريخ التحديث
-            };
-
-            // حفظ العقار في قاعدة البيانات
+                updateAt = DateTime.Now 
+            };                                 
             await dbContext.properties.AddAsync(project);
             await dbContext.SaveChangesAsync();
-
-            // إعداد البيانات للإرجاع
             var returnProperty = new ReturnPropertyDTOs
             {
                 Id = project.Id,
@@ -95,7 +78,7 @@ namespace Graduation.Controllers.PropertyToProject
                 addressId = project.AddressId,
                 Price = project.Price,
                 StartAt = project.StartAt,
-                updateAt = project.updateAt // إضافة تاريخ التحديث للإرجاع
+                updateAt = project.updateAt 
             };
 
             return Ok(new
@@ -134,19 +117,13 @@ namespace Graduation.Controllers.PropertyToProject
                 var property = await dbContext.properties.FindAsync(propertyId);
                 if (property == null)
                     return NotFound(new { message = "Property not found" });
-
-                // السماح بالتحديث فقط للمالك أو الأدمن
                 if (property.UsersID != requestUser.Id && !roles.Contains("admin"))
                     return Unauthorized(new { message = "Only admin or the provider can update this property" });
-
-                // تحديث الحقول المطلوبة
                 property.Description = request.Description;
                 property.Price = request.Price;
                 property.updateAt = DateTime.UtcNow;
-
                 dbContext.properties.Update(property);
                 await dbContext.SaveChangesAsync();
-
                 var returnProperty = new ReturnPropertyDTOs
                 {
                     Id = property.Id,
@@ -159,35 +136,25 @@ namespace Graduation.Controllers.PropertyToProject
                 };
 
                 return Ok(new { status = "success", data = returnProperty });
-            
-            
         }
 
         [HttpDelete("DeleteProperty")]
         public async Task<IActionResult> DeleteProperty(int propertyId)
         {
-           
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
-
-                // التحقق من التوكن
                 if (!Request.Headers.TryGetValue("Authorization", out var authHeader))
                     return Unauthorized(new { message = "Authorization header missing" });
-
                 string token = authHeader.ToString().Replace("Bearer", "").Trim();
                 if (string.IsNullOrEmpty(token))
                     return Unauthorized(new { message = "Invalid Token" });
-
                 int? userId = await extractClaims.ExtractUserId(token);
                 if (!userId.HasValue)
                     return Unauthorized(new { message = "Invalid token or user not found" });
-
                 var requestUser = await userManager.FindByIdAsync(userId.Value.ToString());
                 if (requestUser == null)
                     return Unauthorized(new { message = "User not found" });
-
                 var isAdmin = await userManager.IsInRoleAsync(requestUser, "admin");
-
                 var property = await dbContext.properties
                     .Include(p => p.ImageDetails)
                     .Include(p => p.Reviews)
@@ -200,7 +167,6 @@ namespace Graduation.Controllers.PropertyToProject
                 if (property.UsersID != requestUser.Id && !isAdmin)
                     return Unauthorized(new { message = "Only admin or the provider can delete this property" });
 
-                
                 if (property.ImageDetails.Any())
                 {
                     foreach (var image in property.ImageDetails)
@@ -238,7 +204,6 @@ namespace Graduation.Controllers.PropertyToProject
         [HttpPost("AddImageProperty")]
         public async Task<IActionResult> AddImageProperty(AddImagesDTOs request, int propertyId)
         {
-           
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
@@ -262,9 +227,6 @@ namespace Graduation.Controllers.PropertyToProject
                 var roles = await userManager.GetRolesAsync(requestUser);
                 if (!roles.Contains("provider") && !roles.Contains("admin"))
                     return Unauthorized(new { message = "Only admin or the provider can add image property" });
-
-                // يمكن إضافة تحقق من وجود الـ propertyId إذا أردت
-
                 ImageDetails details = new ImageDetails
                 {
                     PropertyId = propertyId,
@@ -280,7 +242,6 @@ namespace Graduation.Controllers.PropertyToProject
         [HttpPut("UpdateImageProperty")]
         public async Task<IActionResult> UpdateImageProperty(AddImagesDTOs request, int imageId)
         {
-          
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
@@ -320,7 +281,6 @@ namespace Graduation.Controllers.PropertyToProject
                 await dbContext.SaveChangesAsync();
 
                 return Ok(new { status = "success", message = "Image updated successfully" });
-            
         }
 
 
@@ -352,7 +312,6 @@ namespace Graduation.Controllers.PropertyToProject
                             dbContext.RemoveRange(resultImage);
                             await dbContext.SaveChangesAsync();
                             return Created();
-
                         }
                         return Unauthorized(new { message = "Only admin or the provider can delete image property" });
                     }
@@ -366,7 +325,6 @@ namespace Graduation.Controllers.PropertyToProject
         [HttpPost("AddReviewProperty")]
         public async Task<IActionResult> AddReviewProperty(AddReviewPropertyDTOs request)
         {
-           
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
@@ -428,7 +386,6 @@ namespace Graduation.Controllers.PropertyToProject
                 await WhatsAppService.SendMessageAsync(property.User.PhoneNumber, whatsappMessage);
 
                 return Ok(new { message = true });
-            
         }
 
         [HttpPut("UpdateReviewProperty")]
@@ -470,7 +427,6 @@ namespace Graduation.Controllers.PropertyToProject
                 await dbContext.SaveChangesAsync();
 
                 return Ok(new { message = "Update successful" });
-            
         }
 
         [HttpDelete("DeleteReviewProperty")]
@@ -509,7 +465,6 @@ namespace Graduation.Controllers.PropertyToProject
                 await dbContext.SaveChangesAsync();
 
                 return Ok(new { message = "Remove successful" });
-            
         }
 
         [HttpGet("AllProperty")]
@@ -565,14 +520,11 @@ namespace Graduation.Controllers.PropertyToProject
                 }
                 )
                 .ToListAsync();
-
-
             return Ok(new { message = true, AllProperty = allProperty });
         }
         [HttpGet("property")]
         public async Task<IActionResult> property(int propertyId)
         {
-
             var Property = await dbContext.properties
              .AsSplitQuery()
              .Include(p => p.ImageDetails)
@@ -615,14 +567,11 @@ namespace Graduation.Controllers.PropertyToProject
                          description = r.Description,
                          date = r.CreateAt,
                          rating = r.Rating,
-
                      }
-
                     )
                     .ToList() ?? new List<GetAllReviewDTOs>(),
 
                 AvgRating = Property.Reviews.Any() ? Property.Reviews.Average(r => r.Rating) : 0
-
             };
 
             return Ok(new { message = true, AllProperty = getProperty });

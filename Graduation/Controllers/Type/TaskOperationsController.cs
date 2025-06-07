@@ -20,7 +20,6 @@ namespace Graduation.Controllers.Task
 
         public TaskOperationsController(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, ExtractClaims extractClaims)
         {
-
             this.dbContext = dbContext;
             this.userManager = userManager;
             this.extractClaims = extractClaims;

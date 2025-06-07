@@ -10,6 +10,6 @@ namespace Graduation.Model
         public int ReceiverId { get; set; }
         public ApplicationUser User { get; set; }
         public string Message { get; set; }
-        public DateTime Timestamp { get; set; } = DateTime.Now;
+        public DateTime Timestamp { get; set; }
     }
 }

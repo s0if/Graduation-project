@@ -8,7 +8,7 @@ namespace Graduation.Model
         public string Name { get; set; }
         public string Description { get; set; }
         public bool status { get; set; }
-        public DateTime CreatedDate { get; set; }= DateTime.Now;
+        public DateTime CreatedDate { get; set; }
 
         [ForeignKey(nameof(User))]
         public int UsersID { get; set; }

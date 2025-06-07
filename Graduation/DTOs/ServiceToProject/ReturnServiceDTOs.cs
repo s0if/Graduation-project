@@ -5,8 +5,6 @@ namespace Graduation.DTOs.ServiceToProject
 {
     public class ReturnServiceDTOs
     {
-
-
         public int Id { get; set; }
         public string Description { get; set; }
         public double PriceRange { get; set; }

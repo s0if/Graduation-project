@@ -49,18 +49,13 @@ namespace Graduation.Controllers.Auth
         {
             if (ModelState.IsValid)
             {
-
-              
                 if (request.role == "admin")
                 {
                     return BadRequest(new { message = "you cannot create an account Admin" });
-
                 }
                 if (request.Email is not null || WhatsApp is false)
                 {
-
                     ApplicationUser applicationEmail = await userManager.FindByEmailAsync(request.Email);
-
                     if (applicationEmail is not null)
                     {
                         if (applicationEmail.EmailConfirmed == false&& applicationEmail.PhoneNumberConfirmed == false)
@@ -91,7 +86,6 @@ namespace Graduation.Controllers.Auth
                 ApplicationUser applicationName = await userManager.FindByNameAsync(request.Name);
                 if (applicationName is not null)
                 {
-
                     if (applicationName.EmailConfirmed == false&&applicationName.PhoneNumberConfirmed==false)
                     {
                         await userManager.DeleteAsync(applicationName);
@@ -105,7 +99,6 @@ namespace Graduation.Controllers.Auth
                 ApplicationUser user = new ApplicationUser();
                 if (request.Email is not null)
                 {
-
                     user = new ApplicationUser()
                     {
                         Email = request.Email,

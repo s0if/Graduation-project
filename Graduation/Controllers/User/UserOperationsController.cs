@@ -95,7 +95,6 @@ namespace Graduation.Controllers.User
 
             if (role.Contains("admin"))
             {
-
                 List<AuthGetAllUserDTOs> AllUser = new List<AuthGetAllUserDTOs>();
                 IEnumerable<ApplicationUser> GetUsers = await userManager.Users.AsSplitQuery().Include(A => A.Address).ToListAsync();
                 foreach (ApplicationUser user in GetUsers)
@@ -103,7 +102,6 @@ namespace Graduation.Controllers.User
                     var result = await userManager.GetRolesAsync(user);
                     if (result.Contains("provider"))
                     {
-
                         AllUser.Add(new AuthGetAllUserDTOs
                         {
                             Id = user.Id,
@@ -235,23 +233,18 @@ namespace Graduation.Controllers.User
                           description = r.Description,
                           date = r.CreateAt,
                           rating = r.Rating,
-
                       }
-
                      )
                      .ToList() ?? new List<GetAllReviewDTOs>(),
-
                     AvgRating = RS.Reviews.Any() ? RS.Reviews.Average(r => r.Rating) : 0
                 }).ToList() ?? new List<GetAllServiceDTOs>(),
             };
-
             return Ok(result);
         }
 
         [HttpGet("User")]
         public async Task<IActionResult> User(int Id)
         {
-
             ApplicationUser requestUser = await userManager.Users.AsSplitQuery().Include(A => A.Address).FirstOrDefaultAsync(u => u.Id == Id);
             AuthGetAllUserDTOs result = new AuthGetAllUserDTOs
             {
@@ -340,10 +333,8 @@ namespace Graduation.Controllers.User
                     TypeProperty = typeProperty,
                     TypeService = typeService,
                     Complaint = complaint,
-
                 };
                 return Ok(new { message = "Site statistics", count });
-
             }
             return Unauthorized(new { message = "Only admin  can get all user" });
         }
@@ -364,8 +355,6 @@ namespace Graduation.Controllers.User
                 List<CountAddressDTOs> countAddressToUser = new List<CountAddressDTOs>();
                 List<CountAddressDTOs> countAddressToProperty = new List<CountAddressDTOs>();
                 List<CountAddressDTOs> countAddressToAddress = new List<CountAddressDTOs>();
-
-
                 IEnumerable<AddressToProject> address = await dbContext.addresses.ToListAsync();
                 int countAddress = address.Count();
                 foreach (var item in address)
@@ -427,7 +416,6 @@ namespace Graduation.Controllers.User
                 {
                     foreach (var result in resultProperty)
                     {
-
                         var adv = await dbContext.advertisements
                             .Where(a => a.propertyId == result.Id)
                             .FirstOrDefaultAsync();
@@ -448,14 +436,11 @@ namespace Graduation.Controllers.User
                              var saves=await dbContext.saveProjects.Where(s=>s.PropertyId==result.Id).ToListAsync();
                         if (saves.Any())
                              dbContext.saveProjects.RemoveRange(saves);
-
-                        
                         dbContext.Remove(result);
                         await dbContext.SaveChangesAsync();
                     }
                     foreach (var result in resultService)
                     {
-
                         var adv = await dbContext.advertisements.Where(a => a.serviceId == result.Id).FirstOrDefaultAsync();
                         if (adv is not null)
                         {
@@ -480,7 +465,6 @@ namespace Graduation.Controllers.User
                         dbContext.Remove(result);
                         await dbContext.SaveChangesAsync();
                     }
-
                 }
                 ApplicationUser User = await userManager.Users.FirstOrDefaultAsync(u => u.Id == Id);
                 await userManager.DeleteAsync(User);
@@ -510,7 +494,6 @@ namespace Graduation.Controllers.User
 
                     foreach (var oldRole in OldRoles)
                     {
-
                         IdentityResult deleteRole = await userManager.RemoveFromRoleAsync(user, oldRole);
                         if (deleteRole.Succeeded)
                         {
@@ -525,8 +508,6 @@ namespace Graduation.Controllers.User
                         IList<string> errorMessageDelete = deleteRole.Errors.Select(error => error.Description).ToList();
                         return BadRequest(string.Join(", ", errorMessageDelete));
                     }
-
-
                 }
                 return Unauthorized(new { message = "Only admin  can change role" });
             }
@@ -565,13 +546,10 @@ namespace Graduation.Controllers.User
                            $"⚠️ إذا لم تطلب هذا الرمز، يمكنك تجاهل هذه الرسالة."
                         );
                     return Ok(new { status = 200, message = "update successful" });
-
                 }
                 return BadRequest(new { status = 400, message = "Phone number already exists" });
 
             }
-
-               ;
             return BadRequest(new { message = "user not found" });
 
         }
@@ -589,20 +567,15 @@ namespace Graduation.Controllers.User
             {
                 requestUser.AddressId = addressId;
                 await userManager.UpdateAsync(requestUser);
-
                 return Ok(new { status = 200, message = "update successful" });
             }
-
-               ;
             return BadRequest(new { message = "user not found" });
-
         }
         [HttpPost("SendEmail")]
         public async Task<IActionResult> SendEmail(SendEmailDTOs request, bool? whatsApp)
         {
             if (ModelState.IsValid)
             {
-
                 string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
                 if (string.IsNullOrEmpty(token))
                     return Unauthorized(new { message = "Token Is Missing" });
@@ -623,7 +596,6 @@ namespace Graduation.Controllers.User
                         {
                             if (request.Image is not null)
                             {
-
                                 ImageDetails imageDetails = new ImageDetails()
                                 {
                                     Image = await FileSettings.UploadFileAsync(request.Image),
@@ -664,7 +636,6 @@ namespace Graduation.Controllers.User
                                     </body>
                                     </html>";
                             }
-
                             EmailDTOs email = new EmailDTOs()
                             {
                                 Subject = request.Title,
@@ -751,8 +722,6 @@ namespace Graduation.Controllers.User
                                 };
                                 EmailSetting.SendEmail(email);
                             }
-
-
                             return Ok(new { mwssage = "Send email all user successful" });
                         }
                         return BadRequest(new { message = "not found user" });
@@ -877,7 +846,6 @@ namespace Graduation.Controllers.User
                         EmailSetting.SendEmail(email);
                     }
                 }
-               
             }
 
             return Ok(new
@@ -1020,7 +988,6 @@ namespace Graduation.Controllers.User
         [HttpGet("HelpSearch")]
         public async Task<IActionResult> HelpSearch(string Search)
         {
-
             if (string.IsNullOrWhiteSpace(Search))
             {
                 return BadRequest(new
@@ -1149,11 +1116,9 @@ namespace Graduation.Controllers.User
                 {
                     TotalServices = hasServices ? distinctServices.Count : 0,
                     TotalProperties = hasProperties ? distinctProperty.Count : 0,
-                    TotalResults = (hasServices ? distinctServices.Count : 0) +
-                                                 (hasProperties ? distinctProperty.Count : 0)
+                    TotalResults = (hasServices ? distinctServices.Count : 0) + (hasProperties ? distinctProperty.Count : 0)
                 }
             });
         }
-
     }
 }

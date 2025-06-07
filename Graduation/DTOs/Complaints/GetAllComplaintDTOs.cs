@@ -9,7 +9,7 @@ namespace Graduation.DTOs.Complaints
         public string Name { get; set; }
         public string Description { get; set; }
         public bool status { get; set; }
-        public DateTime CreatedDate { get; set; }
+        public DateTime CreatedDate { get; set; } 
         public int UsersID { get; set; }
         public List<GetImageDTOs> Images { get; set; }
     }

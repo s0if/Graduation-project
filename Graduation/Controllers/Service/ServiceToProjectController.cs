@@ -46,7 +46,6 @@ namespace Graduation.Controllers.ServiceToProject
                 var role = await userManager.GetRolesAsync(requestUser);
                 if (role.Contains("provider") || role.Contains("admin"))
                 {
-
                     ServiceProject serviceProject = new ServiceProject
                     {
                         Description = request.Description,
@@ -66,7 +65,6 @@ namespace Graduation.Controllers.ServiceToProject
                         UsersID = serviceProject.UsersID,
                         TypeId = serviceProject.TypeId,
                         AddressId = serviceProject.AddressId,
-
                     };
                     return Ok(new { status = 200, getServiceDTOs });
                 }
@@ -166,7 +164,6 @@ namespace Graduation.Controllers.ServiceToProject
                             }
                         }
 
-                        
                         var adv = await dbContext.advertisements.Where(a => a.serviceId == serviceId).FirstOrDefaultAsync();
                         if (adv is not null)
                         {
@@ -395,7 +392,6 @@ namespace Graduation.Controllers.ServiceToProject
                 {
                     if (result.UsersID == requestUser.Id || role.Contains("admin"))
                     {
-
                         dbContext.RemoveRange(result);
                         await dbContext.SaveChangesAsync();
                         return Ok(new { message = "remove successful" });

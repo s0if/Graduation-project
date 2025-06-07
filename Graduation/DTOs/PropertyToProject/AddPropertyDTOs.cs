@@ -5,8 +5,6 @@ namespace Graduation.DTOs.PropertyToProject
 {
     public class AddPropertyDTOs
     {
-
-
         public string Description { get; set; }
         public double Price { get; set; }
         public int TypeId { get; set; }

@@ -27,7 +27,6 @@ namespace Graduation.Controllers.ComplaintFolder
         private readonly ApplicationDbContext dbContext;
         private readonly UserManager<ApplicationUser> userManager;
         private readonly ExtractClaims extractClaims;
-
         public ComplaintsController(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager,ExtractClaims extractClaims)
         {
             this.dbContext = dbContext;
@@ -56,6 +55,7 @@ namespace Graduation.Controllers.ComplaintFolder
                         Description = addComplaint.Content,
                         status = false,
                         UsersID = requestUser.Id,
+                        CreatedDate=addComplaint.CreatedDate
                     };
                     await dbContext.AddAsync(complaint);
                     await dbContext.SaveChangesAsync();
@@ -75,7 +75,6 @@ namespace Graduation.Controllers.ComplaintFolder
                 return Unauthorized(new { message = "Only consumer or the provider can add this complaint" });
             }
             return NotFound();
-
         }
 
         [HttpGet("AllComplaint")]
@@ -108,8 +107,6 @@ namespace Graduation.Controllers.ComplaintFolder
                     dbContext.RemoveRange(item);
                     await dbContext.SaveChangesAsync();
                 }
-                //var time = DateTime.Today.AddDays(-120);
-                //    . Where(c => (time <= c.CreatedDate))
                 IEnumerable<Complaint> request = dbContext.complaints
                     .Include(c => c.ImageDetails)
                      .ToList();

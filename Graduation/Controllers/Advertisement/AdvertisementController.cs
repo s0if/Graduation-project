@@ -108,7 +108,7 @@ namespace Graduation.Controllers.Advertisement
         {
             if (ModelState.IsValid)
             {
-                // التحقق من صحة التوكن والمستخدم
+               
                 string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
                 if (string.IsNullOrEmpty(token))
                     return Unauthorized(new { message = "Token Is Missing" });
@@ -120,27 +120,23 @@ namespace Graduation.Controllers.Advertisement
                 var requestUser = await userManager.FindByIdAsync(userId.ToString());
                 var role = await userManager.GetRolesAsync(requestUser);
 
-                // جلب الإعلان مع الخدمة المرتبطة به
+               
                 var advertisement = await dbContext.advertisements
-                    .Include(a => a.service) // تضمين الخدمة المرتبطة
+                    .Include(a => a.service) 
                     .FirstOrDefaultAsync(a => a.Id == AdvertisementId);
 
                 if (advertisement == null)
                     return BadRequest(new { message = "Advertisement not found" });
 
-                // التحقق من وجود الخدمة المرتبطة
+                
                 if (advertisement.service == null)
                     return BadRequest(new { message = "No service linked to this advertisement" });
 
-                // التحقق من الصلاحيات
+               
                 if (advertisement.service.UsersID != requestUser.Id && !role.Contains("admin"))
                     return Unauthorized(new { message = "Only Admins or the service provider can update this advertisement" });
-
-                // تحديث بيانات الإعلان
                 advertisement.StartAt = request.StartAt;
                 advertisement.EndAt = request.EndAt;
-
-                // حفظ التغييرات
                 dbContext.advertisements.Update(advertisement);
                 await dbContext.SaveChangesAsync();
 
@@ -153,8 +149,6 @@ namespace Graduation.Controllers.Advertisement
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            // التحقق من التوكن والمستخدم
             string token = Request.Headers["Authorization"].ToString().Replace("Bearer", "");
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Token Is Missing" });
@@ -165,28 +159,18 @@ namespace Graduation.Controllers.Advertisement
 
             var requestUser = await userManager.FindByIdAsync(userId.ToString());
             var roles = await userManager.GetRolesAsync(requestUser);
-
-            // جلب الإعلان مع العقار المرتبط
             var advertisement = await dbContext.advertisements
-                .Include(a => a.property) // التضمين التلقائي للعقار
+                .Include(a => a.property) 
                 .FirstOrDefaultAsync(a => a.Id == AdvertisementId);
 
             if (advertisement == null)
                 return NotFound(new { message = "Advertisement not found" });
-
-            // التحقق من وجود عقار مرتبط
             if (advertisement.property == null)
                 return BadRequest(new { message = "No property linked to this advertisement" });
-
-            // التحقق من الصلاحيات
             if (advertisement.property.UsersID != requestUser.Id && !roles.Contains("admin"))
                 return Unauthorized(new { message = "Only Admins or the property owner can update this advertisement" });
-
-            // تحديث بيانات الإعلان
             advertisement.StartAt = request.StartAt;
             advertisement.EndAt = request.EndAt;
-
-            // حفظ التغييرات
             await dbContext.SaveChangesAsync();
 
             return Ok(new { message = "Advertisement updated successfully" });
@@ -194,11 +178,8 @@ namespace Graduation.Controllers.Advertisement
         [HttpDelete("DeleteServiceAdvertisement")]
         public async Task<IActionResult> DeleteServiceAdvertisement(int AdvertisementId)
         {
-            // Validate model state
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            // Authentication and authorization
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer", "").Trim();
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Authorization token is required" });
@@ -212,79 +193,47 @@ namespace Graduation.Controllers.Advertisement
                 return Unauthorized(new { message = "User not found" });
 
             var roles = await userManager.GetRolesAsync(requestUser);
-
-            // Get advertisement with related service in a single query
             var advertisement = await dbContext.advertisements
-                .Include(a => a.service) // Include the related service
+                .Include(a => a.service) 
                 .FirstOrDefaultAsync(a => a.Id == AdvertisementId);
 
             if (advertisement == null)
                 return NotFound(new { message = "Advertisement not found" });
-
-            // Check if service exists and user has permission
             if (advertisement.service == null)
                 return BadRequest(new { message = "No service associated with this advertisement" });
 
             if (advertisement.service.UsersID != requestUser.Id && !roles.Contains("admin"))
                 return Unauthorized(new { message = "Only admins or the service owner can delete this advertisement" });
-
-            // Perform deletion
-            
-                // If you want to keep the service but just remove the advertisement relationship:
-                // advertisement.service.AdvertisementID = null;
-                // dbContext.services.Update(advertisement.service);
-
                 dbContext.advertisements.Remove(advertisement);
                 await dbContext.SaveChangesAsync();
 
                 return Ok(new { message = "Advertisement deleted successfully" });
-          
-            
         }
         [HttpDelete("DeletePropertyAdvertisement")]
         public async Task<IActionResult> DeletePropertyAdvertisement(int AdvertisementId)
         {
-            // التحقق من صحة النموذج
             if (!ModelState.IsValid)
                 return BadRequest(new { message = "Invalid request data" });
-
-            // التحقق من صحة التوكن
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer", "").Trim();
             if (string.IsNullOrEmpty(token))
                 return Unauthorized(new { message = "Authorization token is required" });
-
-            // استخراج هوية المستخدم
             var userId = await extractClaims.ExtractUserId(token);
             if (userId == null)
                 return Unauthorized(new { message = "Invalid token" });
-
-            // جلب بيانات المستخدم
             var requestUser = await userManager.FindByIdAsync(userId.ToString());
             if (requestUser == null)
                 return Unauthorized(new { message = "User not found" });
-
-            // جلب صلاحيات المستخدم
             var roles = await userManager.GetRolesAsync(requestUser);
-
-            // جلب الإعلان مع العقار المرتبط في استعلام واحد
             var advertisement = await dbContext.advertisements
                 .Include(a => a.property)
                 .FirstOrDefaultAsync(a => a.Id == AdvertisementId);
 
             if (advertisement == null)
                 return NotFound(new { message = "Advertisement not found" });
-
-            // التحقق من وجود عقار مرتبط
             if (advertisement.property == null)
                 return BadRequest(new { message = "No property associated with this advertisement" });
-
-            // التحقق من صلاحيات المستخدم
             if (advertisement.property.UsersID != requestUser.Id && !roles.Contains("admin"))
                 return Unauthorized(new { message = "Only admins or property owner can delete this advertisement" });
-
-           
-
-            // حذف الإعلان
             dbContext.advertisements.Remove(advertisement);
             await dbContext.SaveChangesAsync();
 
@@ -294,7 +243,6 @@ namespace Graduation.Controllers.Advertisement
         public async Task<IActionResult> AllAdvertisement(string? type, string? address)
         {
             
-                // 1. حذف الإعلانات المنتهية
                 var expiredAds = await dbContext.advertisements
                     .Where(adv => adv.EndAt <= DateTime.Now)
                     .ToListAsync();
@@ -345,7 +293,6 @@ namespace Graduation.Controllers.Advertisement
                 );
             }
 
-            // 3. التنفيذ مع معالجة الأخطاء لكل إعلان
             var result = new List<GetAllAdvertisementDTOs>();
                 var allAds = await query.ToListAsync();
 
@@ -384,7 +331,6 @@ namespace Graduation.Controllers.Advertisement
                             } : null,
                             Services = adv.service != null ? new GetAllServiceDTOs
                             {
-                                // إضافة فحص NULL لكل خاصية
                                 Id = adv.service.Id,
                                 Description = adv.service.Description,
                                 TypeName = adv.service.Type?.Name,
@@ -411,7 +357,6 @@ namespace Graduation.Controllers.Advertisement
                 }
 
                 return Ok(result);
-           
         }
         [HttpGet("Suggest")]
         public async Task<IActionResult> Suggest()
@@ -434,8 +379,6 @@ namespace Graduation.Controllers.Advertisement
             string userCity = user.Address.Name;
             if (string.IsNullOrEmpty(userCity))
                 return BadRequest(new { message = "User City Is Missing" });
-
-            // Remove expired ads
             var expiredAds = await dbContext.advertisements
                 .Where(adv => adv.EndAt <= DateTime.Now)
                 .Include(a => a.property)
@@ -451,8 +394,6 @@ namespace Graduation.Controllers.Advertisement
                 }
                 await dbContext.SaveChangesAsync();
             }
-
-            // Get active ads matching user's city
             var result = await dbContext.advertisements
                 .Where(adv => adv.StartAt <= DateTime.Now && adv.EndAt > DateTime.Now)
                 .Include(a => a.property)
@@ -539,7 +480,6 @@ namespace Graduation.Controllers.Advertisement
                         } : null
                 }).ToListAsync();
 
-            // Sort by highest rating
             var sortedAdvertisements = result
                 .OrderByDescending(adv =>
                     Math.Max(
@@ -573,8 +513,6 @@ namespace Graduation.Controllers.Advertisement
             string userCity = user.Address.Name;
             if (string.IsNullOrEmpty(userCity))
                 return BadRequest(new { message = "User City Is Missing" });
-
-            // Remove expired ads
             var expiredAds = await dbContext.advertisements
                 .Where(adv => adv.EndAt <= DateTime.Now)
                 .Include(a => a.property)
@@ -590,8 +528,6 @@ namespace Graduation.Controllers.Advertisement
                 }
                 await dbContext.SaveChangesAsync();
             }
-
-            // Get active ads matching user's city
             var result = await dbContext.advertisements
                 .Where(adv => adv.StartAt <= DateTime.Now && adv.EndAt > DateTime.Now)
                 .Include(a => a.property)
