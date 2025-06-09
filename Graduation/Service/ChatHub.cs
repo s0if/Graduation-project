@@ -35,7 +35,6 @@ namespace Graduation.Service
             }
             await base.OnConnectedAsync();
         }
-
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             var userId = GetUserId();
@@ -81,16 +80,10 @@ namespace Graduation.Service
                 Message = messageContent,
                 Timestamp = message.Timestamp
             });
-            //await Clients.User(senderIdInt.ToString()).SendAsync("MessageSent", message.Id);
-
-            // وهذا
-            //await hubContext.Clients.User(senderIdInt.ToString()).SendAsync("MessageSent", message.Id);
 
             await Clients.Caller.SendAsync("MessageSent", message.Id);
-            //await Clients.User(receiverId.ToString()).SendAsync("ReceiveMessage", new { ...});
         }
 
-        // الميثود الجديدة للانضمام إلى الغرفة
         public async Task JoinChatRoom(int otherUserId)
         {
             var currentUserId = GetUserId();

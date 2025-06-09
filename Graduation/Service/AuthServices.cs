@@ -10,16 +10,13 @@ namespace Graduation.Service
     public class AuthServices
     {
         private readonly IConfiguration configuration;
-        // defined the call configuration from appsettings.json
         public AuthServices(IConfiguration configuration)
         {
             this.configuration = configuration;
         }
-        //UserIdentity=>this is model
         public async Task<string> CreateTokenAsync(ApplicationUser user,
        UserManager<ApplicationUser> userManager)
         {
-            //get configuration
             var configurations = configuration.GetSection("jwt")["secretkey"];
             var Authclaim = new List<Claim>()
              {

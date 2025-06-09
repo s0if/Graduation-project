@@ -25,7 +25,6 @@ namespace Graduation.Model
         [ForeignKey(nameof(Address))]
         public int AddressId { get; set; }
         public AddressToProject Address { get; set; }
-
         public IEnumerable<ImageDetails> ImageDetails { get; set; }=new HashSet<ImageDetails>();
         public IEnumerable<Review> Reviews { get; set; } =new HashSet<Review>();
          public IEnumerable<SaveProject> Saves { get; set; }=new HashSet<SaveProject>();

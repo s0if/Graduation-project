@@ -394,11 +394,6 @@
         "Name": "Image",
         "Type": "Microsoft.AspNetCore.Http.IFormFile",
         "IsRequired": false
-      },
-      {
-        "Name": "CreatedDate",
-        "Type": "System.DateTime",
-        "IsRequired": false
       }
     ],
     "ReturnTypes": []

@@ -55,7 +55,6 @@ namespace Graduation.Controllers.ComplaintFolder
                         Description = addComplaint.Content,
                         status = false,
                         UsersID = requestUser.Id,
-                        CreatedDate=addComplaint.CreatedDate
                     };
                     await dbContext.AddAsync(complaint);
                     await dbContext.SaveChangesAsync();

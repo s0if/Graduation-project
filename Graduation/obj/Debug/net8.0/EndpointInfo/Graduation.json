@@ -617,14 +617,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "CreatedDate",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "format": "date-time"
-            }
           }
         ],
         "requestBody": {

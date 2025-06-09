@@ -6,7 +6,6 @@ namespace Graduation.Service
 {
     public class WhatsAppService
     {
-
         static public async Task<string> SendMessageAsync(string recipient, string message, string? image=null)
         {
             var url = "";
@@ -27,7 +26,6 @@ namespace Graduation.Service
                 request.AddParameter("body", message);
             else
             {
-
                 request.AddParameter("image",image);
                 request.AddParameter("caption", message);
             }
