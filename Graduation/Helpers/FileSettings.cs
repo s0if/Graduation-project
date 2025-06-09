@@ -79,7 +79,7 @@ namespace Graduation.Helpers
                 case ".webp":
                     return "image/webp";
                 default:
-                    return "application/octet-stream"; // Default fallback
+                    return "application/octet-stream"; 
             }
         }
     }

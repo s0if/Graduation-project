@@ -31,13 +31,11 @@ namespace Graduation.Service
             if (userIdClaim is null|| tokenIdClim is null)
            
                 return null;
-               if(! int.TryParse(userIdClaim.Value, out int userId))
+            if(! int.TryParse(userIdClaim.Value, out int userId))
                 return null;
                var user =await userManager.FindByIdAsync(userIdClaim.Value);
             if (user is not null&&user.CurrentTokenId== tokenIdClim)
                 return userId;
-
-
             return null;
         }
     }
