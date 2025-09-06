@@ -144,6 +144,7 @@ You can find it in **SQL Server Management Studio (SSMS)** when you connect to y
 
 - 🔗 **Swagger UI**: [View Docs](https://lnkd.in/dWNnHrEn)
 - 🔗 **Postman Collection**: [API Postman](https://lnkd.in/dvZhYcm8)
+- 🔗 **Project Report (Arabic)**: [View Report](https://s0if.github.io/Aqaraty_Graduation_Project_Report_Arabic/)
 
 ---
 
